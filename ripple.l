@@ -42,6 +42,12 @@
 #define FLDIV 40
 #define ACCESS 41
 #define LITERAL 42
+#define PAREN 43
+#define BRACKET 44
+#define CURLY 45
+#define LEFT 46
+#define RIGHT 47
+#define SEMICOL 48
 int yylval;
 %}
 
@@ -94,6 +100,13 @@ false       {yylval = TRUE; return BOOL;}
 "<-"        {return ARROW;}
 "="         {return ASSIGN;}
 "."         {return ACCESS;}
+";"			{return SEMICOL;}
+"("			{yylval = LEFT; return PAREN;}
+")"			{yylval = RIGHT; return PAREN;}
+"["			{yylval = LEFT; return BRACKET;}
+"]"			{yylval = RIGHT; return BRACKET;}
+"{"			{yylval = LEFT; return CURLY;}
+"}"			{yylval = RIGHT; return CURLY;}
 
 %%
 
