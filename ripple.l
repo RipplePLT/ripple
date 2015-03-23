@@ -31,7 +31,7 @@
 #define BOOL 29
 #define ARROW 30
 #define RETURN 31
-#define STRUCT 32
+#define DATASET 32
 #define IMPORT 33
 #define ARITHOP 34
 #define TRUE 35
@@ -48,6 +48,8 @@
 #define LEFT 46
 #define RIGHT 47
 #define SEMICOL 48
+#define FINAL 49
+#define COMMA 50
 int yylval;
 %}
 
@@ -55,7 +57,7 @@ int yylval;
 delim       [ \t\n]
 comment     (\/\/.*\n)|(\/\*[^(\*\/)]*\*\/)
 ws          ({comment}|{delim})+
-letter      [A-Za-z]
+letter      [A-Za-z_]
 digit       [0-9]
 literal     \"([^\"]|(\\\"))*\"
 id          {letter}({letter}|{digit})*
@@ -69,8 +71,9 @@ else        {return ELSE;}
 while       {return WHILE;}
 for         {return FOR;}
 link        {return LINK;}
-struct      {return STRUCT;}
+dataset     {return DATASET;}
 return      {return RETURN;}
+final       {return FINAL;}
 int         {yylval = INT; return TYPE;}
 float       {yylval = FLOAT; return TYPE;}
 string      {yylval = STRING; return TYPE;}
@@ -87,9 +90,9 @@ false       {yylval = TRUE; return BOOL;}
 "=="        {yylval = EQ; return RELOP;}
 ">="        {yylval = GE; return RELOP;}
 ">"         {yylval = GT; return RELOP;}
-"&&"        {yylval = AND; return BOOLOP;}
-"||"        {yylval = OR; return BOOLOP;}
-"!"         {yylval = NOT; return BOOLOP;}
+and         {yylval = AND; return BOOLOP;}
+or          {yylval = OR; return BOOLOP;}
+not         {yylval = NOT; return BOOLOP;}
 "+"         {yylval = PLUS; return ARITHOP;}
 "-"         {yylval = MINUS; return ARITHOP;}
 "*"         {yylval = TIMES; return ARITHOP;}
@@ -101,6 +104,7 @@ false       {yylval = TRUE; return BOOL;}
 "="         {return ASSIGN;}
 "."         {return ACCESS;}
 ";"			{return SEMICOL;}
+","         {return COMMA;}
 "("			{yylval = LEFT; return PAREN;}
 ")"			{yylval = RIGHT; return PAREN;}
 "["			{yylval = LEFT; return BRACKET;}
