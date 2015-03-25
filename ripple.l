@@ -82,7 +82,7 @@ int yylval;
 delim       [ \t\n]
 comment     (\/\/.*\n)|(\/\*[^(\*\/)]*\*\/)
 ws          ({comment}|{delim})+
-letter      [A-Za-z]
+letter      [A-Za-z_]
 digit       [0-9]
 literal     \"([^\"]|(\\\"))*\"
 id          {letter}({letter}|{digit})*
