@@ -73,6 +73,7 @@
 #define R_CURLY 58
 #define L_BRACKET 59
 #define R_BRACKET 60
+#define COMMA 61
 
 
 int yylval;
@@ -135,6 +136,7 @@ false       {yylval = TRUE; return BOOL;}
 "]"			{return R_BRACKET;}
 "{"			{return L_CURLY;}
 "}"			{return R_CURLY;}
+","         {return COMMA;}
 
 %%
 
