@@ -81,7 +81,7 @@ int yylval;
 
 /* regular definitions */
 delim       [ \t\n]
-comment     (\/\/.*\n)|(\/\*[^(\*\/)]*\*\/)
+comment     (#.*\n)|(\/\*[^(\*\/)]*\*\/)
 ws          ({comment}|{delim})+
 letter      [A-Za-z_]
 digit       [0-9]
