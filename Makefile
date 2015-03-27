@@ -1,7 +1,14 @@
 .PHONY: default
-default:
+default: gcc
+
+gcc: lex yacc
+	gcc lex.yy.c  y.tab.c -ly -ll
+
+yacc:
+	yacc ripple.y
+
+lex:
 	lex ripple.l
-	gcc lex.yy.c
 
 .PHONY: clean
 clean:
