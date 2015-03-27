@@ -118,7 +118,6 @@ false       {yylval = TRUE; return BOOL;}
 ">"         {yylval = GT; return GT;}
 "&&"        {yylval = AND; return AND;}
 "||"        {yylval = OR; return OR;}
-"!"         {yylval = NOT; return NOT;}
 "+"         {yylval = PLUS; return PLUS;}
 "-"         {yylval = MINUS; return MINUS;}
 "*"         {yylval = TIMES; return TIMES;}
