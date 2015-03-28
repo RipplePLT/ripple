@@ -5,7 +5,7 @@ gcc: yacc lex
 	gcc lex.yy.c  y.tab.c -ly -ll
 
 yacc:
-	yacc -Wall ripple.y
+	yacc -d ripple.y
 
 lex:
 	lex ripple.l

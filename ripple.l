@@ -1,8 +1,6 @@
 %{
-#include <stdio.h>
 #include "y.tab.h"
 %}
-
 /* regular definitions */
 delim       [ \t\n]
 comment     (#.*\n)|(#\*[^(\*\/)]*\*\#)
@@ -52,7 +50,7 @@ false       {yylval = TRUE; return BOOL;}
 "<-"        {return ARROW;}
 "="         {return ASSIGN;}
 "."         {return ACCESS;}
-";"			{return SEMICOL;}
+";"			{return SEMICOLON;}
 "("			{return L_CURLY;}
 ")"			{return R_CURLY;}
 "["			{return L_BRACKET;}
