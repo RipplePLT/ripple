@@ -1,84 +1,80 @@
 %{
 #include <stdio.h>
-
+int yylval;
+%}
 /***************
     KEYWORDS 
 ***************/
-#define IF 1
-#define ELSE 2
-#define FOR 3
-#define WHILE 4
-#define LINK 5
-#define IMPORT 6
-#define FINAL 7
-#define RETURN 8
-#define CONTINUE 9
-#define BREAK 10
+%token IF
+%token ELSE
+%token FOR
+%token WHILE
+%token LINK
+%token IMPORT
+%token FINAL
+%token RETURN
+%token CONTINUE
+%token BREAK
 
 /***************
       TYPES 
 ***************/
-#define TYPE 11
-#define BOOL 12
-#define BYTE 13
-#define INT 14
-#define FLOAT 15
-#define STRING 16
-#define DATASET 17
-#define VOID 18
+%token TYPE
+%token BOOL
+%token BYTE
+%token INT
+%token FLOAT
+%token STRING 
+%token DATASET
+%token VOID
 
 /***************
        OP
 ***************/
-#define EQ 21
-#define NE 22
-#define LT 23
-#define LE 24
-#define GT 25
-#define GE 26
+%token EQ 
+%token NE
+%token LT 
+%token LE 
+%token GT 
+%token GE 
 
-#define PLUS 27
-#define MINUS 28
-#define TIMES 29
-#define DIV 30
-#define MOD 31
-#define FLDIV 32
-#define EXP 33
-#define AT 34
+%token PLUS 
+%token MINUS 
+%token TIMES 
+%token DIV 
+%token MOD 
+%token FLDIV 
+%token EXP 
+%token SIZE
 
-#define AND 35
-#define OR 36
-#define NOT 37
+%token AND 
+%token OR 
+%token NOT 
 
 /***************
     VARIABLES 
 ***************/
-#define ID 41
-#define NUM 42
-#define LITERAL 43
-#define TRUE 44
-#define FALSE 45
+%token ID
+%token NUM 
+%token LITERAL 
+%token TRUE
+%token FALSE
 
 /***************
     LITERALS
 ***************/
-#define ARROW 51
-#define ASSIGN 52
-#define SEMICOL 53
-#define ACCESS 54
+%token ARROW
+%token ASSIGN
+%token SEMICOL
+%token ACCESS
 
-#define L_PAREN 55
-#define R_PAREN 56
-#define L_CURLY 57
-#define R_CURLY 58
-#define L_BRACKET 59
-#define R_BRACKET 60
-#define COMMA 61
-
-
-int yylval;
-%}
-
+%token L_PAREN
+%token R_PAREN 
+%token L_CURLY 
+%token R_CURLY 
+%token L_BRACKET 
+%token R_BRACKET
+%token COMMA
 
 %%
 
@@ -98,7 +94,7 @@ import_statement : IMPORT LITERAL SEMICOLON
 dataset_declaration : DATASET ID L_CURLY declaration_list R_CURLY
 					;
 
-final_declaration : FINAL declaration_statement
+final_declaration : FINAL declaration
 				  ;
 
 function : LINK declaration declaration_args L_CURLY statement_list R_CURLY
@@ -155,14 +151,14 @@ link_stream : ARROW stream_reader
             | ARROW expression
             ;
 
-stream_reader : READER_NAME L_PAREN function_call_args R_PAREN
+stream_reader : ID L_PAREN args R_PAREN
 
 declarative_statement : declaration ASSIGN expression SEMICOLON
                       | expression SEMICOLON
                       | declaration SEMICOLON
                       ;
 
-declarative_statement : declaration EQUALS expression SEMICOLON
+declarative_statement : declaration EQ expression SEMICOLON
                       | expression SEMICOLON
                       | declaration SEMICOLON
                       ;
@@ -236,7 +232,7 @@ var : TRUE
     | dataset_access
     | function_call
     | array_access
-    | array_creation
+    | array_literal 
     | ID
     ;
 
@@ -244,9 +240,9 @@ constant : NUM
          | LITERAL
          ;
 
-dataset_access : ID PERIOD dataset_access_list
+dataset_access : ID ACCESS dataset_access_list
 
-dataset_access_list : ID PERIOD dataset_access_list
+dataset_access_list : ID ACCESS dataset_access_list
                     | ID
                     ;
 
@@ -259,12 +255,13 @@ array_access : ID L_BRACKET expression R_BRACKET
 array_literal : L_CURLY args R_CURLY
               ;
 
-args : L_PAREN expression args_list R_PAREN
-     : L_PAREN R_PAREN
+args : L_PAREN expression arg_list R_PAREN
+     | L_PAREN R_PAREN
      ;
 
 arg_list : COMMA expression arg_list
          | /* empty */
          ;
 
+%%
 
