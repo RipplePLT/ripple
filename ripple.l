@@ -51,8 +51,8 @@ false       {yylval = TRUE; return BOOL;}
 "="         {return ASSIGN;}
 "."         {return ACCESS;}
 ";"			{return SEMICOLON;}
-"("			{return L_CURLY;}
-")"			{return R_CURLY;}
+"("			{return L_PAREN;}
+")"			{return R_PAREN;}
 "["			{return L_BRACKET;}
 "]"			{return R_BRACKET;}
 "{"			{return L_CURLY;}
