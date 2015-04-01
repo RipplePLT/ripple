@@ -1,5 +1,6 @@
 %{
-#include "y.tab.h"
+#include "ripple.tab.hpp"
+#include "ast.h"
 int yylval;
 %}
 /* regular definitions */

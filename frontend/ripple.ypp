@@ -1,10 +1,25 @@
 %{	
-#include <ctype.h>
-#include <stdio.h>
+#include <cctype>
+#include <cstdio>
+#include <string>
+
+#include "frontend/ast.h"
+
 int yylex();
 void yyerror(const char *s);
 #define YYSTYPE int
 %}
+
+%union {
+    ASTNode *node;
+    ExpressionNode *expr;
+    IntNode *int;
+    FloatNode *float;
+    StringNode *string;
+    int token;
+}
+
+#TODO: DECLARE TYPES
 /***************
     KEYWORDS 
 ***************/
@@ -177,8 +192,8 @@ dataset_access : value ACCESS ID
 	       ;
 
 unit  : ID				 
-      | INTEGER				{ $$ = $1; }
-      | FLOAT_LIT			{ $$ = $1; }
+      | INTEGER				{ $$ = new IntNode($1); }
+      | FLOAT_LIT			{ $$ = new FloatNode($1); }
       | STRING				{ $$ = $1; } 
       | TRUE				
       | FALSE				

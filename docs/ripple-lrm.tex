@@ -1,0 +1,547 @@
+\documentclass{article}
+\usepackage[fleqn]{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage{fullpage}
+\usepackage{indentfirst}
+\usepackage{todonotes}
+\usepackage{mathtools}
+\usepackage{marvosym}
+\usepackage{todonotes}
+\usepackage{upquote}
+\newcommand{\code}{\texttt}
+\allowdisplaybreaks
+\title{\vspace{5cm}Ripple \\ {\large\it make waves} \\ Reference Manual \\ Team 5}
+\author{\begin{tabular}{rcl}
+\textbf{Project Manager:}    &   Amar Dhingra   &   \textbf{asd2157} \\
+\textbf{System Architect:}   &   Alexander Roth &   \textbf{air2112} \\
+\textbf{System Integrator:}  &   Artur Renault  &   \textbf{aur2103} \\
+\textbf{Language Guru:}      &   Spencer Brown  &   \textbf{stb2132} \\
+\textbf{Tester \& Verifier:} &   Thomas Segarra &   \textbf{tas2172}
+\end{tabular}}
+\date{2015 -- 03 -- 25}
+
+\begin{document}
+\setcounter{tocdepth}{2}
+
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction}
+This manual serves as a reference for the syntactic elements of Ripple. Much of it will be intuitive to programmers familiar with C. In it, we cover lexical conventions of Ripple, as well as syntactic and semantic elements. It can serve as an authority whenever doubts arise with Ripple.
+
+This document covers Ripple in a bottom-up fashion. We begin by introducing our lexical conventions and types, and then use these structures to create compound expressions which combine to form more complex grammatical constructs. By explaining these increasingly complex constructs and their combinations, we will demonstrate how a working Ripple program is ultimately formed.
+
+\subsection{Notation}
+For clarity, this guide will follow a notational convention. Ripple reserved words will be represented in \code{monospace}, and syntactic categories will be written in \emph{italics}. Within the latter, non-reserved regular definitions will be written as capital, italicized words. An \emph{OPT} subscript indicates that a given element may be omitted.
+
+\section{Lexical Conventions}
+The first step in the compilation of a program is lexical analysis. At this time, the characters of the \code{.rpl} file are separated into discrete groups, commonly referred to as ``tokens'', which will eventually be parsed by a syntactic analyzer to verify that the program conforms to the context-free grammar defined later in this manual.
+
+Ripple programs are written exclusively using the ASCII character set. Ripple files share the same naming conventions as any UNIX file, that is, the file name may contain any character except ``\code{/}''.
+
+\subsection{Tokens}
+Each lexical token available in Ripple falls into one of the following five categories:
+\begin{enumerate}
+    \item Identifiers (names of variables, functions and datasets)
+    \item Keywords (e.g. \code{if}, \code{return}, \code{link}, etc.)
+    \item Constants (particular \code{int}s, \code{float}s, \code{byte}s, \code{string}s, and \code{bool}s; all are specified inline)
+    \item Operators (\code{+}, \code{-}, etc.)
+    \item Miscellaneous separators (\code{()}, \code{;}, etc.)
+\end{enumerate}
+
+\subsubsection{Identifiers}
+An identifier is a sequence of characters that uniquely identifies a variable or function. Identifiers in Ripple can contain letters, numbers, and underscores, and have any length of at least 1, but may not start with a number. All identifiers are case-sensitive.
+
+Identifiers match the following regular expression:
+\[ \code{\{letter\}(\{letter\}|\{digit\})*} \]
+where \code{letter} includes the uppercase and lowercase English letters and the underscore character.
+
+The only exceptions are \emph{reserved words}; these cannot be used as identifiers, because they always denote particular features of Ripple. In Ripple, the set of reserved words is coextensive with the set of keywords, listed in the next section.
+
+\subsubsection{Keywords}
+Keywords are sequences of characters reserved by the Ripple language for special purposes, and therefore cannot be used as identifiers. Keywords specify control flow statements, data types, boolean variables and boolean operators. Ripple has twenty-two reserved words, which are listed in the table below.
+
+The semantics for each keyword will be specified as we cover the related language constructs in this reference manual. \\
+
+\centerline{
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+if     & else    & while & for      & link  \\ \hline
+return & import  & final & continue & break \\ \hline
+void   & bool    & byte  & int      & float \\ \hline
+string & dataset & true  & false    & not   \\ \hline
+or     & and     &       &          &       \\ \hline
+\end{tabular}
+}
+
+\subsubsection{Constants}
+Constants refer to representations of particular values whose literal value is passed from the lexical analyzer to the syntactic analyzer. They include, for example, the number \code{42}, or the string ``\code{hello, world}''.
+
+Constants may be of any of four types.
+\begin{enumerate}
+\item An \code{int} is  a sequence of digits (0 - 9) without a decimal point (``.'')
+\item \code A {float} is a sequence of digits containing a decimal point.
+\item A \code{byte} is the string ``\code{0b}'' followed by a string of length 8 consisting of \code{0}s and \code{1}s. A \code{byte} can be represented as a decimal value from 0 to 255 as well.
+\item A \code{string} is any sequence of characters enclosed in single or double quotation marks.
+\end{enumerate}
+
+\subsubsection{Operators}
+An operator is a member of a closed set of symbols, each between one and three characters long, that act as a function on one or two values (called ``operands''). These functions produce a resultant value determined by performing some action, represented by the operator, on those operands. Unary operators act on a single operand, while binary operators act on two operands. They are used for logical, relational, and arithmetic actions. The particular semantics of an operator are tied to the type(s) of its operand(s).
+
+The following is an exhaustive list of Ripple's operators:
+
+\centerline{
+\begin{tabular}{c|c}
+ Unary operators    &   Binary operators    \\ \hline
+    \code{not}      &       \code{+}        \\
+    \code{-}        &       \code{-}        \\
+    \code{@}        &       \code{*}        \\
+                    &       \code{/}        \\
+                    &       \code{//}       \\
+                    &       \code{\%}       \\
+                    &       \code{$\wedge$} \\
+                    &       \code{and}      \\
+                    &       \code{or}       \\
+                    &       \code{<}        \\
+                    &       \code{<=}       \\
+                    &       \code{==}       \\
+                    &       \code{!=}       \\
+                    &       \code{=>}       \\
+                    &       \code{>}        \\
+                    &       \code{.}        \\
+\end{tabular}
+}
+
+\subsubsection{Miscellaneous Separators}
+The eight remaining special symbols used to separate code in Ripple are:
+\begin{itemize}
+\item Parentheses (``\code{(}'' and ``\code{)}'') are used to define function parameters and arguments and assign precedence in expressions.
+\item Square brackets (``\code{\lbrack}'' and ``\code{\rbrack}'') are used for declaring arrays and acessing elements within arrays 
+\item Curly braces (``\code{\{}'' and ``\code{\}}'') are used to define variable scope within Ripple, demarcate control flow statement bodies and initialize values in an array.
+\item Commas (``\code{,}'') are used to separate function arguments in a function call, function declaration arguments in a function declaration and items in an array initialization
+\item Semicolons (``\code{;}'') are used to separate declarative statements
+\end{itemize}
+
+\subsection{Whitespace}
+Whitespace consists of any sequence of newlines, tabs, spaces, and comments. Whitespace demarcates where one token stops and another begins -- for example, the statement \code{foo bar} forms two tokens, but \code{foobar} forms one. This is necessary in cases where another separator (e.g. ``\code{;}'') is inapplicable. Otherwise, whitespace is completely ignored; thus, additional or excess whitespace has no effect on the execution of the program.
+
+\subsection{Comments}
+Comments, like whitespace, are discarded by the compiler and do not bear on the execution of the program. Single-line comments start with $\code{\#}$ and end with a newline, while multiline comments start with $\code{\#*}$ and end with $\code{*\#}$. Multiline comments can contain any sequence of characters, except the end sequence marker (namely ``$\code{*\#}$'').
+
+\section{Types}
+The five fundamental types in order of increasing size in Ripple are \code{bool}, \code{byte}, \code{int}, \code{float}, and  \code{string}. All number types can be implicitly up-converted without loss of value, meaning that \code{bytes} can become \code{int}s, \code{int}s can become \code{float}s, etc. Additionally, all types have \code{string} representations. In certain circumstances, the number types can also be down-converted, with their values truncated to represent the limitation of the lower types. In addition to the primitive types, Ripple also provides two derived types, \code{array} and \code{dataset}. Ripple is statically typed, which means that all variable types and all returning function values are known at compile time. 
+
+\subsection{\code{void}}
+The \code{void} type is the only type that cannot be used in a variable declaration; instead, it is solely used for setting the return value of a function. A function declared with the \code{void} type will not return a value. That is, the function does not require a \code{return} statement, and the function cannot return any expression.
+
+\subsection{\code{bool}}
+\code{bool}s can take on one of two values: \code{true} or \code{false}. These can be produced by either one of the literal constants \code{true} or \code{false}, or alternatively by a boolean expression or relational expression as will be covered later in this manual. They are primarily used by \code{if} statements and \code{while} or \code{for} loops to evaluate execution conditions.
+
+\subsection{\code{byte}}
+\code{byte}s are included in Ripple so that programmers can manipulate a single byte at a time, allowing finer control over data received from external streams. A \code{byte} can be assigned an integral value between 0 and 255, inclusive, or a binary value in the form \code{0bXXXXXXXX}, where \code{X} can be either 0 or 1. However, unless the type is explicitly specified, an integral constant given as input to a program will always be interpreted as an \code{int}.
+
+\subsection{\code{int}}
+Integers are sequences of digits. Every integer is represented as eight bytes; there are no distinctions between \code{short}s, \code{int}s and \code{long}s. All integers are signed two's complement. The value range of an \code{int} is $\lbrack-2^{31},\,\, 2^{31} - 1\rbrack$.
+
+\subsection{\code{float}}
+Floats are made of an integer part, a decimal point, and a fractional part. They all use double precision and are signed. They are represented as 8 bytes each (64 bits), and the value range of a \code{float} is \\
+$\lbrack \pm 2.23 \times 10^{-308},\,\,\pm 1.80 \times 10^{308}\rbrack$.
+
+
+\subsection{\code{string}}
+A \code{string} is a sequence of 0 or more ASCII characters. Memory is dynamically allocated to match the size of the \code{string} -- i.e., \code{string}s are represented by one byte per character, plus one null terminating byte. Strings are mutable and can be indexed like \code{array}s.
+
+String literals are enclosed by either single or double quotation marks: either \code{`hello'} or \code{"hello"}. They can contain any character except for newline or quote characters; these must be escaped. The sequence ``\textbackslash n'' escapes a newline, and a backslash preceding a quotation mark (of either sort) escapes that quotation mark.
+
+\subsection{Derived Types}
+The basic types can be used together to create two more complex data structures, namely \code{array}s and \code{dataset}s. Arrays simply store a predefined number of elements of a certain type, while \code{dataset}s can group together elements of different types and provide a name by which to access each element.
+
+\subsubsection{Arrays}
+Arrays enable the programmer to give one name to many variables of the same type. Arrays in Ripple are dynamically allocated, meaning their sizes can change.
+
+To declare an \code{array}, one must simply add square brackets to a type declaration, optionally specifying the initial size of the array.
+
+Arrays can also be defined through array literals. Literals follow the following production:
+\begin{align*}
+array\_creation\,\,\rightarrow&  \,\,\code{\{}\,\,args\,\,\code{\}}                  \\
+args\,\,\rightarrow           &  \,\,\code{(}\,\,expression\,\,arg\_list\,\,\code{)} \\
+                              &| \,\,\code{(}\,\,\code{)}
+\end{align*}
+
+Array elements can be accessed and modified using square brackets as well, through the following production:
+\[ array\_access\,\,\rightarrow\,\,ID\,\,\code{\lbrack}\,\,expression\,\,\code{\rbrack} \]
+
+In Ripple, \code{arrays} use the ordinal convention, meaning the first element is at index 0 and the last element is at index (length - 1).
+
+\subsubsection{\code{dataset}}
+It is difficult to realize the wide variety of types a programmer may require when designing a language. However, almost every complex data type can be expressed as some combination of \code{byte}s, \code{bool}s, \code{int}s, \code{float}s and \code{string}s. To allow programmers to specify their own, more complex data types, Ripple provides the \code{dataset} type. \code{dataset}s are a contiguous block of primitive variables in some pre-determined order. All \code{dataset}s must be declared outside of functions and can be used either within a function or as part of a \code{final} declaration. 
+
+To construct a \code{dataset} the grammar rule applied is
+\begin{align*}
+dataset\,\,\rightarrow&\,\,\code{dataset}\,\,ID\,\,\code{\{}\,\,declaration\_list\,\,\code{\}}\code{;} \\
+declaration\_list\,\,\rightarrow&  \,\,declaration\code{;}\,\,declaration\_list                        \\
+                                &| \,\,\epsilon                                                        \\
+declaration\,\,\rightarrow&  \,\,TYPE_{OPT}\,\,ID                                                   \\
+                          &| \,\,TYPE\,\,\code{\lbrack}\,\,expression_{OPT}\,\,\code{\rbrack}\,\,ID \\
+                          &| \,\,ID\,\,\code{\lbrack}\,\,expression\,\,\code{\rbrack}
+\end{align*}
+
+which specifies that a dataset consists of the keyword \code{dataset} followed by an identifier that names the dataset being created. Finally between curly braces the programmer specifies a list of declarations separated by semicolons.
+
+\section{Expressions}
+An expression is some combination of operators and operands that will be evaluated to one of the built-in types. Our grammar defines that expressions are parsed in a specific order, thereby providing precedence to certain operators. The matriarch of all expressions is the \emph{expression} nonterminal, with the following production: 
+\begin{align*}
+expression\,\,\rightarrow&  \,\,expression\,\,\code{or}\,\,and\_expression \\
+                         &| \,\,and\_expression                           
+\end{align*}
+From this, all other expressions will be derived.
+
+\subsection{Or Expressions}
+This first production also establishes the left-associative \code{or} operator, which has the lowest precedence within Ripple. This expression is a binary boolean operator that takes a boolean on both sides and returns true if either operand is true.
+
+\subsection{And Expressions}
+\begin{align*}
+and\_expression\,\,\rightarrow&  \,\,and\_expression\,\,\code{and}\,\,eq\_expression \\
+                              &| \,\,eq\_expression                                 
+\end{align*}
+
+\code{and} has the next highest precedence. The expression takes two boolean operands and returns true only if both operands are true. Similar to the \code{or} operator it is also left-associative.
+
+\subsection{Equality Expressions}
+\begin{align*}
+eq\_expression\,\,\rightarrow&  \,\,eq\_expression\,\,\code{==}\,\,rel\_expression \\
+                             &| \,\,eq\_expression\,\,\code{!=}\,\,rel\_expression \\
+                             &| \,\,rel\_expression
+\end{align*}
+
+\code{==} and \code{!=} are relational operators that compare any two types by value. \code{==} returns \code{true} if both are equal, false otherwise, while \code{!=} does the opposite. Both are left-associative, and are separated from the other relational operators due to their lower precedence.
+
+\subsection{Relational Expressions}
+\begin{align*}
+rel\_expression\,\,\rightarrow&  \,\,rel\_expression\,\,\code{>=}\,\,plus\_expression    \\
+                              &| \,\,rel\_expression\,\,\code{<=}\,\,plus\_expression    \\
+                              &| \,\,rel\_expression\,\,\code{>}\,\,plus\_expression\,\, \\
+                              &| \,\,rel\_expression\,\,\code{<}\,\,plus\_expression\,\, \\
+                              &| \,\,plus\_expression
+\end{align*}
+
+Ripple offers the usual relational operators as well, all of which are left-associative. Relational operators, however, can only operate on number types (\code{int}s, \code{byte}s, and \code{floats}), and return boolean types. 
+
+\subsection{Plus and Minus Expressions}
+\begin{align*}
+plus\_expression\,\,\rightarrow&  \,\,plus\_expression\,\,\code{+}\,\,mult\_expression \\
+                    	       &| \,\,plus\_expression\,\,\code{-}\,\,mult\_expression \\
+                    	       &| \,\,mult\_expression                                 \\
+\end{align*}
+Plus and minus expressions represent the next step in our operator hierarchy.
+
+The minus operator \code{-} shares a lexeme with unary negation, but serves a different function. It can take any number type and it will return the difference from the second to the first operand. If given two different number types, it will return the larger of the two types. For example, if given at least one \code{float} it will return a \code{float}.
+
+The \code{+} operator is more complicated. Depending on its use, \code{+} can either represent addition or concatenation. It is always left-associative.
+
+When applied to two number types (i.e. \code{int}, \code{byte}, or \code{float}), it will return the sum of the two values. The sum will be of the larger of the two operand types (e.g., if you are adding an \code{int} and a \code{byte}, the result will be an \code{int}). If one of the two operands is a \code{float}, the result will also be a \code{float}.
+
+When at least one of the operands is a string, \code{+} becomes concatenation. The non-string argument is converted into its literal string representation. For example, \code{``Number of repetitions: '' + 10} returns \code{``Number of repetitions: 10''}.
+
+With arrays, the \code{+} operator can also be used for concatenation. When adding two arrays containing the same element type, it will append the second array to the end of the first. When adding an array and a variable if the variable is the same type as that of the array, \code{+} adds the value to the beginning of the array if the value was first in the equation, and to the end if it was second.
+
+\subsection{Multiplicative Expressions}
+\begin{align*}
+mult\_expression\,\,\rightarrow& \,\,mult\_expression\,\,\code{*}\,\,unary\_expression  \\
+                    	       &|\,\,mult\_expression\,\,\code{/}\,\,unary\_expression  \\
+                    	       &|\,\,mult\_expression\,\,\code{//}\,\,unary\_expression \\
+                    	       &|\,\,mult\_expression\,\,\code{\%}\,\,unary\_expression \\
+                    	       &|\,\,unary\_expression
+\end{align*}
+The next level of precedence is the multiplicative expression. Multiplicative operators are left-associative and operate only on the numeric types.
+
+\code{*} is the multiplication operator. It follows the same conversion rules as the subtraction operator.
+
+\code{/} is the standard division operator. If either of the operands is a \code{float}, it returns a \code{float}. Otherwise, it will return an integer or byte rounded down to the nearest integer.
+
+Unlike in other, less sensible languages, \code{//} is floating point division. It behaves identically to \code{/}, except that even if both of the arguments are \code{int}s or \code{byte}s, the result will be a \code{float}.
+
+\code{\%} is the modulus operator. It can only take \code{int}s or bytes as its left argument, and returns the remainder when the first value is divided by the second.
+
+\subsection{Unary Expressions}
+\begin{align*}
+unary\_expression\,\,\rightarrow&  \,\,\code{not}\,\,unary\_expression                   \\
+                                &| \,\,\code{-}\,\,unary\_expression                     \\
+                                &| \,\,\code{@}\,\,unary\_expression                     \\
+                                &| \,\,\code{(}\,\,TYPE\,\,\code{)}\,\,unary\_expression \\
+                                &| \,\,exp\_expression
+\end{align*}
+Unary expressions are right-associative in Ripple. There are four different unary operators in Ripple: they are \code{-}, \code{not}, \code{@} and casts.
+
+\code{not} represents boolean negation. It takes one boolean argument, returning \code{false} if the argument is \code{true} and \code{true} if the argument is \code{false}.
+
+\code{-} uses the same symbol as a subtraction, but here it represents unary arithmetic negation. It takes a number type and returns its negation.
+
+\code{\MVAt} is Ripple size operator. It returns the size of its operand. This size is the size of bytes used to represent the value of the expression, no matter the type of expression. However, in the case of an array, it returns the length of the array. For example, \code{@int[10]} returns 10, since the length of the array is 10. This is the usual case for arrays, but ultimately all results of this operator will be machine-dependent.
+
+Casts can only be performed between primitive types, in some predefined ways. All number types can be cast to one another. When \code{float}s are cast to \code{int}s, the fractional part will be dropped. Similarly, if we are down-casting from an \code{int} to a \code{byte}, only the 8 least significant bits will be preserved. If we were to up-cast from a \code{byte} to an \code{int}, the value of the \code{byte} would be maintained. This implementation holds across any form of up-casting between the numerical types. Any type can be cast to a \code{string}, but a \code{string} can only be cast to other types if its format is compatible (i.e., ``123'' can be converted into an integer but ``This string cannot be converted to an integer'' cannot).
+
+\subsection{Exponential Expressions}
+\begin{align*}
+exp\_expression\,\,& \rightarrow\,\,exp\_expression\,\,\code{$\wedge$}\,\, exp\_expression\\
+                    & |\,\,var\,\,|\,\,\code{(}\,\,expression\,\,\code{)}
+\end{align*}
+Exponential expressions refer to the \code{$\wedge$} operator, which performs exponentiation. It is left-associative and can take any combination of number types, performing the same changes to types as previous operations. The exponential operator has the highest precedence of all operators in Ripple. To perform operations of lower precedence before those of higher precedence, exponentiation expressions provides a production that goes to a parenthesized expression. 
+
+\section{Statements}
+A \emph{statement} is the full specification of an action to perform. Since Ripple is an imperative language, statements are very important. Ripple \emph{statement}s are separated into five categories, as follows:
+\begin{align*}
+statement\,\,\rightarrow&  \,\,conditional\_statement \\
+                        &| \,\,loop\_statement        \\
+                        &| \,\,link\_statement        \\
+                        &| \,\,declarative\_statement \\
+                        &| \,\,jump\_statement
+\end{align*}
+
+\subsection{Conditional Statements}
+A conditional statement is one method of specifying flow control. It has the following grammar:
+\[ conditional\_statement\,\,\rightarrow\,\,\code{if}\,\,\code{(}\,\,expression\,\,\code{)}\,\, statement\_block\,\,else\_statement \]
+
+When a conditional statement is encountered, the \emph{statement\_block} code is executed if and only if the boolean expression \emph{expression} evaluates to \code{true}. If \emph{expression} evaluates to \code{false}, then \emph{statement\_block} is not executed, and the \emph{else\_statement}, if one exists, is executed instead.
+\begin{align*}
+else\_statement\,\,\rightarrow&  \,\,\code{else}\,\,statement\_block\\
+                              &| \,\,\epsilon
+\end{align*}
+
+\subsection{Loop Statements}
+Loop statements are another common method of specifying flow control. Ripple includes both \code{while} and \code{for} loops, which are syntactically identical to their counterparts in C.
+\begin{align*}
+loop\_statement\,\,\rightarrow&\,\,\code{while}\,\,\code{(}\,\,expression\,\,\code{)}\,\,statement\_block\\
+&|\,\,\code{for}\,\,\code{(}\,\,declarative\_statement\,\,expression_{OPT};\,\,expression_{OPT}\,\,\code{)}\,\,statement\_block\\
+& |\,\,\code{for}\,\,\code{(}\,\,\code{;}\,\,expression_{OPT};\,\,expression_{OPT}\,\,\code{)}\,\,statement\_block
+\end{align*}
+
+A \code{while} loop checks whether the boolean expression \emph{expression} evaluates to \code{true}. If it does, then it executes \emph{statement\_block}. It performs these two steps repeatedly, until \emph{expression} evaluates to \code{false}. After this change, the program proceeds to execute the code after the \emph{loop\_statement}.
+
+A \code{for} loop first executes the \emph{declarative\_statement} between the opening parenthesis and the first semicolon, if there is one. This is typically used to initialize an iteration variable. Then the following steps are performed repeatedly: check whether the boolean expression \emph{expression} in between two semicolons evaluates to \code{true}; if it does, execute \emph{statement\_block} and then evaluate the expression after the second semicolon; if it doesn't, proceed to the next instruction after the loop. The second expression is the increment statement for the for-loop, as long as the evaluation statement evaluates to \code{true}, the \emph{statement\_block} will be executed and the increment statement will be evaluated. Once the evaluation statement evaluates to \code{false}, the increment statement will be ignored.
+
+\subsection{Link Statements}
+Link statements are unique to Ripple; they achieve a combination of flow control and reactive state manipulation. The syntax of a \emph{link\_statement} is specified as follows: 
+\begin{align*}
+link\_statement\,\,\rightarrow&\,\,\code{link}\,\,\code{(}\,\,declaration\,\,link\_stream\,\,\code{)}\,\,function\_call_{OPT};\\
+link\_stream\,\,\rightarrow&  \,\,\code{<-}\,\,stream\_reader\\
+                           &| \,\,\code{<-}\,\,expression
+\end{align*}
+Inside the parentheses is a statement syntactically similar to an assignment, except that instead of an equals sign, there is a left-facing arrow (``\code{<-}''). Concretely, the conjunction \emph{declaration\,\,link\_stream} might take the form:
+\[ \code{x}\,\,\code{<-}\,\,\code{y}\,\,\code{+}\,\,\code{5} \]
+This specifies that the variable $x$ should be \emph{linked} to the expression $y + 5$ -- that is, whenever the value of $y$ changes, the value of $x$ will automatically update to equal $y + 5$.
+
+The function \emph{function\_call}, if provided, will be called every time this update occurs. Only a \emph{link function} (i.e., a function declared using the \code{link} keyword) can be called in this fashion. These functions are unique in that all parameters passed to them are passed by reference.
+
+Furthermore, programmers should be careful not to create cycles with link statements. For example, if \code{x} was linked to \code{y}, and later in the program \code{y} was linked to \code{x}, this would create a cycle. Changes in \code{x} would cause changes in \code{y}, which would cause changes in \code{x}, creating an infinite loop of changes. Behavior in these situations is undefined and should be avoided at all costs.
+
+\subsubsection{\code{StreamReader}s}
+An important aspect of Ripple is the ability to treat external variables as local to the program. To this end Ripple provides the \code{StreamReader} construct which is used in conjunction with \code{link} statements to ``link'' a variable to a changing external stream of data. The \code{link} statement creates a dependency between the \code{StreamReader} and the variable; the linked variable will always have the latest value provided by the stream. Hence the local variable represents a link to external data.\\
+External data cannot always be easily represented using the primitive types provided by Ripple. Programmers can therefore specify what kind of data they want out of a \code{StreamReader} through use of a \code{dataset}.\\
+\code{StreamReader}s are identified by an ID and should only be used within link statements. 
+
+\subsection{Declarative Statements}
+Declarative statements enable the programmer to create and modify variables in Ripple. Their general syntax is given below:
+\begin{align*}
+declarative\_statement\,\,\rightarrow&  \,\,declaration\,\,\code{=}\,\,expression; \\
+                                     &| \,\,expression;                            \\
+                                     &| \,\,declaration\code{;}                    \\
+                                     &| \,\,\epsilon                               \\
+declaration\,\,\rightarrow&  \,\,TYPE_{OPT}\,\,ID                         \\
+                          &| \,\,TYPE\,\,ID\,\,ID    \\                           
+                          &| \,\,TYPE\,\,[\,\,expression_{OPT}\,\,]\,\,ID \\
+                          &| \,\,ID\,\,[\,\,expression\,\,]
+\end{align*}
+If a variable has not been previously declared in a given scope, its declaration must specify its type. If it has already been declared, the programmer may change its value without declaring the type.
+
+Variables may also be declared \code{final} in order to specify that they will be constant. Once declared, a final variable cannot be changed. These variables must be declared at the top of the file, and so their declarations have an extra production:
+\[ final\_declaration\,\,\rightarrow\,\,\code{final}\,\,declaration\_statement \]
+
+\subsection{Jump Statements}
+A jump statement is the statement that specifies control flow most directly. When the program reaches one of these statements, instead of executing the statement that immediately follows, it is redirected to some other instruction -- which instruction is performed next depends on the kind of jump statement. They are divided syntactically as follows:
+\begin{align*}
+jump\_statement\,\,\rightarrow&  \,\,\code{return}\,\,expression_{OPT}; \\
+                              &| \,\,\code{continue};                   \\
+                              &| \,\,\code{break};
+\end{align*}
+The \code{return} statement resides within a function. It causes the function call to evaluate to the value of \emph{expression}, and proceeds to execute the instruction following where the function was called. If the function was called due to an update from a link statement the \code{return} statement only causes the function to end; there is no next instruction in this case.
+
+The \code{continue} statement is used within a loop. It skips the remainder of the loop and proceeds to execute the statement at the top of the loop block.
+
+The \code{break} statement is also used within a loop. It skips the remainder of the loop and proceeds to execute the next statement after the loop block.
+
+\section{Top Level Declarations}
+Top level declarations are the translation units of Ripple. These declarations can only occur in the file body; they cannot be declared within functions, \code{dataset}s or other declarations that are not top level. Ripple allows four top level declarations based on the following grammar
+
+\begin{align*}
+program\_declarations\,\,\rightarrow& \,\,program\_declarations\,\,program\_declaration\,\, \\
+                                    &| \,\,\epsilon                                         \\
+program\_declaration\,\,\rightarrow&  \,\,import\_statement  \\
+                                   &| \,\,final\_declaration \\
+                                   &| \,\,dataset            \\
+                                   &| \,\,function           \\
+\end{align*}
+
+\subsection{\code{import} Statements}
+\begin{align*}
+import\_statement\,\,\rightarrow&\,\,\code{import}\,\,LITERAL\code{;}\\
+\end{align*}
+
+\code{import} statements serve to bring in external code into a Ripple program. These statements can copy files from Ripple's standard library, as well as from the local machine. \code{import} statements are specified by using the \code{import} keyword followed by a string literal designating the file to be imported. Import statements must end with a semicolon.
+
+\subsection{\code{dataset} declaration}
+\[ dataset\,\,\rightarrow\,\,\code{dataset}\,\,ID\,\,\code{\{}\,\,declaration\_list\,\,\code{\}}\code{;} \]
+
+As explained in the \code{dataset} section, a \code{dataset} declaration consists of the keyword \code{dataset}, an identifier and a list of variable declarations.
+
+\subsection{\code{final} Declaration}
+\[ final\_declaration\,\,\rightarrow\,\,\code{final}\,\,declaration\_statement \]
+
+The \code{final} keyword creates a read-only variable that sets a specific type and value to a specific identifier. The variable created must be initialized on creation. Mutating a \code{final} variable is not permitted. You should use the \code{final} keyword in scenarios where predefined constants are in use in order to avoid issues such as magic numbers and to clarify code.
+
+\subsection{\code{function} Declarations}
+\[ function\,\,\rightarrow\,\,link_{OPT}\,\,declaration\,\,declaration\_args\,\,\code{\{}\,\,statement\_list\,\,\code{\}} \]
+
+Function declarations are used to name and specify the arguments, return type, and code to be executed of a function. Additionally, as specified by the grammar, functions provided to \code{link} statements must be preceded with the \code{link} keyword.
+
+\section{Scope}
+Ripple's variables use block scope. This means that variables exist only within the block in which they are defined; this is true for both internal variables defined within a program, and for variables that depend on a stream.
+
+All functions from within the same file can be used within any scope as can functions from another file which has been imported. When a file is imported the programmer also has access to all \code{final} variables declared in the imported file.
+
+\section{Functions}
+Functions are named sets of instructions; as such, they encourage modularity and easy reuse. A function in Ripple takes \emph{expression}s as inputs (i.e. arguments) and returns a single value.
+
+A function definition specifies the number and types of arguments, the return type, and the set of statements to execute. Functions need not be defined before they are called. Every Ripple function must specify its return type before its identifier. Ripple functions conform to the following syntax.
+
+\begin{align*}
+function\,\,\rightarrow& \code{link}_{OPT}\,\,declaration\,\,declaration\_args\,\,\code{\{}\,\,statement\_list\,\,\code{\}}
+\end{align*}
+
+Within \code{link} statements, the developer has the ability to call functions that interact with the linked variables and any other variables that are within the link scope. It is important that any functions called within these linked blocks are linked functions themselves (these functions are said to be ``link-safe''). Functions that do not have the \code{link} keyword in their declaration can cause undefined behavior with the \code{link} block is run. In order to make a function link-safe, the programmer must use include the keyword \code{link} within the declaration of the function, before the type declaration.
+
+
+To use a function, one must simply call it and provide any required arguments. The syntax of a function call is:
+\begin{align*}
+function\_call\,\,\rightarrow&\,\,ID\,\,args\\
+args\,\,\rightarrow&\,\,\code{(}\,\,expression\,\,arg\_list\,\,\code{)}\\
+                    & |\,\,\code{(}\,\,\code{)}\\
+arg\_list\,\,\rightarrow&\,\,,\,\,expression\,\,arg\_list\\
+                    & |\,\,\epsilon
+\end{align*}
+
+Here, the programmer provides actual parameters for the previously declared formal parameters, and the code for the function executes as normal.
+
+\section{Grammar}
+Below we reproduce the full grammar that has been described throughout this manual. It follows the same notation as before.
+
+The start symbol is \emph{program\_declarations}. To reiterate, terms in \emph{italics} are syntactic constructs, while terms in \code{monospaced font} are literal strings. Terms in all-caps italics are tokens.
+\begin{align*}
+program\_declarations\,\,\rightarrow&\,\,program\_declarations\,\,program_declaration\,\,\\
+                    & |\,\,\epsilon\\
+program_declaration\,\,\rightarrow&\,\,import\_statement\\
+                    & |\,\,final\_declaration\\
+                    & |\,\,dataset\\
+                    & |\,\,function\\
+import\_statement\,\,\rightarrow&\,\,\code{import}\,\,LITERAL\code{;}\\
+dataset\,\,\rightarrow&\,\,\code{dataset}\,\,ID\,\,\code{\{}\,\,declaration\_list\,\,\code{\}}\code{;}\\
+final\_declaration\,\,\rightarrow&\,\,\code{final}\,\,declaration\_statement\\
+function\,\,\rightarrow&\,\,link_{OPT}\,\,declaration\,\,declaration\_args\,\,\code{\{}\,\,statement\_list\,\,\code{\}}\\
+declaration\_list\,\,\rightarrow&\,\,declaration\code{;}\,\,declaration\_list\\
+                    & |\,\,\epsilon\\
+declaration\,\,\rightarrow&\,\,TYPE_{OPT}\,\,ID\\
+                    & |\,\,TYPE\,\,[\,\,expression_{OPT}\,\,]\,\,ID\\
+                    & |\,\,ID\,\,[\,\,expression\,\,]\\
+declaration\_args\,\,\rightarrow&\,\,\code{(}\,\, declaration\,\,declaration\_arg\_list\,\,\code{)}\\
+                    & |\,\,\code{(}\,\,\code{)}\\
+declaration\_arg\_list\,\,\rightarrow&\,\,,\,\,declaration\,\,declaration\_arg\_list\\
+                    & |\,\,\epsilon\\
+statement\_list\,\,\rightarrow&\,\,statement\_list\,\,statement\_block\\
+                    & |\,\,\epsilon
+\end{align*}
+
+\subsection{Statements}
+\begin{align*}
+statement\,\,\rightarrow&\,\,conditional\_statement\\
+                    & |\,\,loop\_statement\\
+                    & |\,\,link\_statement\\
+                    & |\,\,declarative\_statement\\
+                    & |\,\,jump\_statement\\
+conditional\_statement\,\,\rightarrow&\,\,\code{if}\,\,\code{(}\,\,expression\,\,\code{)}\,\, statement\_block\,\,else\_statement\\
+else\_statement\,\,\rightarrow&\,\,\code{else}\,\,statement\_block\\
+                    & |\,\,\epsilon\\
+loop\_statement\,\,\rightarrow&\,\,\code{while}\,\,\code{(}\,\,expression\,\,\code{)}\,\,statement\_block\\
+                    & |\,\,\code{for}\,\,\code{(}\,\,declarative\_statement\code{;}\,\,expression_{OPT}\code{;}\,\,expression_{OPT}\,\,\code{)}\,\,statement\_block\\
+                    & |\,\,\code{for}\,\,\code{(}\,\,\code{;}\,\,expression_{OPT}\code{;}\,\,expression_{OPT}\,\,\code{)}\,\,statement\_block\\
+link\_statement\,\,\rightarrow&\,\,\code{link}\,\,\code{(}\,\,declaration\,\,link\_stream\,\,\code{)}\,\,function\_call_{OPT}\code{;}\\
+link\_stream\,\,\rightarrow&\,\,\code{<-}\,\,stream\_reader\\
+                    & |\,\,\code{<-}\,\,expression\\
+stream\_reader\,\,\rightarrow&\,\,READER\_NAME\,\,\code{(}\,\,function\_call\_args\,\,\code{)}\\
+declarative\_statement\,\,\rightarrow&\,\,declaration\,\,\code{=}\,\,expression\code{;}\\
+                    & |\,\,expression\code{;}\\
+                    & |\,\,declaration\code{;}\\
+statement\_block\,\,\rightarrow&\,\,\code{{} statement\_list\,\,\code{}}\\
+                    & |\,\,statement\code{;}\\
+jump\_statement\,\,\rightarrow&\,\,\code{return}\,\,expression\code{;}\\
+                    & |\,\,\code{continue}\code{;}\\
+                    & |\,\,\code{break}\code{;}
+\end{align*}
+
+\subsection{Expressions}
+\begin{align*}
+expression\,\,\rightarrow&\,\,expression\,\,\code{or}\,\,and\_expression\\
+                    & |\,\,and\_expression\\
+and\_expression\,\,\rightarrow&\,\,and\_expression\,\,\code{and}\,\,eq\_expression\\
+                    & |\,\,eq\_expression\\
+eq\_expression\,\,\rightarrow&\,\,eq\_expression\,\,\code{==}\,\,rel\_expression\\
+                    & |\,\,eq\_expression\,\,\code{!=}\,\,rel\_expression\\
+                    & |\,\,rel\_expression\\
+rel\_expression\,\,\rightarrow&\,\,rel\_expression\,\,\code{>=}\,\,plus\_expression\\
+                    & |\,\,rel\_expression\,\,\code{<=}\,\,plus\_expression\\
+                    & |\,\,rel\_expression\,\,\code{>}\,\,plus\_expression\\
+                    & |\,\,rel\_expression\,\,\code{<}\,\,plus\_expression\\
+                    & |\,\,plus\_expression\\
+plus\_expression\,\,\rightarrow&\,\,plus\_expression\,\,\code{+}\,\,mult\_expression\\
+                    & |\,\,plus\_expression\,\,\code{-}\,\,mult\_expression\\
+                    & |\,\,mult\_expression\\
+mult\_expression\,\,\rightarrow&\,\,mult\_expression\,\,\code{*}\,\,unary\_expression\\
+                    & |\,\,mult\_expression\,\,\code{/}\,\,unary\_expression\\
+                    & |\,\,mult\_expression\,\,\code{//}\,\,unary\_expression\\
+                    & |\,\,mult\_expression\,\,\code{\%}\,\,unary\_expression\\
+                    & |\,\,unary\_expression\\
+unary\_expression\,\,\rightarrow&\,\,\code{not}\,\,unary\_expression\\
+                    & |\,\,\code{-}\,\,unary\_expression\\
+                    & |\,\,\code{@}\,\,unary\_expression\\
+                    & |\,\,\code{(}\,\,TYPE\,\,\code{)} unary_expression\\
+                    & |\,\,exp\_expression\\
+exp\_expression\,\, \rightarrow&\,\,exp\_expression\,\,\code{$\wedge$}\,\, exp\_expression\\
+                    & |\,\,\code{(}\,\,expression\,\,\code{)}\\
+                    & |\,\,var
+\end{align*}
+
+\subsection{Variables}
+\begin{align*}
+var\,\,\rightarrow&\,\,\code{true}\\
+                    & |\,\,\code{false}\\
+                    & |\,\,constant\\
+                    & |\,\,dataset\_access\\
+                    & |\,\,function\_call\\
+                    & |\,\,array\_access\\
+                    & |\,\,array\_creation\\
+                    & |\,\,ID\\
+constant\,\,\rightarrow&\,\,NUM\\
+                    & |\,\,LITERAL\\
+dataset\_access\,\,\rightarrow&\,\,ID\code{.}dataset\_access\_list\\
+dataset\_access\_list\,\,\rightarrow&\,\,ID\code{.} dataset\_access\_list\\
+                    & |\,\,ID\\
+function\_call\,\,\rightarrow&\,\,ID\,\,args\\
+array\_access\,\,\rightarrow&\,\,ID\,\,\code{[}\,\,expression\,\,\code{]}\\
+array\_literal\,\,\rightarrow&\,\,\code{\{}\,\,args\,\,\code{\}}\\
+args\,\,\rightarrow&\,\,\code{(}\,\,expression\,\,arg\_list\,\,\code{)}\\
+                    & |\,\,\code{(}\,\,\code{)}\\
+arg\_list\,\,\rightarrow&\,\,,\,\,expression\,\,arg\_list\\
+                    & |\,\,\epsilon
+\end{align*}
+\end{document}
