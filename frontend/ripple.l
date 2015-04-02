@@ -1,7 +1,8 @@
 %{
+#include "frontend/ast.h"
 #include "ripple.tab.hpp"
-#include "ast.h"
-int yylval;
+
+#define YYSTYPE int
 %}
 /* regular definitions */
 delim       [ \t\n]
@@ -24,46 +25,24 @@ for         {	return FOR;	}
 link        {	return LINK;	}
 dataset     {	return DATASET;	}
 return      {	return RETURN;	}
-int         {	yylval = INT; return TYPE;	}
-float       {	yylval = FLOAT; return TYPE;	}
-void        {	yylval = VOID; return TYPE;	}
-string      {	yylval = STRING; return TYPE;	}
-byte        {	yylval = BYTE; return TYPE;	}
-bool        {	yylval = BOOL; return TYPE;	}
-true        {	yylval = FALSE; return BOOL;	}
-false       {	yylval = TRUE; return BOOL;	}
+int         {	yylval.integer = INT; return TYPE;	}
+float       {	yylval.integer = FLOAT; return TYPE;	}
+void        {	yylval.integer = VOID; return TYPE;	}
+string      {	yylval.integer = STRING; return TYPE;	}
+byte        {	yylval.integer = BYTE; return TYPE;	}
+bool        {	yylval.integer = BOOL; return TYPE;	}
+true        {	yylval.boolean = true; return BOOL;}
+false       {	yylval.boolean = false; return BOOL;}
 {id}        {	return ID;			}
-{integer}   {	yylval = atoi(yytext);
-		return INTEGER;			}
-{float}	    {	yylval = atof(yytext);
-		return FLOAT_LIT;		}
-{literal}   {	return LITERAL;			}	 
-"<"         {	yylval = LT; return LT;		}
-"<="        {	yylval = LE; return LE;		}
-"!="        {	yylval = NE; return NE;		}
-"=="        {	yylval = EQ; return EQ;		}
-">="        {	yylval = GE; return GE;		}
-">"         {	yylval = GT; return GT;		}
-"&&"        {	yylval = AND; return AND;	}
-"||"        {	yylval = OR; return OR;		}
-"+"         {	yylval = PLUS; return PLUS;	}
-"-"         {	yylval = MINUS; return MINUS;	}
-"*"         {	yylval = TIMES; return TIMES;	}
-"/"         {	yylval = DIV; return DIV;	}
-"^"         {	yylval = EXP; return EXP;	}
-"%"         {	yylval = MOD; return MOD;	}
-"//"        {	yylval = FLDIV; return FLDIV;	}
-"<-"        {	return ARROW;			}
-"=" 	    {	return ASSIGN;			}
-"."         {	return ACCESS;			}
-";"	    {	return SEMICOLON;		}
-"("	    {	return L_PAREN;			}
-")"	    {	return R_PAREN;			}
-"["	    {	return L_BRACKET;		}
-"]"	    {	return R_BRACKET;		}
-"{"	    {	return L_CURLY;			}
-"}"	    {	return R_CURLY;			}
-","         {	return COMMA;			}	
+{integer}   {	yylval.integer = atoi(yytext);
+		        return INTEGER;			}
+{float}	    {	yylval.decimal = atof(yytext);
+		        return FLOAT_LIT;		}
+{literal}   {	yylval.string = yytext;
+                return LITERAL;			}	 
 
-%%	
+%%
 
+int yywrap(void) {
+    return 1;
+}

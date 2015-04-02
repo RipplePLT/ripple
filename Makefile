@@ -3,32 +3,36 @@ default: rpl
 
 VPATH=.:frontend
 
-CXX=g++
+CC=gcc-4.9
+CXX=g++-4.9
 LEX=flex
 YACC=bison
+CXXFLAGS= -std=c++11 
+OUT= -o $@
 
-rpl: parse.o lex.o ast.o
+rpl: ast.o y.tab.o lex.yy.o
+	$(CXX) -o rpl ast.o ripple.tab.o lex.yy.o -lm -lfl
+	rm -f *.o *.hpp *.cpp *.c *.cc
 
 ast.o: ast.cpp ast.h
-	g++ -c frontend/ast.cpp frontend/ast.h
+	$(CXX) -c frontend/ast.cpp frontend/ast.h $(CXXFLAGS)
 
-lex.o: lex.yy.c ast.h
-	gcc -c lex.yy.c
+lex.yy.o: lex.yy.c ast.h
+	$(CXX) -c lex.yy.c $(CXXFLAGS)
 
 lex.yy.c: ripple.l ripple.tab.hpp ast.h
-	flex frontend/ripple.l
+	$(LEX) frontend/ripple.l
 
-parse.o: ripple.tab.cpp ripple.tab.hpp ast.h
-	g++ -c ripple.tab.cpp
+y.tab.o: ripple.tab.cpp ripple.tab.hpp ast.h
+	$(CXX) -c ripple.tab.cpp $(CXXFLAGS)
 
-ripple.tab.cpp: ripple.ypp ast.h
-	bison -d frontend/ripple.ypp
+ripple.tab.cpp ripple.tab.hpp: ripple.ypp ast.h
+	$(YACC) -d frontend/ripple.ypp
 
-ripple.tab.hpp: ripple.tab.cpp
 
 .PHONY: clean
 clean:
-	rm -rf lex.yy.c y.tab.hpp y.tab.cpp *.o rpl
+	rm -f *.o *.hpp *.cpp *.c *.cc frontent/ast.h.cgh rpl
 
 .PHONY: all
 all: clean default
