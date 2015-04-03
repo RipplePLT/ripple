@@ -5,45 +5,38 @@
 #include <condition_variable>
 #include "ValNode.hpp"
 
+// @TODO use producer-consumer queue
+
 using namespace std;
 
 mutex m;
-condition_variable cv;	// 
+condition_variable cv;
 
 /*
  * Handle all updates of linked variables.
  */
 void worker_thread()
 {
-	cout << "begin worker thread\n";
-	unique_lock<mutex> lock;
+	unique_lock<mutex> lock(m, defer_lock);
 	for (;;) {
 		lock.lock();
 		
 		cv.wait(lock);
-
-		cout << "Var changed!";
+		cout << "Var changed!\n";
 		lock.unlock();
 	}
 }
 
 int main()
 {
-	// int deg_f = 50;
-
-	cout << "start\n";
-	// Create thread to handle data updates
 	thread worker(worker_thread);
-	cout << "created thread\n";
-	worker.join();
-/*
 	
 	for (;;) {
 		sleep(1);
 		cv.notify_one();
 	}
 
-*/
+	worker.join();
 
 	return 0;
 }
