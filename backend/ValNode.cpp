@@ -2,7 +2,7 @@
 
 using namespace std;
 
-template<T, V>
+template<typename T, typename V>
 ValNode::ValNode(T val, V& func, list<Variant> args) {
     val = val;
     args = args;
@@ -16,7 +16,7 @@ void ValNode::addRight(ValNode &node) {
     this->right = node;
 }
 
-template<T>
+template<typename T>
 T ValNode::getVal() {
     return this->value;
 }
@@ -42,9 +42,9 @@ void ValNode::setRight(ValNode &right) {
 }
 
 ValNode::~ValNode() {
-    this->value = NULL;
+    this->value = nullptr;
     this->function = nullptr;
-    this->arguments = NULL;
-    this->left = NULL;
-    this->right = NULL;
+    this->arguments = nullptr;
+    this->left = nullptr;
+    this->right = nullptr;
 }

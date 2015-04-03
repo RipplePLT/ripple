@@ -1,7 +1,8 @@
+#include <list>
 
 using namespace std;
 
-typdef struct Variant {
+struct Variant {
     enum VariantType {
         t_string,
         t_int,
@@ -16,26 +17,24 @@ typdef struct Variant {
         bool boolVal;
         int byteVal;
         float floatVal;
-    } data;
-} Variant;
+    };
+};
 
-template<T, V>
+template<typename T, typename V>
 class ValNode {
     private:
         T value;
         V& function;
         list<Variant> arguments;
-        ValNode left {NULL};
-        ValNode right {NULL};
+        list<ValNode> children;
     public:
         ValNode(T val, V& func, list<Variant> args);
-        void addLeft();
-        void addRight();
+        void addNode();
         T getVal();
-        ValNode getLeft();
-        ValNode getRight();
+        list<ValNode> getChildren();
+        ValNode getChild(T val);
         void setVal(T val);
         void setLeft(ValNode &left);
         void setRight(ValNode &right);
         ~ValNode();
-}
+};
