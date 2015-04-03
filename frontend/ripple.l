@@ -39,7 +39,7 @@ false       {	yylval.boolean = false; return BOOL;}
 		        return INTEGER;			}
 {float}	    {	yylval.decimal = atof(yytext);
 		        return FLOAT_LIT;		}
-{literal}   {	yylval.string = yytext;
+{literal}   {	yylval.string = new std::string(yytext);
                 return LITERAL;			}	 
 
 %%

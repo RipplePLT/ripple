@@ -7,26 +7,17 @@
 
 extern int yylex();
 void yyerror(const char *s) { printf("%s\n", s); }
-#define YYSTYPE int
+//#define YYSTYPE int
 %}
 
 %union {
     ASTNode *node;
     Expression *expr;
-    OrExpression *orExpr;
-    AndExpression *andExpr;
-    EqExpression *eqExpr;
-    RelExpression *relExpr;
-    AddExpression *addExpr;
-    MultExpression *multExpr;
-    ExpExpression *exprExpr;
+    BinaryExpression *binExpr;
     UnaryExpression *unExpr;
     ValueNode *val;
-    IntNode *intNode;
-    FloatNode *floatNode;
-    StringNode *stringNode;
     int integer;
-    std::string string;
+    std::string *string;
     double decimal;
     bool boolean;
 }
@@ -69,11 +60,14 @@ void yyerror(const char *s) { printf("%s\n", s); }
 ***************/
 %token <integer> ID
 %token <integer> INTEGER
-%token <float>   FLOAT_LIT 
+%token <decimal> FLOAT_LIT 
 %token <string>  LITERAL 
-%token <integer> TRUE
-%token <integer> FALSE
+%token <boolean> TRUE
+%token <boolean> FALSE
 
+%type <val> unit value
+%type <expr> expression
+%type <unExpr> unary_expression
 
 %left "=="
 %left "!="
@@ -148,14 +142,14 @@ exp_expression : unary_expression
                | exp_expression "^" unary_expression
                ;
 
-unary_expression : value			
-                 | "-" unary_expression
-                 | "@" unary_expression	
+unary_expression : value                    { $$ = new UnaryExpression($1); };	
+                 | "-" unary_expression     { $$ = new UnaryExpression($2, "-"); }
+                 | "@" unary_expression     { $$ = new UnaryExpression($2, "@"); }
                  | "(" TYPE ")" unary_expression
-                 | NOT unary_expression
+                 | NOT unary_expression     { $$ = new UnaryExpression($2, "not"); }
                  ;
 
-value : unit
+value : unit            { $$ = $1; }
       | function_call
       | array_access
       | dataset_access
@@ -172,11 +166,11 @@ dataset_access : value "." ID
                ;
 
 unit  : ID				 
-      | INTEGER				
-      | FLOAT_LIT
-      | STRING 
-      | TRUE				
-      | FALSE				
+      | INTEGER                 { $$ = new ValueNode($1); }	
+      | FLOAT_LIT               { $$ = new ValueNode($1); }
+      | STRING                  { $$ = new ValueNode($1); }
+      | TRUE				    { $$ = new ValueNode($1); }
+      | FALSE				    { $$ = new ValueNode($1); }
       | "(" expression ")"
       ;
 
