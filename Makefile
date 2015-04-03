@@ -10,20 +10,20 @@ YACC=bison
 CXXFLAGS= -std=c++11 
 OUT= -o $@
 
-rpl: ast.o y.tab.o lex.yy.o
-	$(CXX) -o rpl ast.o ripple.tab.o lex.yy.o -lm -lfl
+rpl: ast.o ripple.tab.o lex.yy.o
+	$(CXX) -o rpl ast.o ripple.tab.o lex.yy.o -lfl
 	rm -f *.o *.hpp *.cpp *.c *.cc
 
 ast.o: ast.cpp ast.h
-	$(CXX) -c frontend/ast.cpp frontend/ast.h $(CXXFLAGS)
+	$(CXX) -c frontend/ast.cpp $(CXXFLAGS)
 
-lex.yy.o: lex.yy.c ast.h
+lex.yy.o: lex.yy.c ripple.tab.hpp ast.h
 	$(CXX) -c lex.yy.c $(CXXFLAGS)
 
 lex.yy.c: ripple.l ripple.tab.hpp ast.h
 	$(LEX) frontend/ripple.l
 
-y.tab.o: ripple.tab.cpp ripple.tab.hpp ast.h
+ripple.tab.o: ripple.tab.cpp ripple.tab.hpp ast.h
 	$(CXX) -c ripple.tab.cpp $(CXXFLAGS)
 
 ripple.tab.cpp ripple.tab.hpp: ripple.ypp ast.h
@@ -32,7 +32,7 @@ ripple.tab.cpp ripple.tab.hpp: ripple.ypp ast.h
 
 .PHONY: clean
 clean:
-	rm -f *.o *.hpp *.cpp *.c *.cc frontent/ast.h.cgh rpl
+	rm -f *.o *.hpp *.cpp *.c *.cc rpl
 
 .PHONY: all
 all: clean default

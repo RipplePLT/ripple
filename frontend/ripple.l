@@ -1,9 +1,10 @@
 %{
+#include <string>
 #include "frontend/ast.h"
 #include "ripple.tab.hpp"
-
-#define YYSTYPE int
+extern "C" int yywrap();
 %}
+
 /* regular definitions */
 delim       [ \t\n]
 comment     (#.*\n)|(#\*[^(\*\/)]*\*\#)
@@ -42,7 +43,3 @@ false       {	yylval.boolean = false; return BOOL;}
                 return LITERAL;			}	 
 
 %%
-
-int yywrap(void) {
-    return 1;
-}
