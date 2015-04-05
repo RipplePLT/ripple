@@ -60,8 +60,7 @@ int symbol_table_contains(symbol_table *st, char *word){
 			return 1;
 		n = n->parent;
 	}
-
-	
+	return 0;
 }
 
 
