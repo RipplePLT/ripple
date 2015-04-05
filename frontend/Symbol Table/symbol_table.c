@@ -53,7 +53,15 @@ int symbol_table_put(symbol_table *st, char *word){
 
 
 int symbol_table_contains(symbol_table *st, char *word){
-	return hashmap_contains(st->current->hashmap, word);
+	
+	symbol_table_node *n = st->current;
+	while(n){
+		if(hashmap_contains(n->hashmap, word))
+			return 1;
+		n = n->parent;
+	}
+
+	
 }
 
 
