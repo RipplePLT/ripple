@@ -4,7 +4,6 @@
 #include <string>
 #include <string.h>
 
-class Expression;
 class BinaryExpression;
 class UnaryExpression;
 class ValueNode;
@@ -43,6 +42,12 @@ union operand {
         BinaryExpression *b_exp;
         UnaryExpression *u_exp;
         ValueNode *v_node;
+
+        operand operator=(operand o) {
+            b_exp = o.b_exp;
+            u_exp = o.u_exp;
+            v_node = o.v_node;
+        }
 };
 
 union value {
@@ -52,24 +57,13 @@ union value {
     bool bool_val;
     char byte_val;
 
-    value() {memset(this, 0, sizeof(value));}
+    value() { memset(this, 0, sizeof(value)); }
     ~value() {}
 };
 
-class ASTNode {
-    public:
-        virtual ~ASTNode();
-};
-
-class Expression : ASTNode {
-    public:
-        int op;
-};
-
 class ValueNode {
-    union value val;
-
     public:
+    union value val;
     enum e_type type;
 
     // Constructors for different types
@@ -80,28 +74,59 @@ class ValueNode {
     ValueNode(char b) { val.byte_val = b; type = tBYTE; }
 };
 
-class UnaryExpression : ValueNode {
-    union operand left_operand;
-    bool repeats;
+class UnaryExpression {
+    union operand right_operand;
 
     public:
     enum e_op op;
     
-    UnaryExpression(UnaryExpression *u, std::string _op):
-    ValueNode(10)
+    UnaryExpression(UnaryExpression *u, std::string _op)
     {
-        
         op = get_op(_op);
-        left_operand.u_exp = u;
-        repeats = true;
+        right_operand.u_exp = u;
     }
 
-    UnaryExpression(ValueNode *v):
-    ValueNode(10)
+    UnaryExpression(ValueNode *v)
     {
         op = NONE;
-        left_operand.v_node = v;
-        repeats = false;
+        right_operand.v_node = v;
+    }
+};
+
+class BinaryExpression {
+    public:
+    union operand left_operand;
+    union operand right_operand;
+    enum e_op op;
+    bool left_is_binary;
+    bool right_is_binary;
+
+    BinaryExpression(BinaryExpression *bl, std::string _op,BinaryExpression *br) {
+        left_operand.b_exp = bl;
+        right_operand.b_exp = br;
+        op = get_op(_op);
+        left_is_binary = right_is_binary = true;
+    }
+    
+    BinaryExpression(BinaryExpression *bl, std::string _op, UnaryExpression *ur) {
+        left_operand.b_exp = bl;
+        right_operand.u_exp = ur;
+        op = get_op(_op);
+        left_is_binary = true;
+        right_is_binary = false;
+    }
+
+    BinaryExpression(BinaryExpression *bl) {
+        left_operand = bl->left_operand;
+        right_operand = bl->right_operand;
+        op = bl->op;
+        left_is_binary = bl->left_is_binary;
+        right_is_binary = bl->right_is_binary;
+    }
+
+    BinaryExpression(UnaryExpression *ul) {
+        left_operand.u_exp = ul;
+        op = NONE;
     }
 };
 #endif

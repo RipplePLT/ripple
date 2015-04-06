@@ -2,17 +2,17 @@
 #include <cctype>
 #include <cstdio>
 #include <string>
-
+#include <iostream>
 #include "frontend/ast.h"
+using namespace std;
 
 extern int yylex();
 void yyerror(const char *s) { printf("%s\n", s); }
-//#define YYSTYPE int
+//#define YYSTYPE std::string
 %}
 
+
 %union {
-    ASTNode *node;
-    Expression *expr;
     BinaryExpression *binExpr;
     UnaryExpression *unExpr;
     ValueNode *val;
@@ -49,13 +49,6 @@ void yyerror(const char *s) { printf("%s\n", s); }
 %token <integer> VOID
 
 /***************
-       OP
-***************/
-%token <integer> AND 
-%token <integer> OR 
-%token <integer> NOT 
-
-/***************
     VARIABLES 
 ***************/
 %token <integer> ID
@@ -66,8 +59,8 @@ void yyerror(const char *s) { printf("%s\n", s); }
 %token <boolean> FALSE
 
 %type <val> unit value
-%type <expr> expression
 %type <unExpr> unary_expression
+%type <binExpr> exp_expression mult_expression add_expression rel_expression eq_expression and_expression or_expression expression
 
 %left "=="
 %left "!="
@@ -91,10 +84,12 @@ void yyerror(const char *s) { printf("%s\n", s); }
 %right "@"
 %right NOT 
 
+%right "="
+
 %%
 
 /* TEMPORARY; ONLY HERE TO TEST EXPRESSIONS */
-program : program expression ";"
+program : program expression ";" { cout << "success" << endl; } 
         |
         ;
 
@@ -102,44 +97,44 @@ args : args "," expression
      | expression
      ;
 
-expression : or_expression
-           | value "=" or_expression	
+expression : or_expression             { $$ = $1;  }
+           | value "=" or_expression  
            ;
 
-or_expression : and_expression
-              | or_expression OR and_expression
+or_expression : and_expression                  { $$ = new BinaryExpression($1); }
+              | or_expression OR and_expression { $$ = new BinaryExpression($1, "or", $3); }
               ;
 
-and_expression : eq_expression
-               | and_expression AND eq_expression
+and_expression : eq_expression                      { $$ = new BinaryExpression($1); }
+               | and_expression AND eq_expression   { $$ = new BinaryExpression($1, "and", $3); }
                ;
 
-eq_expression : rel_expression
-              | eq_expression "==" rel_expression
-              | eq_expression "!=" rel_expression
+eq_expression : rel_expression                      { $$ = new BinaryExpression($1); }
+              | eq_expression "==" rel_expression   { $$ = new BinaryExpression($1, "==", $3); }
+              | eq_expression "!=" rel_expression   { $$ = new BinaryExpression($1, "!=", $3); }
               ;
 
-rel_expression : add_expression
-               | rel_expression ">" add_expression
-               | rel_expression "<" add_expression
-               | rel_expression ">=" add_expression
-               | rel_expression "<=" add_expression
+rel_expression : add_expression                     { $$ = new BinaryExpression($1); }
+               | rel_expression ">" add_expression  { $$ = new BinaryExpression($1, ">", $3); }
+               | rel_expression "<" add_expression  { $$ = new BinaryExpression($1, "<", $3); }
+               | rel_expression ">=" add_expression { $$ = new BinaryExpression($1, ">=", $3); }
+               | rel_expression "<=" add_expression { $$ = new BinaryExpression($1, "<=", $3); }
                ;
 
-add_expression : mult_expression
-               | add_expression "+" mult_expression
-               | add_expression "-" mult_expression
+add_expression : mult_expression                    { $$ = new BinaryExpression($1); }
+               | add_expression "+" mult_expression { $$ = new BinaryExpression($1, "+", $3); }
+               | add_expression "-" mult_expression { $$ = new BinaryExpression($1, "-", $3); }
                ;
 
-mult_expression : exp_expression
-                | mult_expression "*" exp_expression
-                | mult_expression "/" exp_expression
-                | mult_expression "//" exp_expression
-                | mult_expression "%" exp_expression
+mult_expression : exp_expression                        { $$ = new BinaryExpression($1); }
+                | mult_expression "*" exp_expression    { $$ = new BinaryExpression($1, "*", $3); }
+                | mult_expression "/" exp_expression    { $$ = new BinaryExpression($1, "/", $3); }
+                | mult_expression "//" exp_expression   { $$ = new BinaryExpression($1, "//", $3); }
+                | mult_expression "%" exp_expression    { $$ = new BinaryExpression($1, "%", $3); }
                 ;
 
-exp_expression : unary_expression
-               | exp_expression "^" unary_expression
+exp_expression : unary_expression                       { $$ = new BinaryExpression($1); }
+               | exp_expression "^" unary_expression    { $$ = new BinaryExpression($1, "^", $3); }
                ;
 
 unary_expression : value                    { $$ = new UnaryExpression($1); };	
@@ -162,7 +157,7 @@ function_call : ID "(" args ")"
 array_access : value "[" expression "]"
              ;
 
-dataset_access : value "." ID 
+dataset_access : value "." ID
                ;
 
 unit  : ID				 
