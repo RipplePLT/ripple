@@ -37,12 +37,36 @@ byte        {	yylval.integer = BYTE; return TYPE;	}
 bool        {	yylval.integer = BOOL; return TYPE;	}
 true        {	yylval.boolean = true; return BOOL;}
 false       {	yylval.boolean = false; return BOOL;}
+not         {   return NOT; }
+and         {   return AND; }
+or          {   return OR; }
 {id}        {	return ID;			}
 {integer}   {	yylval.integer = atoi(yytext);
 		        return INTEGER;			}
 {float}	    {	yylval.decimal = atof(yytext);
 		        return FLOAT_LIT;		}
 {literal}   {	yylval.string = new std::string(yytext);
-                return LITERAL;			}	 
-
+                return LITERAL;			}
+"+"         {   return tPLUS;  }
+"-"         {   return tMINUS; }
+"*"         {   return tTIMES; } 
+"/"			{	return tDIV; }
+"//"		{	return tFLDIV; }
+"^"			{	return tEXP;  }
+"@"			{	return tSIZE; }
+">"			{	return tGT;  }
+"<"			{	return tLT;  }
+">="		{	return tGE;	}
+"<="		{	return tLE;	}
+"=="		{	return tEQ; }
+"!="		{	return tNE;	}
+","			{	return tCOMMA; }
+"("			{	return tL_PAREN; }
+")"			{	return tR_PAREN; }
+"["			{	return tL_BRACKET; }
+"]"			{	return tR_BRACKET; }
+"{"			{	return tL_CURLY; }
+"}"			{	return tR_CURLY; }
+";"         {   return tSEMI;  }
+"."         {   return tACCESS; }
 %%

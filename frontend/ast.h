@@ -3,6 +3,9 @@
 
 #include <string>
 #include <string.h>
+#include <iostream>
+
+using namespace std;
 
 class BinaryExpression;
 class UnaryExpression;
@@ -42,12 +45,6 @@ union operand {
         BinaryExpression *b_exp;
         UnaryExpression *u_exp;
         ValueNode *v_node;
-
-        operand operator=(operand o) {
-            b_exp = o.b_exp;
-            u_exp = o.u_exp;
-            v_node = o.v_node;
-        }
 };
 
 union value {
@@ -67,7 +64,7 @@ class ValueNode {
     enum e_type type;
 
     // Constructors for different types
-    ValueNode(int i) { val.int_val = i; type = tINT; }
+    ValueNode(int i) { val.int_val = i; type = tINT;  }
     ValueNode(double d) { val.float_val = d; type = tFLOAT; }
     ValueNode(std::string s) { val.string_val = s; type = tSTRING; }
     ValueNode(bool b) { val.bool_val = b; type = tBOOL; }
@@ -117,6 +114,7 @@ class BinaryExpression {
     }
 
     BinaryExpression(BinaryExpression *bl) {
+        
         left_operand = bl->left_operand;
         right_operand = bl->right_operand;
         op = bl->op;
