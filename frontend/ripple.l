@@ -3,10 +3,12 @@
 #include "frontend/ast.h"
 #include "ripple.tab.hpp"
 extern "C" int yywrap();
+int line_no;
 %}
 
 /* regular definitions */
-delim       [ \t\n]
+delim       [ \t]
+nl			\n
 comment     (#.*\n)|(#\*[^(\*\/)]*\*\#)
 ws          ({comment}|{delim})+
 letter      [A-Za-z_]
@@ -18,6 +20,7 @@ float	    {digit}+\.{digit}*
 
 %%
 
+{nl}		{   line_no++;  }
 {ws}        {/* don't do anything for whitespace */	}
 if          {	return IF;	}
 else        {	return ELSE;	}
