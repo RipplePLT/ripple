@@ -112,6 +112,7 @@ program : program expression tSEMI { d("success"); }
 
 args : args tCOMMA expression
      | expression
+     |
      ;
 
 expression : or_expression             { $$ = $1;  d("exp");}
