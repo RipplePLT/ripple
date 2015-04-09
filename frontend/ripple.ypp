@@ -163,7 +163,7 @@ unary_expression : value                    { $$ = new UnaryExpressionNode($1); 
                  ;
 
 value : unit            { $$ = $1; d("value");}
-      | function_call
+      | function_call   
       | array_access
       | dataset_access
       | ID
@@ -173,10 +173,10 @@ value : unit            { $$ = $1; d("value");}
 function_call : ID tL_PAREN args tR_PAREN
 	      ;
 
-array_access : value tL_BRACKET expression tR_BRACKET
+array_access : value tL_BRACKET expression tR_BRACKET { $$ = new ArrayAccessNode($1, $3); }
              ;
 
-dataset_access : value tACCESS ID
+dataset_access : value tACCESS ID { $$ = new DatasetAccessNode($1, $3); }
                ;
 
 unit  : INTEGER                 { $$ = new LiteralNode($1); d("INT");}	
