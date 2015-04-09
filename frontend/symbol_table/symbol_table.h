@@ -24,7 +24,7 @@ void symbol_table_init(symbol_table *st);
 void symbol_table_scope_in(symbol_table *st, int line_no);
 void symbol_table_scope_out(symbol_table *st, int line_no);
 
-int symbol_table_put(symbol_table *st, char *word);
+char *symbol_table_put(symbol_table *st, char *word);
 int symbol_table_contains(symbol_table *st, char *word);
 int symbol_table_remove(symbol_table *st, char *word);
 

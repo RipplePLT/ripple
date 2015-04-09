@@ -47,7 +47,7 @@ void symbol_table_scope_out(symbol_table *st, int line_no){
 }
 
 
-int symbol_table_put(symbol_table *st, char *word){
+char *symbol_table_put(symbol_table *st, char *word){
 	return hashmap_put(st->current->hashmap, word);
 }
 
