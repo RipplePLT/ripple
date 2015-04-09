@@ -9,7 +9,7 @@ int line_no;
 /* regular definitions */
 delim       [ \t]
 nl			\n
-comment     (#.*\n)|(#\*[^(\*\/)]*\*\#)
+comment     (#.*\n)|(#\*[^(\*\#)]*\*\#)
 ws          ({comment}|{delim})+
 letter      [A-Za-z_]
 digit       [0-9]
