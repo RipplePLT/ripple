@@ -7,9 +7,12 @@
 
 using namespace std;
 
+class ValueNode;
+class ExpressionNode;
 class BinaryExpressionNode;
 class UnaryExpressionNode;
 class LiteralNode;
+class IDNode;
 
 enum e_type {
     tINT,
@@ -47,15 +50,24 @@ union operand {
         LiteralNode *v_node;
 };
 
-union value {
-    int int_val;
-    double float_val;
-    std::string string_val;
-    bool bool_val;
-    char byte_val;
+union literal {
+    int int_lit;
+    double float_lit;
+    string string_lit;
+    bool bool_lit;
+    char byte_lit;
 
-    value() { memset(this, 0, sizeof(value)); }
-    ~value() {}
+    literal() { memset(this, 0, sizeof(literal)); }
+    ~literal() {}
+};
+
+union value {
+    IDNode *id_val;
+    LiteralNode *lit_val;
+    //FunctionCallNode *function_call_val;
+    //ArrayAccessNode *array_access_val;
+    //DataSetAccessNode *dataset_access_val;
+    ExpressionNode *expression_val;
 };
 
 struct ID {
@@ -73,15 +85,15 @@ public:
 
 class LiteralNode {
     public:
-    union value val;
+    union literal val;
     enum e_type type;
 
     // Constructors for different types
-    LiteralNode(int i) { val.int_val = i; type = tINT;  }
-    LiteralNode(double d) { val.float_val = d; type = tFLOAT; }
-    LiteralNode(std::string s) { val.string_val = s; type = tSTRING; }
-    LiteralNode(bool b) { val.bool_val = b; type = tBOOL; }
-    LiteralNode(char b) { val.byte_val = b; type = tBYTE; }
+    LiteralNode(int i) { val.int_lit = i; type = tINT;  }
+    LiteralNode(double d) { val.float_lit = d; type = tFLOAT; }
+    LiteralNode(string s) { val.string_lit = s; type = tSTRING; }
+    LiteralNode(bool b) { val.bool_lit = b; type = tBOOL; }
+    LiteralNode(char b) { val.byte_lit = b; type = tBYTE; }
 };
 
 class UnaryExpressionNode {
@@ -139,5 +151,33 @@ class BinaryExpressionNode {
         left_operand.u_exp = ul;
         op = NONE;
     }
+};
+
+class ExpressionNode {
+    public:
+    BinaryExpressionNode *bin_exp;
+    ValueNode *value;
+
+   ExpressionNode(BinaryExpressionNode *b) {
+        bin_exp = b;
+        value = NULL;
+   }
+
+   ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
+        bin_exp = b;
+        value = v;
+   }
+};
+
+class ValueNode {
+    public:
+    union value val;
+
+    ValueNode(IDNode *i) { val.id_val = i; }
+    ValueNode(LiteralNode *l) { val.lit_val = l; }
+    //ValueNode(FunctionCallNode *f) { val.function_call_val = f; ;
+    //ValueNode(ArrayAccessNode *a) { val.array_access_val = a; }
+    //ValueNode(DataSetAccessNode *d) { val.dataset_access_val = d; }
+    ValueNode(ExpressionNode *e) { val.expression_val = e; }
 };
 #endif
