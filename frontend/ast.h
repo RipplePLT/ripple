@@ -4,6 +4,7 @@
 #include <string>
 #include <string.h>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -18,6 +19,7 @@ class ArrayAccessNode;
 class DatasetAccessNode;
 class ExpressionNode;
 class ValueNode;
+class ArgsNode;
 
 enum e_type {
     tINT,
@@ -80,12 +82,29 @@ struct ID {
 };
 
 class IDNode {
-public:
-    struct ID id;
+    public:
+        struct ID id;
 
-    IDNode(char *idName) { id.name = idName; }
+        IDNode(char *idName) { id.name = idName; }
 };
 
+class FunctionCallNode{
+    ArgsNode *args_list;
+    IDNode *func_name;
+
+    public:
+        FunctionCallNode(IDNode *func_name, ArgsNode *args_list){ this->func_name = func_name ; this->args_list = args_list; };
+        FunctionCallNode(IDNode *func_name) { this->func_name = func_name; };
+
+};
+
+class ArgsNode{
+    std::vector<ExpressionNode*> args_list;
+
+    public:
+        ArgsNode(vector<ExpressionNode*> args_list) { this->args_list = args_list; };
+	void add_arg(ExpressionNode* arg) { args_list.push_back(arg); }
+};
 
 class LiteralNode {
     public:
