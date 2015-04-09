@@ -171,7 +171,6 @@ value : unit            { $$ = $1; d("value");}
       ;
 
 function_call : ID tL_PAREN args tR_PAREN
-	      | ID tL_PAREN tR_PAREN
 	      ;
 
 array_access : value tL_BRACKET expression tR_BRACKET

@@ -10,6 +10,11 @@ using namespace std;
 class BinaryExpressionNode;
 class UnaryExpressionNode;
 class LiteralNode;
+class FunctionCallNode;
+class ArrayAccessNode;
+class DatasetAccessNode;
+class ExpressionNode;
+class ValueNode;
 
 enum e_type {
     tINT,
@@ -70,7 +75,6 @@ public:
 };
 
 
-
 class LiteralNode {
     public:
     union value val;
@@ -82,6 +86,28 @@ class LiteralNode {
     LiteralNode(std::string s) { val.string_val = s; type = tSTRING; }
     LiteralNode(bool b) { val.bool_val = b; type = tBOOL; }
     LiteralNode(char b) { val.byte_val = b; type = tBYTE; }
+};
+
+class ArrayAccessNode {
+public:
+    ValueNode *vn;
+    ExpressionNode *en;
+
+    ArrayAccessNode(ValueNode *valueNode, ExpressionNode *expressionNode) {
+        vn = valueNode;
+        en = expressionNode;
+    }
+};
+
+class DatasetAccessNode {
+public:
+    ValueNode *vn;
+    IDNode *idn;
+
+    DatasetAccessNode(ValueNode *valueNode, IDNode *idNode) {
+        vn = valueNode;
+        idn = idNode;
+    }
 };
 
 class UnaryExpressionNode {
