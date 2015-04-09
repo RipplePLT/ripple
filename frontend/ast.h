@@ -7,8 +7,8 @@
 
 using namespace std;
 
-class BinaryExpression;
-class UnaryExpression;
+class BinaryExpressionNode;
+class UnaryExpressionNode;
 class LiteralNode;
 
 enum e_type {
@@ -42,8 +42,8 @@ enum e_op {
 enum e_op get_op(std::string op_string);
 
 union operand {
-        BinaryExpression *b_exp;
-        UnaryExpression *u_exp;
+        BinaryExpressionNode *b_exp;
+        UnaryExpressionNode *u_exp;
         LiteralNode *v_node;
 };
 
@@ -60,14 +60,14 @@ union value {
 
 struct ID {
     char *name;
-}
+};
 
 class IDNode {
 public:
     struct ID id;
 
     IDNode(char *idName) { id.name = idName; }
-}
+};
 
 
 
@@ -84,26 +84,26 @@ class LiteralNode {
     LiteralNode(char b) { val.byte_val = b; type = tBYTE; }
 };
 
-class UnaryExpression {
+class UnaryExpressionNode {
     union operand right_operand;
 
     public:
     enum e_op op;
     
-    UnaryExpression(UnaryExpression *u, std::string _op)
+    UnaryExpressionNode(UnaryExpressionNode *u, std::string _op)
     {
         op = get_op(_op);
         right_operand.u_exp = u;
     }
 
-    UnaryExpression(LiteralNode *v)
+    UnaryExpressionNode(LiteralNode *v)
     {
         op = NONE;
         right_operand.v_node = v;
     }
 };
 
-class BinaryExpression {
+class BinaryExpressionNode {
     public:
     union operand left_operand;
     union operand right_operand;
@@ -111,14 +111,14 @@ class BinaryExpression {
     bool left_is_binary;
     bool right_is_binary;
 
-    BinaryExpression(BinaryExpression *bl, std::string _op,BinaryExpression *br) {
+    BinaryExpressionNode(BinaryExpressionNode *bl, std::string _op,BinaryExpressionNode *br) {
         left_operand.b_exp = bl;
         right_operand.b_exp = br;
         op = get_op(_op);
         left_is_binary = right_is_binary = true;
     }
     
-    BinaryExpression(BinaryExpression *bl, std::string _op, UnaryExpression *ur) {
+    BinaryExpressionNode(BinaryExpressionNode *bl, std::string _op, UnaryExpressionNode *ur) {
         left_operand.b_exp = bl;
         right_operand.u_exp = ur;
         op = get_op(_op);
@@ -126,7 +126,7 @@ class BinaryExpression {
         right_is_binary = false;
     }
 
-    BinaryExpression(BinaryExpression *bl) {
+    BinaryExpressionNode(BinaryExpressionNode *bl) {
         
         left_operand = bl->left_operand;
         right_operand = bl->right_operand;
@@ -135,7 +135,7 @@ class BinaryExpression {
         right_is_binary = bl->right_is_binary;
     }
 
-    BinaryExpression(UnaryExpression *ul) {
+    BinaryExpressionNode(UnaryExpressionNode *ul) {
         left_operand.u_exp = ul;
         op = NONE;
     }
