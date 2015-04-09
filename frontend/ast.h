@@ -102,7 +102,7 @@ class ArgsNode{
     std::vector<ExpressionNode*> args_list;
 
     public:
-        ArgsNode(vector<ExpressionNode*> args_list) { this->args_list = args_list; };
+        ArgsNode() {};
 	void add_arg(ExpressionNode* arg) { args_list.push_back(arg); }
 };
 

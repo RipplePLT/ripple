@@ -40,7 +40,7 @@ false       {	yylval.boolean = false; return BOOL;}
 not         {   return NOT; }
 and         {   return AND; }
 or          {   return OR; }
-{id}        {	return ID;			}
+{id}        {	return ID; 		}
 {integer}   {	yylval.integer = atoi(yytext);
 		        return INTEGER;			}
 {float}	    {	yylval.decimal = atof(yytext);
@@ -68,5 +68,5 @@ or          {   return OR; }
 "{"			{	return tL_CURLY; }
 "}"			{	return tR_CURLY; }
 ";"         {   return tSEMI;  }
-"."         {   return tACCESS; }
+"\."        {  return tACCESS; }
 %%
