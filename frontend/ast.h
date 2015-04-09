@@ -13,6 +13,11 @@ class BinaryExpressionNode;
 class UnaryExpressionNode;
 class LiteralNode;
 class IDNode;
+class FunctionCallNode;
+class ArrayAccessNode;
+class DatasetAccessNode;
+class ExpressionNode;
+class ValueNode;
 
 enum e_type {
     tINT,
@@ -42,12 +47,12 @@ enum e_op {
     NONE
 };
 
-enum e_op get_op(std::string op_string);
+enum e_op get_op(string op_string);
 
 union operand {
         BinaryExpressionNode *b_exp;
         UnaryExpressionNode *u_exp;
-        LiteralNode *v_node;
+        ValueNode *v_node;
 };
 
 union literal {
@@ -64,9 +69,9 @@ union literal {
 union value {
     IDNode *id_val;
     LiteralNode *lit_val;
-    //FunctionCallNode *function_call_val;
-    //ArrayAccessNode *array_access_val;
-    //DataSetAccessNode *dataset_access_val;
+    FunctionCallNode *function_call_val;
+    ArrayAccessNode *array_access_val;
+    DatasetAccessNode *dataset_access_val;
     ExpressionNode *expression_val;
 };
 
@@ -82,7 +87,6 @@ public:
 };
 
 
-
 class LiteralNode {
     public:
     union literal val;
@@ -96,19 +100,41 @@ class LiteralNode {
     LiteralNode(char b) { val.byte_lit = b; type = tBYTE; }
 };
 
+class ArrayAccessNode {
+public:
+    ValueNode *vn;
+    ExpressionNode *en;
+
+    ArrayAccessNode(ValueNode *valueNode, ExpressionNode *expressionNode) {
+        vn = valueNode;
+        en = expressionNode;
+    }
+};
+
+class DatasetAccessNode {
+public:
+    ValueNode *vn;
+    IDNode *idn;
+
+    DatasetAccessNode(ValueNode *valueNode, IDNode *idNode) {
+        vn = valueNode;
+        idn = idNode;
+    }
+};
+
 class UnaryExpressionNode {
     union operand right_operand;
 
     public:
     enum e_op op;
     
-    UnaryExpressionNode(UnaryExpressionNode *u, std::string _op)
+    UnaryExpressionNode(UnaryExpressionNode *u, string _op)
     {
         op = get_op(_op);
         right_operand.u_exp = u;
     }
 
-    UnaryExpressionNode(LiteralNode *v)
+    UnaryExpressionNode(ValueNode *v)
     {
         op = NONE;
         right_operand.v_node = v;
@@ -123,14 +149,14 @@ class BinaryExpressionNode {
     bool left_is_binary;
     bool right_is_binary;
 
-    BinaryExpressionNode(BinaryExpressionNode *bl, std::string _op,BinaryExpressionNode *br) {
+    BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br) {
         left_operand.b_exp = bl;
         right_operand.b_exp = br;
         op = get_op(_op);
         left_is_binary = right_is_binary = true;
     }
     
-    BinaryExpressionNode(BinaryExpressionNode *bl, std::string _op, UnaryExpressionNode *ur) {
+    BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur) {
         left_operand.b_exp = bl;
         right_operand.u_exp = ur;
         op = get_op(_op);
@@ -175,9 +201,9 @@ class ValueNode {
 
     ValueNode(IDNode *i) { val.id_val = i; }
     ValueNode(LiteralNode *l) { val.lit_val = l; }
-    //ValueNode(FunctionCallNode *f) { val.function_call_val = f; ;
-    //ValueNode(ArrayAccessNode *a) { val.array_access_val = a; }
-    //ValueNode(DataSetAccessNode *d) { val.dataset_access_val = d; }
+    ValueNode(FunctionCallNode *f) { val.function_call_val = f; } 
+    ValueNode(ArrayAccessNode *a) { val.array_access_val = a; }
+    ValueNode(DatasetAccessNode *d) { val.dataset_access_val = d; }
     ValueNode(ExpressionNode *e) { val.expression_val = e; }
 };
 #endif
