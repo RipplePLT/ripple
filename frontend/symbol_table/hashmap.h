@@ -13,7 +13,7 @@ typedef struct hashmap hashmap;
 
 hashmap *hashmap_init();
 void hashmap_destroy(hashmap *map);
-int hashmap_put(hashmap *map, char *word);
+char *hashmap_put(hashmap *map, char *word);
 int hashmap_contains(hashmap *map, char *word);
 int hashmap_remove(hashmap *map, char *word);
 

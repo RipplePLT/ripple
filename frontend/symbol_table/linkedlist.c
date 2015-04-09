@@ -10,7 +10,7 @@ void list_init(linkedlist *list){
 }
 
 
-void list_add(linkedlist *list, char *word){
+char *list_add(linkedlist *list, char *word){
 	
 	int len = strlen(word) + 1;
 	char *id = malloc(len);
@@ -20,6 +20,8 @@ void list_add(linkedlist *list, char *word){
 	newNode->data = id;
 	newNode->next = list->start;
 	list->start = newNode;
+
+	return id;
 }
 
 

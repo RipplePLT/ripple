@@ -60,14 +60,13 @@ void hashmap_destroy(hashmap *map){
 }
 
 
-int hashmap_put(hashmap *map, char *word){
+char *hashmap_put(hashmap *map, char *word){
 
 	int position = hashCode(word) % DEFAULT_TABLE_SIZE;
 	if(list_contains(&map->table[position], word))
-		return 0;
+		return NULL;
 
-	list_add(&map->table[position], word);
-	return 1;
+	return list_add(&map->table[position], word);
 }
 
 
