@@ -11,6 +11,8 @@ using namespace std;
 class BinaryExpressionNode;
 class UnaryExpressionNode;
 class LiteralNode;
+class FunctionCallNode;
+class ArgsNode;
 
 enum e_type {
     tINT,
@@ -71,12 +73,12 @@ class IDNode {
 };
 
 class FunctionCallNode{
-    ArgsNode *arg_list;
+    ArgsNode *args_list;
     IDNode *func_name;
 
     public:
-        FunctionCallNode(IDNode *func_name, ArgsNode *args_list){ this.func_name = func_name ; this.args_list = args_list; };
-        FunctionCallNode(IDNode *func_name) { this.func_name = func_name; };
+        FunctionCallNode(IDNode *func_name, ArgsNode *args_list){ this->func_name = func_name ; this->args_list = args_list; };
+        FunctionCallNode(IDNode *func_name) { this->func_name = func_name; };
 
 };
 
@@ -84,7 +86,7 @@ class ArgsNode{
     std::vector<ExpressionNode> args_list;
 
     public:
-        ArgsNode(std::vector<ExpressionNode> args_list) { this.args_list = args_list; };
+        ArgsNode(std::vector<ExpressionNode> args_list) { this->args_list = args_list; };
 	void add_arg(ExpressionNode arg) { args_list.push_back(arg); }
 };
 
