@@ -9,7 +9,7 @@ using namespace std;
 
 class BinaryExpression;
 class UnaryExpression;
-class ValueNode;
+class LiteralNode;
 
 enum e_type {
     tINT,
@@ -44,7 +44,7 @@ enum e_op get_op(std::string op_string);
 union operand {
         BinaryExpression *b_exp;
         UnaryExpression *u_exp;
-        ValueNode *v_node;
+        LiteralNode *v_node;
 };
 
 union value {
@@ -58,17 +58,30 @@ union value {
     ~value() {}
 };
 
-class ValueNode {
+struct ID {
+    char *name;
+}
+
+class IDNode {
+public:
+    struct ID id;
+
+    IDNode(char *idName) { id.name = idName; }
+}
+
+
+
+class LiteralNode {
     public:
     union value val;
     enum e_type type;
 
     // Constructors for different types
-    ValueNode(int i) { val.int_val = i; type = tINT;  }
-    ValueNode(double d) { val.float_val = d; type = tFLOAT; }
-    ValueNode(std::string s) { val.string_val = s; type = tSTRING; }
-    ValueNode(bool b) { val.bool_val = b; type = tBOOL; }
-    ValueNode(char b) { val.byte_val = b; type = tBYTE; }
+    LiteralNode(int i) { val.int_val = i; type = tINT;  }
+    LiteralNode(double d) { val.float_val = d; type = tFLOAT; }
+    LiteralNode(std::string s) { val.string_val = s; type = tSTRING; }
+    LiteralNode(bool b) { val.bool_val = b; type = tBOOL; }
+    LiteralNode(char b) { val.byte_val = b; type = tBYTE; }
 };
 
 class UnaryExpression {
@@ -83,7 +96,7 @@ class UnaryExpression {
         right_operand.u_exp = u;
     }
 
-    UnaryExpression(ValueNode *v)
+    UnaryExpression(LiteralNode *v)
     {
         op = NONE;
         right_operand.v_node = v;

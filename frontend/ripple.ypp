@@ -11,7 +11,7 @@ void yyerror(const char *s) { printf("%s\n", s); }
 //#define YYSTYPE std::string
 
 void d(string m) {
-//    cerr << m << endl;
+    cerr << m << endl;
 }
 %}
 
@@ -19,7 +19,7 @@ void d(string m) {
 %union {
     BinaryExpression *binExpr;
     UnaryExpression *unExpr;
-    ValueNode *val;
+    LiteralNode *val;
     int integer;
     std::string *string;
     double decimal;
@@ -165,6 +165,8 @@ value : unit            { $$ = $1; d("value");}
       | function_call
       | array_access
       | dataset_access
+      | ID
+      | tL_PAREN expression tR_PAREN
       ;
 
 function_call : ID tL_PAREN args tR_PAREN
@@ -177,13 +179,11 @@ array_access : value tL_BRACKET expression tR_BRACKET
 dataset_access : value tACCESS ID
                ;
 
-unit  : ID				              { d("ID"); }
-      | INTEGER                 { $$ = new ValueNode($1); d("INT");}	
-      | FLOAT_LIT               { $$ = new ValueNode($1);  d("FLOAT"); }
-      | STRING                  { $$ = new ValueNode($1);  d("STRING"); }
-      | TRUE				    { $$ = new ValueNode($1);  d("true"); }
-      | FALSE				    { $$ = new ValueNode($1);  d("false"); }
-      | tL_PAREN expression tR_PAREN
+unit  : INTEGER                 { $$ = new LiteralNode($1); d("INT");}	
+      | FLOAT_LIT               { $$ = new LiteralNode($1);  d("FLOAT"); }
+      | STRING                  { $$ = new LiteralNode($1);  d("STRING"); }
+      | TRUE				    { $$ = new LiteralNode($1);  d("true"); }
+      | FALSE				    { $$ = new LiteralNode($1);  d("false"); }
       ;
 
 %%
