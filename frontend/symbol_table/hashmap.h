@@ -1,20 +1,25 @@
 #ifndef _HASHMAP_
 #define _HASHMAP_
-
+#include <list>
+#include <string>
+#include <array>
 #define HASH_PRIME 31
 
-#define DEFAULT_TABLE_SIZE 997
+#define TABLE_SIZE 997
 
-struct hashmap{
-	struct linkedlist *table;
+using namespace std;
+
+typedef array<list<string>*, TABLE_SIZE> table;
+
+class HashMap{
+    table t;
+
+    public:
+    HashMap();
+    ~HashMap();
+    string put(string word);
+    bool contains(string word);
+    bool remove(string word);
 };
-
-typedef struct hashmap hashmap;
-
-hashmap *hashmap_init();
-void hashmap_destroy(hashmap *map);
-char *hashmap_put(hashmap *map, char *word);
-int hashmap_contains(hashmap *map, char *word);
-int hashmap_remove(hashmap *map, char *word);
 
 #endif

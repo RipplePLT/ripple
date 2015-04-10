@@ -1,9 +1,9 @@
 CC  = gcc
-CXX = g++
+CXX = clang++
 
 INCLUDES =
 CFLAGS   = -g -Wall $(INCLUDES)
-CXXFLAGS = -g -Wall $(INCLUDES)
+CXXFLAGS = -g -Wall -std=c++11 $(INCLUDES)
 
 LDFLAGS = -g
 LDLIBS = -lm
@@ -14,13 +14,9 @@ libsym.a: symbol_table.o
 	ar rc libsym.a symbol_table.o
 	ranlib libsym.a
 
-symbol_table.o: hashmap.o linkedlist.o
+symbol_table.o: hashmap.o
 
-hashmap.o: linkedlist.o
-
-hashmap.o: linkedlist.h
-
-linkedlist.o: linkedlist.h
+hashmap.o: hashmap.h
 
 .PHONY: clean
 clean:
