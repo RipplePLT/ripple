@@ -3,7 +3,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include "ValNode.hpp"
+#include "value_node.hpp"
 
 // @TODO use producer-consumer queue
 
