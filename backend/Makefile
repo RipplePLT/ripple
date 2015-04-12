@@ -7,5 +7,8 @@ main: main.o
 main.o: main.cpp
 	$(CC) -c main.cpp $(CCFLAGS)
 
+test: test.cpp
+	$(CC) -o test test.cpp $(CCFLAGS)
+
 clean:
-	rm main *.o
+	rm main *.o test

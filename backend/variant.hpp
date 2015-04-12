@@ -23,7 +23,7 @@ struct variant {
         bool bool_val;
         int byte_val;
         float float_val;
-    };
+    } data;
 };
 
 #endif

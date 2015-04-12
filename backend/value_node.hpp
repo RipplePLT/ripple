@@ -65,12 +65,12 @@ list<typename value_node<T,V>::value_node> value_node<T, V>::get_children() {
 }
 
 template<typename T, typename V>
-list<Variant> value_node<T, V>::get_arguments() {
+list<variant> value_node<T, V>::get_arguments() {
     return this->arguments;
 }
 
 template<typename T, typename V>
-void value_node<T, V>::setVal(T val) {
+void value_node<T, V>::set_value(T val) {
     this->value = val;
 }
 
@@ -80,7 +80,7 @@ void value_node<T, V>::set_children(list<value_node> children) {
 }
 
 template<typename T, typename V>
-void value_node<T, V>::set_arguments(list<Variant> arguments) {
+void value_node<T, V>::set_arguments(list<variant> arguments) {
     this->arguments = arguments;
 }
 
