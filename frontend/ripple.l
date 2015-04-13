@@ -4,6 +4,11 @@
 #include "ripple.tab.hpp"
 extern "C" int yywrap();
 int line_no;
+
+void db(std::string m){
+	//cout << m << endl;
+}
+
 %}
 
 /* regular definitions */
@@ -22,52 +27,54 @@ float	    {digit}+\.{digit}*
 
 {nl}		{   line_no++;  }
 {ws}        {/* don't do anything for whitespace */	}
-if          {	return IF;	}
-else        {	return ELSE;	}
-while       {	return WHILE;	}
-for         {	return FOR;	}
-link        {	return LINK;	}
-dataset     {	return DATASET;	}
-return      {	return RETURN;	}
-int         {	yylval.string = new std::string("INT"); return TYPE;	}
-float       {	yylval.string = new std::string("FLOAT"); return TYPE;	}
-void        {	yylval.string = new std::string("VOID"); return TYPE;	}
-string      {	yylval.string = new std::string("STRING"); return TYPE;	}
-byte        {	yylval.string = new std::string("BYTE"); return TYPE;	}
-bool        {	yylval.string = new std::string("BOOL"); return TYPE;	}
-true        {	yylval.boolean = true; return BOOL;}
-false       {	yylval.boolean = false; return BOOL;}
-not         {   return NOT; }
-and         {   return AND; }
-or          {   return OR; }
-{id}        {	return ID; 		}
-{integer}   {	yylval.integer = atoi(yytext);
+if          {	db(yytext);return IF;	}
+else        {	db(yytext);return ELSE;	}
+while       {	db(yytext);return WHILE;	}
+for         {	db(yytext);return FOR;	}
+link        {	db(yytext);return LINK;	}
+dataset     {	db(yytext);return DATASET;	}
+return      {	db(yytext);return RETURN;	}
+continue    {   db(yytext);return CONTINUE; }
+break 		{   db(yytext);return BREAK; }
+int         {	db(yytext);yylval.string = new std::string("INT"); return TYPE;	}
+float       {	db(yytext);yylval.string = new std::string("FLOAT"); return TYPE;	}
+void        {	db(yytext);yylval.string = new std::string("VOID"); return TYPE;	}
+string      {	db(yytext);yylval.string = new std::string("STRING"); return TYPE;	}
+byte        {	db(yytext);yylval.string = new std::string("BYTE"); return TYPE;	}
+bool        {	db(yytext);yylval.string = new std::string("BOOL"); return TYPE;	}
+true        {	db(yytext);yylval.boolean = true; return BOOL;}
+false       {	db(yytext);yylval.boolean = false; return BOOL;}
+not         {   db(yytext);return NOT; }
+and         {   db(yytext);return AND; }
+or          {   db(yytext);return OR; }
+{id}        {	db(yytext);yylval.string = new std::string(yytext); return VAR; }
+{integer}   {	db(yytext);yylval.integer = atoi(yytext);
 		        return INTEGER;			}
-{float}	    {	yylval.decimal = atof(yytext);
+{float}	    {	db(yytext);yylval.decimal = atof(yytext);
 		        return FLOAT_LIT;		}
-{literal}   {	yylval.string = new std::string(yytext);
+{literal}   {	db(yytext);yylval.string = new std::string(yytext);
                 return LITERAL;			}
-"="			{   return tASSIGN; }
-"+"         {   return tPLUS;  }
-"-"         {   return tMINUS; }
-"*"         {   return tTIMES; } 
-"/"			{	return tDIV; }
-"//"		{	return tFLDIV; }
-"^"			{	return tEXP;  }
-"@"			{	return tSIZE; }
-">"			{	return tGT;  }
-"<"			{	return tLT;  }
-">="		{	return tGE;	}
-"<="		{	return tLE;	}
-"=="		{	return tEQ; }
-"!="		{	return tNE;	}
-","			{	return tCOMMA; }
-"("			{	return tL_PAREN; }
-")"			{	return tR_PAREN; }
-"["			{	return tL_BRACKET; }
-"]"			{	return tR_BRACKET; }
-"{"			{	return tL_CURLY; }
-"}"			{	return tR_CURLY; }
-";"         {   return tSEMI;  }
-"\."        {  return tACCESS; }
+"="			{   db(yytext);return tASSIGN; }
+"+"         {   db(yytext);return tPLUS;  }
+"-"         {   db(yytext);return tMINUS; }
+"*"         {   db(yytext);return tTIMES; } 
+"/"			{	db(yytext);return tDIV; }
+"//"		{	db(yytext);return tFLDIV; }
+"^"			{	db(yytext);return tEXP;  }
+"@"			{	db(yytext);return tSIZE; }
+">"			{	db(yytext);return tGT;  }
+"<"			{	db(yytext);return tLT;  }
+">="		{	db(yytext);return tGE;	}
+"<="		{	db(yytext);return tLE;	}
+"=="		{	db(yytext);return tEQ; }
+"!="		{	db(yytext);return tNE;	}
+","			{	db(yytext);return tCOMMA; }
+"("			{	db(yytext);return tL_PAREN; }
+")"			{	db(yytext);return tR_PAREN; }
+"["			{	db(yytext);return tL_BRACKET; }
+"]"			{	db(yytext);return tR_BRACKET; }
+"{"			{	db(yytext);return tL_CURLY; }
+"}"			{	db(yytext);return tR_CURLY; }
+";"         {   db(yytext);return tSEMI;  }
+"\."        {  	db(yytext);return tACCESS; }
 %%

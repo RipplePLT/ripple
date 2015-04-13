@@ -12,19 +12,21 @@ void yyerror(const char *s) { printf("%s\n", s); }
 //#define YYSTYPE std::string
 
 void d(string m) {
-#ifdef DEBUG
     cerr << m << endl;
-#endif
 }
 %}
 
 
 %union {
-    StatementListNode *stmt_list;
+    FunctionNode *func;
+
+    StatementListNode *stmt_list;    
     StatementNode *stmt;
     DeclarativeStatementNode *dec_stmt;
     ConditionalStatementNode *cond_stmt;
     JumpStatementNode *jump_stmt;
+    LoopStatementNode *loop_stmt;
+
     ExpressionNode *expr;
     BinaryExpressionNode *bin_expr;
     UnaryExpressionNode *un_expr;
@@ -35,7 +37,7 @@ void d(string m) {
     LiteralNode *lit;
     ValueNode *val;
     ArgsNode *args;
-    IDNode *id;
+    IDNode *idn;
     
     int integer;
     string *string;
@@ -67,12 +69,12 @@ void d(string m) {
 %token <integer> FLOAT
 %token <integer> STRING 
 %token <integer> DATASET
-%token <integer> VOID
+%token <integer> VOid
 
 /***************
     VARIABLES 
 ***************/
-%token <id> ID
+%token <string> VAR
 %token <integer> INTEGER
 %token <decimal> FLOAT_LIT 
 %token <string>  LITERAL 
@@ -90,10 +92,11 @@ void d(string m) {
 %token tR_BRACKET
 %token tL_CURLY
 %token tR_CURLY
+%type <idn> id
 %type <lit> literal
 %type <un_expr> unary_expression
 %type <bin_expr> exp_expression mult_expression add_expression rel_expression eq_expression and_expression or_expression
-%type <expr> expression
+%type <expr> expression opt_expression
 %type <arr_acc> array_access
 %type <fn_call> function_call
 %type <ds_acc> dataset_access
@@ -101,9 +104,11 @@ void d(string m) {
 %type <args> args;
 %type <dec_stmt> declarative_statement
 %type <jump_stmt> jump_statement
+%type <cond_stmt> conditional_statement
+%type <loop_stmt> loop_statement
 %type <stmt> statement
 %type <stmt_list> statement_list statement_block else_statement
-%type <cond_stmt> conditional_statement
+%type <func> function
 
 %left tEQ
 %left tNE
@@ -132,17 +137,20 @@ void d(string m) {
 
 %%
 
-statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; }
+function : TYPE id tL_PAREN TYPE tR_PAREN statement_block { $$ = new FunctionNode(*yylval.string, $2, $6); d("function"); }
+
+statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; d("statement_block - curly_statement_block"); }
                 ;
 
-statement_list : statement_list statement       { $1->push_statement($2); d("statement_block - stmt"); }
-               | statement                      { $$ = new StatementListNode(); $$->push_statement($1); d("statement_block - curly_statement_block"); }
+statement_list : statement_list statement       { $1->push_statement($2); d("statement_list - stmt-list"); }
+               | statement                      { $$ = new StatementListNode(); $$->push_statement($1); d("statement_list - stmt"); }
                | 
                ;
 
 statement : declarative_statement               { $$ = new StatementNode($1); d("statement - declarative"); }
           | conditional_statement               { $$ = new StatementNode($1); d("statement - conditional"); }
           | jump_statement                      { $$ = new StatementNode($1); d("statement - jump"); }
+          | loop_statement                      { $$ = new StatementNode($1); d("statement - loop"); }
           ;
 
 jump_statement : RETURN expression tSEMI        { $$ = new JumpStatementNode("RETURN", $2); d("jump - return"); }
@@ -150,9 +158,6 @@ jump_statement : RETURN expression tSEMI        { $$ = new JumpStatementNode("RE
                | BREAK tSEMI                    { $$ = new JumpStatementNode("BREAK"); d("jump - break"); }
                ;
 
-declarative_statement : TYPE expression tSEMI   { $$ = new DeclarativeStatementNode(*yylval.string, $2); d("declarative statement -  type expr"); }
-                      | expression tSEMI        { $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
-                      ;
 
 conditional_statement : IF tL_PAREN expression tR_PAREN statement_block else_statement  { $$ = new ConditionalStatementNode($3, $5, $6); d("conditional statement"); }
                         ;
@@ -160,6 +165,17 @@ conditional_statement : IF tL_PAREN expression tR_PAREN statement_block else_sta
 else_statement : ELSE statement_block   { $$ = $2; d("else statement"); }
                 |                       { $$ = NULL; }
                 ;
+
+loop_statement : FOR tL_PAREN opt_expression tSEMI opt_expression tSEMI opt_expression tR_PAREN statement_block { $$ = new LoopStatementNode($3, $5, $7, $9); d("loop - for"); }
+                | WHILE tL_PAREN expression tR_PAREN statement_block { $$ = new LoopStatementNode(NULL ,$3, NULL, $5); d("loop - while"); }
+
+declarative_statement : TYPE expression tSEMI   { $$ = new DeclarativeStatementNode(*yylval.string, $2); d("declarative statement -  type expr"); }
+                      | expression tSEMI        { $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
+                      ;
+
+opt_expression : expression tL_PAREN           { $$ = $1; }
+               |                       { $$ = NULL; }
+               ;
 
 expression : or_expression             { $$ = new ExpressionNode($1);  d("expression"); }
            | value tASSIGN or_expression { $$ = new ExpressionNode($3, $1); d("expression assign"); }
@@ -212,7 +228,7 @@ value : literal            { $$ = new ValueNode($1); d("value - literal"); }
       | function_call      { $$ = new ValueNode($1); d("value - function_call"); }
       | array_access       { $$ = new ValueNode($1); d("value - array_access"); }
       | dataset_access     { $$ = new ValueNode($1); d("value - dataset_access"); }
-      | ID                 { $$ = new ValueNode($1); d("value - ID"); cout << $1 <<endl;}
+      | id                 { $$ = new ValueNode($1); d("value - id"); cout << $1 <<endl;}
       | tL_PAREN expression tR_PAREN { $$ = new ValueNode($2); d("value - expression"); }
       ;
 
@@ -221,14 +237,16 @@ args : args tCOMMA expression   { $1->add_arg($3); d("arg added - 1");}
      |                          { $$ = new ArgsNode(); }
      ;
 
-function_call : ID tL_PAREN args tR_PAREN { $$ = new FunctionCallNode($1, $3); d("function call"); }
+function_call : id tL_PAREN args tR_PAREN { $$ = new FunctionCallNode($1, $3); d("function call"); }
 	          ;
 
 array_access : value tL_BRACKET expression tR_BRACKET { $$ = new ArrayAccessNode($1, $3); d("Array access");}
              ;
 
-dataset_access : value tACCESS ID { $$ = new DatasetAccessNode($1, $3); d("Dataset access");}
+dataset_access : value tACCESS id { $$ = new DatasetAccessNode($1, $3); d("Dataset access");}
                ;
+
+id : VAR { $$ = new IDNode(*yylval.string); }
 
 literal : INTEGER                 { $$ = new LiteralNode($1); d("literal - INT");}	
         | FLOAT_LIT               { $$ = new LiteralNode($1); d("literal - FLOAT");}

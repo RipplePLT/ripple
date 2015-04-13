@@ -23,7 +23,9 @@ class ArgsNode;
 class ConditionalStatementNode;
 class DeclarativeStatementNode;
 class JumpStatementNode;
+class LoopStatementNode;
 class StatementListNode;
+class FunctionNode;
 
 enum e_type {
     tINT,
@@ -94,10 +96,11 @@ union statements {
     DeclarativeStatementNode *decl;
     ConditionalStatementNode *cond;
     JumpStatementNode *jump;
+    LoopStatementNode *loop;
 };
 
 struct ID {
-    char *name;
+    string name;
 };
 
 class ValueNode {
@@ -116,7 +119,7 @@ class IDNode {
     public:
         struct ID id;
 
-        IDNode(char *idName) { id.name = idName; }
+        IDNode(string idName) { id.name = idName; }
 };
 
 class FunctionCallNode{
@@ -292,6 +295,22 @@ public:
     }
 };
 
+class LoopStatementNode {
+public:
+    ExpressionNode *initializer;
+    ExpressionNode *condition;
+    ExpressionNode *next;
+    StatementListNode *statements;
+
+    LoopStatementNode(ExpressionNode *init, ExpressionNode *cond, ExpressionNode *n, StatementListNode *stmts){
+        initializer = init;
+        condition = cond;
+        next = n;
+        statements = stmts;
+    }
+
+};
+
 class StatementNode {
 public:
     union statements stmts;
@@ -307,6 +326,10 @@ public:
     StatementNode(JumpStatementNode *j) {
         stmts.jump = j;
     }
+
+    StatementNode(LoopStatementNode *l) {
+        stmts.loop = l;
+    }
 };
 
 class StatementListNode {
@@ -317,6 +340,19 @@ public:
         stmt_list.push_back(s);
     }
 
+};
+
+class FunctionNode {
+public:
+    enum e_type type;
+    IDNode *id;
+    StatementListNode *stmt_list;
+
+    FunctionNode(string ttype, IDNode *id_node, StatementListNode *stmt_list_n){
+        type = get_type(ttype);
+        id = id_node;
+        stmt_list = stmt_list_n;
+    }
 };
 
 #endif
