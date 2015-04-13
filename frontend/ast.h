@@ -20,6 +20,7 @@ class DatasetAccessNode;
 class ExpressionNode;
 class ValueNode;
 class ArgsNode;
+class ConditionalStatementNode;
 class DeclarativeStatementNode;
 class StatementListNode;
 
@@ -82,7 +83,8 @@ union value {
 };
 
 union statements {
-    DeclarativeStatementNode *dsn;
+    DeclarativeStatementNode *decl;
+    ConditionalStatementNode *cond;
 };
 
 struct ID {
@@ -253,12 +255,29 @@ public:
 
 };
 
+class ConditionalStatementNode {
+public:
+    ExpressionNode *condition;
+    StatementListNode *consequent;
+    StatementListNode *alternative;
+
+    ConditionalStatementNode(ExpressionNode *e, StatementListNode *s, StatementListNode *a) {
+        condition = e;
+        consequent = s;
+        alternative = a;
+    }
+};
+
 class StatementNode {
 public:
     union statements stmts;
 
-    StatementNode(DeclarativeStatementNode *declarative_statement_node){
-        stmts.dsn = declarative_statement_node;
+    StatementNode(DeclarativeStatementNode *d){
+        stmts.decl = d; 
+    }
+
+    StatementNode(ConditionalStatementNode *c) {
+        stmts.cond = c;
     }
 
 };

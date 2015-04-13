@@ -4,17 +4,17 @@
 #include <string>
 #include <iostream>
 #include "frontend/ast.h"
+#define DEBUG
 using namespace std;
 
 extern int yylex();
 void yyerror(const char *s) { printf("%s\n", s); }
 //#define YYSTYPE std::string
 
-const bool DEBUG = true;
-
 void d(string m) {
-    if(DEBUG)
-      cerr << m << endl;
+#ifdef DEBUG
+    cerr << m << endl;
+#endif
 }
 %}
 
@@ -23,7 +23,8 @@ void d(string m) {
     StatementListNode *stmt_list;
     StatementNode *stmt;
     DeclarativeStatementNode *dec_stmt;
-    
+    ConditionalStatementNode *cond_stmt;
+
     ExpressionNode *expr;
     BinaryExpressionNode *bin_expr;
     UnaryExpressionNode *un_expr;
@@ -100,7 +101,8 @@ void d(string m) {
 %type <args> args;
 %type <dec_stmt> declarative_statement
 %type <stmt> statement
-%type <stmt_list> statement_list statement_block
+%type <stmt_list> statement_list statement_block else_statement
+%type <cond_stmt> conditional_statement
 
 %left tEQ
 %left tNE
@@ -129,7 +131,7 @@ void d(string m) {
 
 %%
 
-statement_block : tL_CURLY statement_list tR_CURLY { $$ = $1; }
+statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; }
                 ;
 
 statement_list : statement_list statement       { $1->push_statement($2); d("statement_block - stmt"); }
@@ -138,11 +140,19 @@ statement_list : statement_list statement       { $1->push_statement($2); d("sta
                 ;
 
 statement : declarative_statement               { $$ = new StatementNode($1); d("statement - declarative"); }
+          | conditional_statement               { $$ = new StatementNode($1); d("statement - conditional"); }
           ;
 
 declarative_statement : TYPE expression tSEMI   { $$ = new DeclarativeStatementNode(*yylval.string, $2); d("declarative statement -  type expr"); }
                       | expression tSEMI        { $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
                       ;
+
+conditional_statement : IF tL_PAREN expression tR_PAREN statement_block else_statement  { $$ = new ConditionalStatementNode($3, $5, $6); }
+                        ;
+
+else_statement : ELSE statement_block   { $$ = $2; }
+                |                       { $$ = NULL; }
+                ;
 
 expression : or_expression             { $$ = new ExpressionNode($1);  d("expression"); }
            | value tASSIGN or_expression { $$ = new ExpressionNode($3, $1); d("expression assign"); }
