@@ -23,6 +23,7 @@ void d(string m) {
     StatementListNode *stmt_list;
     StatementNode *stmt;
     DeclarativeStatementNode *dec_stmt;
+    JumpStatementNode *jump_stmt;
     
     ExpressionNode *expr;
     BinaryExpressionNode *bin_expr;
@@ -99,6 +100,7 @@ void d(string m) {
 %type <val> value
 %type <args> args;
 %type <dec_stmt> declarative_statement
+%type <jump_stmt> jump_statement
 %type <stmt> statement
 %type <stmt_list> statement_list statement_block
 
@@ -129,16 +131,21 @@ void d(string m) {
 
 %%
 
-statement_block : tL_CURLY statement_list tR_CURLY { $$ = $1; }
+statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; }
                 ;
 
 statement_list : statement_list statement       { $1->push_statement($2); d("statement_block - stmt"); }
-                | statement                     { $$ = new StatementListNode(); $$->push_statement($1); d("statement_block - curly_statement_block"); }
-                | 
-                ;
+               | statement                      { $$ = new StatementListNode(); $$->push_statement($1); d("statement_block - curly_statement_block"); }
+               | 
+               ;
 
 statement : declarative_statement               { $$ = new StatementNode($1); d("statement - declarative"); }
           ;
+
+jump_statement : RETURN expression tSEMI        { $$ = new JumpStatementNode("RETURN", $2); d("jump - return"); }
+               | CONTINUE tSEMI                 { $$ = new JumpStatementNode("CONTINUE"); d("jump - continue"); }
+               | BREAK tSEMI                    { $$ = new JumpStatementNode("BREAK"); d("jump - break"); }
+               ;
 
 declarative_statement : TYPE expression tSEMI   { $$ = new DeclarativeStatementNode(*yylval.string, $2); d("declarative statement -  type expr"); }
                       | expression tSEMI        { $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }

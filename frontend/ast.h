@@ -21,6 +21,7 @@ class ExpressionNode;
 class ValueNode;
 class ArgsNode;
 class DeclarativeStatementNode;
+class JumpStatementNode;
 class StatementListNode;
 
 enum e_type {
@@ -52,8 +53,15 @@ enum e_op {
     NONE
 };
 
+enum e_jump {
+    tRETURN,
+    tCONTINUE,
+    tBREAK
+};
+
 enum e_op get_op(string op_string);
-enum e_type get_type(string op_type);
+enum e_type get_type(string type);
+enum e_jump get_jump(string type);
 
 union operand {
         BinaryExpressionNode *b_exp;
@@ -251,6 +259,21 @@ public:
         en = expression_node;
     }
 
+};
+
+class JumpStatementNode {
+public:
+    e_jump type;
+    ExpressionNode *en;
+
+    JumpStatementNode(string ttype, ExpressionNode *expression_node){
+        type = get_jump(ttype);
+        en = expression_node;
+    }
+
+    JumpStatementNode(string ttype){
+        type = get_jump(ttype);
+    }
 };
 
 class StatementNode {
