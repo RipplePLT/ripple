@@ -81,6 +81,18 @@ struct ID {
     char *name;
 };
 
+class ValueNode {
+    public:
+    union value val;
+
+    ValueNode(IDNode *i) { val.id_val = i; }
+    ValueNode(LiteralNode *l) { val.lit_val = l; }
+    ValueNode(FunctionCallNode *f) { val.function_call_val = f; } 
+    ValueNode(ArrayAccessNode *a) { val.array_access_val = a; }
+    ValueNode(DatasetAccessNode *d) { val.dataset_access_val = d; }
+    ValueNode(ExpressionNode *e) { val.expression_val = e; }
+};
+
 class IDNode {
     public:
         struct ID id;
@@ -190,6 +202,8 @@ class BinaryExpressionNode {
         op = bl->op;
         left_is_binary = bl->left_is_binary;
         right_is_binary = bl->right_is_binary;
+
+        delete bl;
     }
 
     BinaryExpressionNode(UnaryExpressionNode *ul) {
@@ -212,17 +226,5 @@ class ExpressionNode {
         bin_exp = b;
         value = v;
    }
-};
-
-class ValueNode {
-    public:
-    union value val;
-
-    ValueNode(IDNode *i) { val.id_val = i; }
-    ValueNode(LiteralNode *l) { val.lit_val = l; }
-    ValueNode(FunctionCallNode *f) { val.function_call_val = f; } 
-    ValueNode(ArrayAccessNode *a) { val.array_access_val = a; }
-    ValueNode(DatasetAccessNode *d) { val.dataset_access_val = d; }
-    ValueNode(ExpressionNode *e) { val.expression_val = e; }
 };
 #endif
