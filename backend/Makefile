@@ -11,4 +11,4 @@ test: test.cpp
 	$(CC) -o test test.cpp $(CCFLAGS)
 
 clean:
-	rm main *.o test
+	rm -rf main *.o test
