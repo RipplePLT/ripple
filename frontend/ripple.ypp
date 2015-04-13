@@ -10,16 +10,23 @@ extern int yylex();
 void yyerror(const char *s) { printf("%s\n", s); }
 //#define YYSTYPE std::string
 
+const bool DEBUG = true;
+
 void d(string m) {
-    cerr << m << endl;
+    if(DEBUG)
+      cerr << m << endl;
 }
 %}
 
 
 %union {
+    StatementNode *stmt;
+    DeclarativeStatementNode *decStmt;
+    
     ExpressionNode *expr;
     BinaryExpressionNode *binExpr;
     UnaryExpressionNode *unExpr;
+    
     ArrayAccessNode *arrAcc;
     DatasetAccessNode *dsAcc;
     FunctionCallNode *fnCall;
@@ -27,6 +34,7 @@ void d(string m) {
     ValueNode *val;
     ArgsNode *args;
     IDNode *id;
+    
     int integer;
     string *string;
     double decimal;
@@ -89,7 +97,8 @@ void d(string m) {
 %type <dsAcc> dataset_access
 %type <val> value
 %type <args> args;
-
+%type <decStmt> declarative_statement
+%type <stmt> statement
 
 %left tEQ
 %left tNE
@@ -123,15 +132,15 @@ statement_block : statement statement_block
                 |
                 ;
 
-statement : declarative_statement
+statement : declarative_statement               { $$ = new StatementNode($1); d("statement - declarative"); }
           ;
 
-declarative_statement : TYPE expression tSEMI
-                      | expression tSEMI
+declarative_statement : TYPE expression tSEMI   { $$ = new DeclarativeStatementNode(*yylval.string, $2); d("declarative statement -  type expr"); }
+                      | expression tSEMI        { $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
                       ;
 
-expression : or_expression             { $$ = new ExpressionNode($1);  d("expression");}
-           | value tASSIGN or_expression { $$ = new ExpressionNode($3, $1); d("expression assign");}
+expression : or_expression             { $$ = new ExpressionNode($1);  d("expression"); }
+           | value tASSIGN or_expression { $$ = new ExpressionNode($3, $1); d("expression assign"); }
            ;
 
 or_expression : and_expression                  { $$ = new BinaryExpressionNode($1); d("or_expression"); }

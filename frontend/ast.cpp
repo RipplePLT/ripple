@@ -36,3 +36,17 @@ enum e_op get_op(const std::string op_string) {
         return SIZE;
 };
 
+enum e_type get_type(const std::string type){
+    if(type.compare("INT") == 0)
+        return tINT;
+    else if(type.compare("FLOAT") == 0)
+        return tFLOAT;
+    else if(type.compare("VOID") == 0)
+        return tVOID;
+    else if(type.compare("BOOL") == 0)
+        return tBOOL;
+    else if(type.compare("STRING") == 0)
+        return tSTRING;
+    else if(type.compare("BYTE") == 0)
+        return tBYTE;
+}

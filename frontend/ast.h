@@ -28,6 +28,7 @@ enum e_type {
     tFLOAT,
     tSTRING,
     tBYTE,
+    tVOID
 };
 
 enum e_op {
@@ -51,6 +52,7 @@ enum e_op {
 };
 
 enum e_op get_op(string op_string);
+enum e_type get_type(string op_type);
 
 union operand {
         BinaryExpressionNode *b_exp;
@@ -239,8 +241,8 @@ public:
     e_type type;
     ExpressionNode *en;
 
-    DeclarativeStatementNode(e_type tttype, ExpressionNode *expression_node){
-        type = ttype;
+    DeclarativeStatementNode(std::string ttype, ExpressionNode *expression_node){
+        type = get_type(ttype);
         en = expression_node;
     }
 
@@ -258,6 +260,6 @@ public:
         stmts.dsn = declarative_statement_node;
     }
 
-}
+};
 
 #endif
