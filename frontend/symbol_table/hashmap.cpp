@@ -23,7 +23,7 @@ int hashCode(const string word) {
         }
     }
 
-    return abs(h);
+    return (int) std::abs((float) h);
 }
 
 
