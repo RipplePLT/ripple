@@ -1,7 +1,13 @@
 #include <stdio.h>
 #include "value_node.hpp"
 
-int update_root(int n)
+void null(int val) {}
+
+int plus7(int val) {
+    return val + 7;
+}
+
+int update_value(int n)
 {
     fprintf(stderr, "root updated! arg = {%d}\n", n);
     return 0;
@@ -9,15 +15,10 @@ int update_root(int n)
 
 int main()
 {
-    // Create argument
-    variant arg;
-    arg.type = variant::t_int;
-    arg.data.int_val = 7;
-
-    // Add argument to list
-    list<variant> args;
-    args.push_back(arg);
-
     // Construct node
-    //value_node<int, int (&)(int)> root (3, update_root, args);
+    //value_node<int, void (&)(int), int (&)(int)> void_root(3, null, update_value);
+    //void_root.run();
+
+    value_node<int, int (&)(int), int(&)(int)> int_root(3, plus7, update_value);
+    int_root.run();
 }
