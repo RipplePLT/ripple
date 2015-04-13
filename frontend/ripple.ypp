@@ -100,7 +100,7 @@ void d(string m) {
 %type <args> args;
 %type <dec_stmt> declarative_statement
 %type <stmt> statement
-%type <stmt_list> statement_list
+%type <stmt_list> statement_list statement_block
 
 %left tEQ
 %left tNE
@@ -128,6 +128,9 @@ void d(string m) {
 %right tACCESS
 
 %%
+
+statement_block : tL_CURLY statement_list tR_CURLY { $$ = $1; }
+                ;
 
 statement_list : statement_list statement       { $1->push_statement($2); d("statement_block - stmt"); }
                 | statement                     { $$ = new StatementListNode(); $$->push_statement($1); d("statement_block - curly_statement_block"); }
