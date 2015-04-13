@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "symbol_table.h"
+
+
+SymbolTableNode::SymbolTableNode() {
+    hashmap = new HashMap();
+    sibling = nullptr;
+    child = nullptr;
+    parent = nullptr;
+}
+
+SymbolTableNode::~SymbolTableNode() {
+    delete child;
+
+    SymbolTableNode *n = sibling;
+    SymbolTableNode *next;
+
+    while(n) {
+        next = n->sibling;
+        delete n;
+        n = next;
+    }
+
+    delete hashmap;
+}
+
+
+SymbolTable::SymbolTable(){
+    start = nullptr; 
+    current = nullptr;
+}
+
+void SymbolTable::scope_in(int line_no) {
+    SymbolTableNode *node = new SymbolTableNode;
+    if (!start) {
+        start = node;
+        node->sibling = node->parent = nullptr;
+    } else {
+        node->parent = current;
+        node->sibling = current->child;
+        current->child = node;
+    }
+    current = node;
+}
+
+void SymbolTable::scope_out(int line_no) {
+    if (current->parent){
+        current = current->parent;
+        return;
+    }
+
+    SymbolTableNode *node = new SymbolTableNode; 
+
+    current->sibling = node;
+    current = node;
+}
+
+string SymbolTable::put(string word) {
+    return current->hashmap->put(word);
+}
+
+bool SymbolTable::contains(string word) {
+    SymbolTableNode *n = current;
+    while(n) {
+        if (n->hashmap->contains(word))
+            return true;
+        n = n->parent;
+    }
+    return false;
+}
+
+bool SymbolTable::remove(string word) {
+    return current->hashmap->remove(word);
+}
+
+SymbolTable::~SymbolTable() {
+    delete start;
+}
+
