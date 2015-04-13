@@ -262,4 +262,14 @@ public:
 
 };
 
+class StatementBlockNode {
+public:
+    std::vector<StatementNode *> stmt_list;
+
+    void push_statement(StatementNode *s){
+        stmt_list.push_back(s);
+    }
+
+};
+
 #endif

@@ -20,16 +20,17 @@ void d(string m) {
 
 
 %union {
+    StatementBlockNode *stmt_blck;
     StatementNode *stmt;
-    DeclarativeStatementNode *decStmt;
+    DeclarativeStatementNode *dec_stmt;
     
     ExpressionNode *expr;
-    BinaryExpressionNode *binExpr;
-    UnaryExpressionNode *unExpr;
+    BinaryExpressionNode *bin_expr;
+    UnaryExpressionNode *un_expr;
     
-    ArrayAccessNode *arrAcc;
-    DatasetAccessNode *dsAcc;
-    FunctionCallNode *fnCall;
+    ArrayAccessNode *arr_acc;
+    DatasetAccessNode *ds_acc;
+    FunctionCallNode *fn_call;
     LiteralNode *lit;
     ValueNode *val;
     ArgsNode *args;
@@ -89,16 +90,17 @@ void d(string m) {
 %token tL_CURLY
 %token tR_CURLY
 %type <lit> literal
-%type <unExpr> unary_expression
-%type <binExpr> exp_expression mult_expression add_expression rel_expression eq_expression and_expression or_expression
+%type <un_expr> unary_expression
+%type <bin_expr> exp_expression mult_expression add_expression rel_expression eq_expression and_expression or_expression
 %type <expr> expression
-%type <arrAcc> array_access
-%type <fnCall> function_call
-%type <dsAcc> dataset_access
+%type <arr_acc> array_access
+%type <fn_call> function_call
+%type <ds_acc> dataset_access
 %type <val> value
 %type <args> args;
-%type <decStmt> declarative_statement
+%type <dec_stmt> declarative_statement
 %type <stmt> statement
+%type <stmt_blck> statement_block
 
 %left tEQ
 %left tNE
@@ -127,9 +129,9 @@ void d(string m) {
 
 %%
 
-statement_block : statement statement_block
-                | tL_CURLY statement_block tR_CURLY
-                |
+statement_block : statement statement_block       { d("statement_block - stmt");}
+                | tL_CURLY statement_block tR_CURLY           { d("statement_block - curly_statement_block"); }
+                | 
                 ;
 
 statement : declarative_statement               { $$ = new StatementNode($1); d("statement - declarative"); }
