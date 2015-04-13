@@ -20,7 +20,7 @@ void d(string m) {
 
 
 %union {
-    StatementBlockNode *stmt_list;
+    StatementListNode *stmt_list;
     StatementNode *stmt;
     DeclarativeStatementNode *dec_stmt;
     
@@ -196,8 +196,8 @@ value : literal            { $$ = new ValueNode($1); d("value - literal"); }
       | tL_PAREN expression tR_PAREN { $$ = new ValueNode($2); d("value - expression"); }
       ;
 
-args : args tCOMMA expression   {$1->add_arg($3); d("arg added - 1");}
-     | expression               {$$ = new ArgsNode(); $$->add_arg($1); d("arg added");}
+args : args tCOMMA expression   { $1->add_arg($3); d("arg added - 1");}
+     | expression               { $$ = new ArgsNode(); $$->add_arg($1); d("arg added");}
      |                          { $$ = new ArgsNode(); }
      ;
 
