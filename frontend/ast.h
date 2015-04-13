@@ -20,6 +20,7 @@ class DatasetAccessNode;
 class ExpressionNode;
 class ValueNode;
 class ArgsNode;
+class DeclarativeStatementNode;
 
 enum e_type {
     tINT,
@@ -75,6 +76,10 @@ union value {
     ArrayAccessNode *array_access_val;
     DatasetAccessNode *dataset_access_val;
     ExpressionNode *expression_val;
+};
+
+union statements {
+    DeclarativeStatementNode *dsn;
 };
 
 struct ID {
@@ -154,9 +159,10 @@ public:
 };
 
 class UnaryExpressionNode {
+    
     union operand right_operand;
 
-    public:
+public:
     enum e_op op;
     
     UnaryExpressionNode(UnaryExpressionNode *u, string _op)
@@ -173,7 +179,7 @@ class UnaryExpressionNode {
 };
 
 class BinaryExpressionNode {
-    public:
+public:
     union operand left_operand;
     union operand right_operand;
     enum e_op op;
@@ -213,7 +219,7 @@ class BinaryExpressionNode {
 };
 
 class ExpressionNode {
-    public:
+public:
     BinaryExpressionNode *bin_exp;
     ValueNode *value;
 
@@ -227,4 +233,31 @@ class ExpressionNode {
         value = v;
    }
 };
+
+class DeclarativeStatementNode {
+public:
+    e_type type;
+    ExpressionNode *en;
+
+    DeclarativeStatementNode(e_type tttype, ExpressionNode *expression_node){
+        type = ttype;
+        en = expression_node;
+    }
+
+    DeclarativeStatementNode(ExpressionNode *expression_node){
+        en = expression_node;
+    }
+
+};
+
+class StatementNode {
+public:
+    union statements stmts;
+
+    StatementNode(DeclarativeStatementNode *declarative_statement_node){
+        stmts.dsn = declarative_statement_node;
+    }
+
+}
+
 #endif
