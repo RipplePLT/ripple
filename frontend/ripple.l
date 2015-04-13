@@ -29,12 +29,12 @@ for         {	return FOR;	}
 link        {	return LINK;	}
 dataset     {	return DATASET;	}
 return      {	return RETURN;	}
-int         {	yylval.integer = INT; return TYPE;	}
-float       {	yylval.integer = FLOAT; return TYPE;	}
-void        {	yylval.integer = VOID; return TYPE;	}
-string      {	yylval.integer = STRING; return TYPE;	}
-byte        {	yylval.integer = BYTE; return TYPE;	}
-bool        {	yylval.integer = BOOL; return TYPE;	}
+int         {	yylval.string = new std::string("INT"); return TYPE;	}
+float       {	yylval.string = new std::string("FLOAT"); return TYPE;	}
+void        {	yylval.string = new std::string("VOID"); return TYPE;	}
+string      {	yylval.string = new std::string("STRING"); return TYPE;	}
+byte        {	yylval.string = new std::string("BYTE"); return TYPE;	}
+bool        {	yylval.string = new std::string("BOOL"); return TYPE;	}
 true        {	yylval.boolean = true; return BOOL;}
 false       {	yylval.boolean = false; return BOOL;}
 not         {   return NOT; }
@@ -47,6 +47,7 @@ or          {   return OR; }
 		        return FLOAT_LIT;		}
 {literal}   {	yylval.string = new std::string(yytext);
                 return LITERAL;			}
+"="			{   return tASSIGN; }
 "+"         {   return tPLUS;  }
 "-"         {   return tMINUS; }
 "*"         {   return tTIMES; } 

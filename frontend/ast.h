@@ -20,6 +20,7 @@ class DatasetAccessNode;
 class ExpressionNode;
 class ValueNode;
 class ArgsNode;
+class DeclarativeStatementNode;
 
 enum e_type {
     tINT,
@@ -27,6 +28,7 @@ enum e_type {
     tFLOAT,
     tSTRING,
     tBYTE,
+    tVOID
 };
 
 enum e_op {
@@ -50,6 +52,7 @@ enum e_op {
 };
 
 enum e_op get_op(string op_string);
+enum e_type get_type(string op_type);
 
 union operand {
         BinaryExpressionNode *b_exp;
@@ -77,8 +80,24 @@ union value {
     ExpressionNode *expression_val;
 };
 
+union statements {
+    DeclarativeStatementNode *dsn;
+};
+
 struct ID {
     char *name;
+};
+
+class ValueNode {
+    public:
+    union value val;
+
+    ValueNode(IDNode *i) { val.id_val = i; }
+    ValueNode(LiteralNode *l) { val.lit_val = l; }
+    ValueNode(FunctionCallNode *f) { val.function_call_val = f; } 
+    ValueNode(ArrayAccessNode *a) { val.array_access_val = a; }
+    ValueNode(DatasetAccessNode *d) { val.dataset_access_val = d; }
+    ValueNode(ExpressionNode *e) { val.expression_val = e; }
 };
 
 class IDNode {
@@ -142,9 +161,10 @@ public:
 };
 
 class UnaryExpressionNode {
+    
     union operand right_operand;
 
-    public:
+public:
     enum e_op op;
     
     UnaryExpressionNode(UnaryExpressionNode *u, string _op)
@@ -161,7 +181,7 @@ class UnaryExpressionNode {
 };
 
 class BinaryExpressionNode {
-    public:
+public:
     union operand left_operand;
     union operand right_operand;
     enum e_op op;
@@ -190,6 +210,8 @@ class BinaryExpressionNode {
         op = bl->op;
         left_is_binary = bl->left_is_binary;
         right_is_binary = bl->right_is_binary;
+
+        delete bl;
     }
 
     BinaryExpressionNode(UnaryExpressionNode *ul) {
@@ -199,7 +221,7 @@ class BinaryExpressionNode {
 };
 
 class ExpressionNode {
-    public:
+public:
     BinaryExpressionNode *bin_exp;
     ValueNode *value;
 
@@ -214,15 +236,30 @@ class ExpressionNode {
    }
 };
 
-class ValueNode {
-    public:
-    union value val;
+class DeclarativeStatementNode {
+public:
+    e_type type;
+    ExpressionNode *en;
 
-    ValueNode(IDNode *i) { val.id_val = i; }
-    ValueNode(LiteralNode *l) { val.lit_val = l; }
-    ValueNode(FunctionCallNode *f) { val.function_call_val = f; } 
-    ValueNode(ArrayAccessNode *a) { val.array_access_val = a; }
-    ValueNode(DatasetAccessNode *d) { val.dataset_access_val = d; }
-    ValueNode(ExpressionNode *e) { val.expression_val = e; }
+    DeclarativeStatementNode(std::string ttype, ExpressionNode *expression_node){
+        type = get_type(ttype);
+        en = expression_node;
+    }
+
+    DeclarativeStatementNode(ExpressionNode *expression_node){
+        en = expression_node;
+    }
+
 };
+
+class StatementNode {
+public:
+    union statements stmts;
+
+    StatementNode(DeclarativeStatementNode *declarative_statement_node){
+        stmts.dsn = declarative_statement_node;
+    }
+
+};
+
 #endif
