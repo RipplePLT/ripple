@@ -21,6 +21,7 @@ class ExpressionNode;
 class ValueNode;
 class ArgsNode;
 class DeclarativeStatementNode;
+class StatementListNode;
 
 enum e_type {
     tINT,
@@ -262,7 +263,7 @@ public:
 
 };
 
-class StatementBlockNode {
+class StatementListNode {
 public:
     std::vector<StatementNode *> stmt_list;
 

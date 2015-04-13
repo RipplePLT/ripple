@@ -20,7 +20,7 @@ void d(string m) {
 
 
 %union {
-    StatementBlockNode *stmt_blck;
+    StatementBlockNode *stmt_list;
     StatementNode *stmt;
     DeclarativeStatementNode *dec_stmt;
     
@@ -100,7 +100,7 @@ void d(string m) {
 %type <args> args;
 %type <dec_stmt> declarative_statement
 %type <stmt> statement
-%type <stmt_blck> statement_block
+%type <stmt_list> statement_list
 
 %left tEQ
 %left tNE
@@ -129,8 +129,8 @@ void d(string m) {
 
 %%
 
-statement_block : statement statement_block       { d("statement_block - stmt");}
-                | tL_CURLY statement_block tR_CURLY           { d("statement_block - curly_statement_block"); }
+statement_list : statement statement_list       { d("statement_block - stmt");}
+                | statement           { d("statement_block - curly_statement_block"); }
                 | 
                 ;
 
