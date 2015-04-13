@@ -3,85 +3,77 @@
 
 #include <list>
 
-#include "variant.hpp"
-
 /**
  * value_node.hpp - Templated value node to create the dependency tree.
  *
  * Author: Alexander Roth
- * Date:   2015-04-02
  **/
 using namespace std;
 
-template<typename T, typename V>
+// TODO: Look into using variadic templates for the argument.
+
+template<typename T, typename Val, typename Aux>
 class value_node {
     private:
         T value;
-        V& function;
-        list<variant> arguments {nullptr};
-        list<value_node> children {nullptr};
+        Val& update_func;
+        Aux& aux_func;
+        list<value_node> children;
     public:
-        value_node(T val, V& func, list<variant> args);
+        value_node(T val, Val update, Aux aux);
         ~value_node();
-        void add_child(value_node<T, V> &node);
+        void add_child(value_node<T, Val, Aux> &node);
+        void run();
 
         T get_value();
         list<value_node> get_children();
-        list<variant> get_arguments();
 
         void set_value(T val);
         void set_children(list<value_node> children);
-        void set_arguments(list<variant> arguments);
 };
 
-template<typename T, typename V>
-value_node<T, V>::value_node(T val, V& func, list<variant> args) {
-    this->value = val;
-    this->function = func;
-    this->arguments = args;
+template<typename T, typename Val, typename Aux>
+value_node<T, Val, Aux>::value_node(T val, Val func, Aux aux) 
+    : update_func(func), aux_func(aux) {
+        this->value = val;
+    }
+
+template<typename T, typename Val, typename Aux>
+value_node<T, Val, Aux>::~value_node() {
+    this->value = 0;
+    this->children.clear();
 }
 
-template<typename T, typename V>
-value_node<T, V>::~value_node() {
-    this->value = nullptr;
-    this->function = nullptr;
-    this->arguments = nullptr;
-    this->children = nullptr;
-}
-
-template<typename T, typename V>
-void value_node<T, V>::add_child(value_node &node) {
+template<typename T, typename Val, typename Aux>
+void value_node<T, Val, Aux>::add_child(value_node &node) {
     this->children.push_back(node);
 }
 
-template<typename T, typename V>
-T value_node<T, V>::get_value() {
+template<typename T, typename Val, typename Aux>
+void value_node<T, Val, Aux>::run() {
+    auto temp = this->value;
+    this->value = this->update_func(temp);
+    this->aux_func(this->value);
+}
+
+template<typename T, typename Val, typename Aux>
+T value_node<T, Val, Aux>::get_value() {
     return this->value;
 }
 
-template<typename T, typename V>
-list<typename value_node<T,V>::value_node> value_node<T, V>::get_children() {
+template<typename T, typename Val, typename Aux>
+list<typename value_node<T,Val, Aux>::value_node> value_node<T, Val, Aux>::get_children() {
     return this->children;
 }
 
-template<typename T, typename V>
-list<variant> value_node<T, V>::get_arguments() {
-    return this->arguments;
-}
-
-template<typename T, typename V>
-void value_node<T, V>::set_value(T val) {
+template<typename T, typename Val, typename Aux>
+void value_node<T, Val, Aux>::set_value(T val) {
     this->value = val;
 }
 
-template<typename T, typename V>
-void value_node<T, V>::set_children(list<value_node> children) {
+template<typename T, typename Val, typename Aux>
+void value_node<T, Val, Aux>::set_children(list<value_node> children) {
     this->children = children;
-}
-
-template<typename T, typename V>
-void value_node<T, V>::set_arguments(list<variant> arguments) {
-    this->arguments = arguments;
 }
 
 #endif
