@@ -129,8 +129,8 @@ void d(string m) {
 
 %%
 
-statement_list : statement statement_list       { d("statement_block - stmt");}
-                | statement           { d("statement_block - curly_statement_block"); }
+statement_list : statement_list statement       { $1->push_statement($2); d("statement_block - stmt"); }
+                | statement                     { $$ = new StatementListNode(); $$->push_statement($1); d("statement_block - curly_statement_block"); }
                 | 
                 ;
 
