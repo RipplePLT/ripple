@@ -120,6 +120,7 @@ class IDNode {
         struct ID id;
 
         IDNode(string idName) { id.name = idName; }
+        ~IDNode() { delete &id.name; }
 };
 
 class FunctionCallNode{
@@ -233,6 +234,7 @@ public:
         left_operand.u_exp = ul;
         op = NONE;
     }
+
 };
 
 class ExpressionNode {
@@ -249,6 +251,10 @@ public:
         bin_exp = b;
         value = v;
    }
+
+   ~ExpressionNode() {
+        delete bin_exp;
+   }
 };
 
 class DeclarativeStatementNode {
@@ -256,8 +262,8 @@ public:
     e_type type;
     ExpressionNode *en;
 
-    DeclarativeStatementNode(std::string ttype, ExpressionNode *expression_node){
-        type = get_type(ttype);
+    DeclarativeStatementNode(string _type, ExpressionNode *expression_node){
+        type = get_type(_type);
         en = expression_node;
     }
 
@@ -285,13 +291,13 @@ public:
     e_jump type;
     ExpressionNode *en;
 
-    JumpStatementNode(string ttype, ExpressionNode *expression_node){
-        type = get_jump(ttype);
+    JumpStatementNode(string _type, ExpressionNode *expression_node){
+        type = get_jump(_type);
         en = expression_node;
     }
 
-    JumpStatementNode(string ttype){
-        type = get_jump(ttype);
+    JumpStatementNode(string _type){
+        type = get_jump(_type);
     }
 };
 
@@ -348,8 +354,8 @@ public:
     IDNode *id;
     StatementListNode *stmt_list;
 
-    FunctionNode(string ttype, IDNode *id_node, StatementListNode *stmt_list_n){
-        type = get_type(ttype);
+    FunctionNode(string _type, IDNode *id_node, StatementListNode *stmt_list_n){
+        type = get_type(_type);
         id = id_node;
         stmt_list = stmt_list_n;
     }
