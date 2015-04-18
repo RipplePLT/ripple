@@ -7,8 +7,8 @@ main: main.o
 main.o: main.cpp variable.hpp variable.cpp
 	$(CC) -c main.cpp $(CCFLAGS)
 
-vartest: vartest.o
-	$(CC) vartest.o -o vartest $(CCFLAGS)
+vartest: vartest.o ../ast.o
+	$(CC) vartest.o ../ast.o -o vartest $(CCFLAGS)
 
 vartest.o: vartest.cpp ../frontend/ast.h
 	$(CC) -c vartest.cpp $(CCFLAGS)

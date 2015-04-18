@@ -2,7 +2,6 @@
 #define __VARIABLE_HPP__
 
 #include "../frontend/ast.h"
-// @TODO write test var & exp node
 
 template<typename T>
 class Variable {

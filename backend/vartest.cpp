@@ -3,20 +3,20 @@
 
 int main()
 {
-    LiteralNode l1 = new LiteralNode(1);
-    LiteralNode l2 = new LiteralNode(2);
+    // Build ExpressionNode for (1 + 2)
+    LiteralNode l1 (1);
+    LiteralNode l2 (2);
+    ValueNode v1 (&l1);
+    ValueNode v2 (&l2);
+    UnaryExpressionNode u1 (&v1);
+    UnaryExpressionNode u2 (&v2);
+    BinaryExpressionNode b1 (&u1);
+    BinaryExpressionNode b2 (&u2);
+    BinaryExpressionNode b (&b1, "+", &b2);
+    ExpressionNode e (&b);
 
-    ValueNode v1 = new ValueNode(l1);
-    ValueNode v2 = new ValueNode(l2);
+    // Create Variable
 
-    UnaryExpressionNode u1 = new UnaryExpressionNode(v1);
-    UnaryExpressionNode u2 = new UnaryExpressionNode(v2);
-
-    BinaryExpressionNode b1 = new BinaryExpressionNode(u1);
-    BinaryExpressionNode b2 = new BinaryExpressionNode(u2);
-
-    BinaryExpressionNode b = new BinaryExpressionNode(b1, "+", b2);
-    ExpressionNode e = new ExpressionNode(b);
 
     return 0;
 }
