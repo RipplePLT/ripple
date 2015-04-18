@@ -1,7 +1,7 @@
 %{
 #include <string>
 #include "frontend/ast.h"
-#include "frontend/enum.h"
+#include "structures/enum.h"
 #include "ripple.tab.hpp"
 
 extern "C" int yywrap();
