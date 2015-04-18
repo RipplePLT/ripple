@@ -64,46 +64,46 @@ string gen_binary_code(string l_code, enum e_op op, string r_code){
     string code;
     switch(op) {
         case PLUS:
-            code = l_code + "+" + r_code;
+            code = l_code + " + " + r_code;
             break;
         case MINUS:
-            code = l_code + "-" + r_code;
+            code = l_code + " - " + r_code;
             break;
         case TIMES:
-            code = l_code + "*" + r_code;
+            code = l_code + " * " + r_code;
             break;
         case DIV:
-            code = l_code + "/" + r_code;
+            code = l_code + " / " + r_code;
             break;
         case FLDIV:
-            code = "(double)" + l_code + "/(double)" + r_code;
+            code = "(double)" + l_code + "/ (double)" + r_code;
             break;
         case EXP:
-            code = "Math.pow(" + l_code + "," + r_code + ")";
+            code = "Math.pow(" + l_code + ", " + r_code + ")";
             break;
         case bAND:
-            code = l_code + "&&" + r_code;
+            code = l_code + " && " + r_code;
             break;
         case bOR:
-            code = l_code + "||" + r_code;
+            code = l_code + " || " + r_code;
             break;
         case EQ:
-            code = l_code + "==" + r_code;
+            code = l_code + " == " + r_code;
             break;
         case NE:
-            code = l_code + "!=" + r_code;
+            code = l_code + " != " + r_code;
             break;
         case GT:
-            code = l_code + ">" + r_code;
+            code = l_code + " > " + r_code;
             break;
         case LT:
-            code = l_code + "<" + r_code;
+            code = l_code + " < " + r_code;
             break;
         case GE:
-            code = l_code + ">=" + r_code;
+            code = l_code + " >= " + r_code;
             break;
         case LE:
-            code = l_code + "<=" + r_code;
+            code = l_code + " <= " + r_code;
             break;
         default:
             code = "";
@@ -115,27 +115,33 @@ string gen_binary_code(string l_code, enum e_op op, string r_code){
 /* ValueNode */
 ValueNode::ValueNode(IDNode *i) {
     val.id_val = i;
+    code = i->code;
 }
 ValueNode::ValueNode(LiteralNode *l) {
-    val.lit_val = l; code = l->code;
+    val.lit_val = l;
+    code = l->code;
 }
 ValueNode::ValueNode(FunctionCallNode *f) {
     val.function_call_val = f;
+    code = f->code;
 } 
 ValueNode::ValueNode(ArrayAccessNode *a) {
     val.array_access_val = a;
+    code = a->code;
 }
 ValueNode::ValueNode(DatasetAccessNode *d) {
     val.dataset_access_val = d;
+    code = d->code;
 }
 ValueNode::ValueNode(ExpressionNode *e) {
     val.expression_val = e;
-    code = "(" + e->code + ")";
+    code = "( " + e->code + " )";
 }
 
 /* IDNode */
-IDNode::IDNode(string idName) {
-    name = idName;
+IDNode::IDNode(Entry *ent) {
+    entry = ent;
+    code = ent->name;
 }
 IDNode::~IDNode() { }
 
@@ -143,7 +149,8 @@ IDNode::~IDNode() { }
 FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a) {
     func_name = f;
     args_list = a;
-    code = f->code + "(" + a->code + ")";
+     
+    code = f->code + "( " + a->code + " )";
 }
 FunctionCallNode::FunctionCallNode(IDNode *f) {
     func_name = f;
@@ -160,7 +167,11 @@ ArgsNode::ArgsNode(ExpressionNode *arg) {
 }
 void ArgsNode::add_arg(ExpressionNode *arg) {
     args_list.push_back(arg);
-    code += ", " + arg->code;
+
+    if(code.compare("") == 0)
+        code += arg->code;
+    else
+        code += ", " + arg->code;
 }
 
 /* DeclArgsNode */
@@ -217,7 +228,7 @@ UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op)
             code = "-" + u->code;
             break;
         case SIZE:
-            code = "sizeof(" + u->code + ")";
+            code = "sizeof( " + u->code + " )";
             break;
         case bNOT:
             code = "!" + u->code;
@@ -287,12 +298,14 @@ DeclarativeStatementNode::DeclarativeStatementNode(string _type, ExpressionNode 
     type = get_type(_type);
     en = expression_node;
 
+    transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
+
     //TODO TYPE CONVERSIONS
-    code = _type + " " + expression_node->code + ";"; 
+    code = _type + " " + expression_node->code + ";\n"; 
 }
 DeclarativeStatementNode::DeclarativeStatementNode(ExpressionNode *expression_node){
     en = expression_node;
-    code = expression_node->code + ";";
+    code = expression_node->code + ";\n";
 }
 
 /* ConditionalStatementNode */
@@ -300,6 +313,12 @@ ConditionalStatementNode::ConditionalStatementNode(ExpressionNode *e, StatementL
     condition = e;
     consequent = s;
     alternative = a;
+
+    code = "if (" + e->code + ")" + s->code;
+
+    if(a != nullptr)
+        code += "else " + a->code;
+
 }
 
 /* JumpStatementNode */
@@ -351,5 +370,7 @@ FunctionNode::FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_arg
     stmt_list = stmt_list_n;
     //TODO typing and symbol_table interactions
     
+    transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
+
     code = _type + " " + id_node->code + "(" + decl_args_list->code + ")" + stmt_list_n->code; 
 }

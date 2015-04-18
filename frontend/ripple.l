@@ -82,7 +82,7 @@ or          {   db(yytext); ltype = false; return OR; }
 {float}	    {	db(yytext); ltype = false; yylval.decimal = atof(yytext);
 		        return FLOAT_LIT;		}
 {literal}   {	db(yytext); ltype = false; yylval.string = new std::string(yytext);
-                return LITERAL;			}
+                return STRING_LITERAL;			}
 
 "="			{   db(yytext); ltype = false; return tASSIGN; }
 "+"         {   db(yytext); ltype = false; return tPLUS;  }
@@ -111,6 +111,7 @@ or          {   db(yytext); ltype = false; return OR; }
 
 int main(void) {
     sym_table.scope_in(0);
+    sym_table.put("print", tVOID, 0);
     yyparse();
     return 0;
 }

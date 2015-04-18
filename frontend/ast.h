@@ -5,6 +5,8 @@
 #include <string.h>
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include "symbol_table/hashmap.h"
 #include "../structures/enum.h"
 #include "../structures/union.h"
 
@@ -75,9 +77,9 @@ class ValueNode: public Node {
 };
 
 class IDNode: public Node {
-    string name;
+    Entry *entry;
     public:
-        IDNode(Entry *entry);
+        IDNode(Entry *ent);
         ~IDNode();
 };
 
