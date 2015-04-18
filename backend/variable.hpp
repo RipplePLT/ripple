@@ -1,15 +1,20 @@
 #ifndef __VARIABLE_HPP__
 #define __VARIABLE_HPP__
 
-using namespace std;
+#include "../frontend/ast.h"
+// @TODO write test var & exp node
 
 template<typename T>
-class variable {
+class Variable {
     private:
         T value;
+        ExpressionNode expression; // Linked expression
+        list<Variable&> references; // Variables to update
     public:
+        Variable(T *var, ExpressionNode exp);
+        ~Variable();
         T get_value();
-        void update_value(T value);
-}
+        T update_value();
+};
 
 #endif
