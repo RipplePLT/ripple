@@ -15,7 +15,7 @@ void yyerror(const char *s) { printf("%s\n", s); }
 extern SymbolTable sym_table;
 
 void d(string m) {
-//    cerr << m << endl;
+//    cout << m << endl;
 }
 %}
 
@@ -81,7 +81,7 @@ void d(string m) {
 %token <string> VAR
 %token <integer> INTEGER
 %token <decimal> FLOAT_LIT 
-%token <string>  LITERAL 
+%token <string>  STRING_LITERAL 
 %token <boolean> TRUE
 %token <boolean> FALSE
 
@@ -143,9 +143,9 @@ void d(string m) {
 
 %%
 
-function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $6); d("function"); delete $1; delete $4; }
+function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $4, $6); d("function"); delete $1; delete $4; cout << $$->code << endl; }
 
-statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{" + code + "}"; d("statement_block - curly_statement_block"); }
+statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{\n" + $2->code + "\n}"; d("statement_block - curly_statement_block"); }
                 ;
 
 statement_list : statement_list statement       { $1->push_statement($2); d("statement_list - stmt-list"); }
@@ -230,7 +230,7 @@ unary_expression : value                    { $$ = new UnaryExpressionNode($1); 
                  | NOT unary_expression     { $$ = new UnaryExpressionNode($2, "not");  d("unary_expression not"); }
                  ;
 
-value : literal            { $$ = new ValueNode($1); d("value - literal");}
+value : literal            { $$ = new ValueNode($1); d("value - literal"); }
       | function_call      { $$ = new ValueNode($1); d("value - function_call"); }
       | array_access       { $$ = new ValueNode($1); d("value - array_access"); }
       | dataset_access     { $$ = new ValueNode($1); d("value - dataset_access"); }
@@ -261,11 +261,11 @@ id : VAR { $$ = new IDNode(sym_table.get(*yylval.string)); }
 
 dtype : TYPE { $$ = yylval.string; }
 
-literal : INTEGER                 { $$ = new LiteralNode($1); $$.code = to_string(yylval.integer); d("literal - INT");}	
-        | FLOAT_LIT               { $$ = new LiteralNode($1); $$.code = to_string(yylval.decimal); d("literal - FLOAT");}
-        | STRING                  { $$ = new LiteralNode($1); $$.code = yylval.string; d("literal - STRING"); }
-        | TRUE				      { $$ = new LiteralNode($1); $$.code = "true";  d("literal - true"); }
-        | FALSE				      { $$ = new LiteralNode($1); $$.code = "false"; d("literal - false"); }
+literal : INTEGER                 { $$ = new LiteralNode($1); $$->code = to_string(yylval.integer); d("literal - INT");}	
+        | FLOAT_LIT               { $$ = new LiteralNode($1); $$->code = to_string(yylval.decimal); d("literal - FLOAT");}
+        | STRING_LITERAL          { $$ = new LiteralNode($1); $$->code = *yylval.string; d("literal - STRING"); }
+        | TRUE				      { $$ = new LiteralNode($1); $$->code = "true";  d("literal - true"); }
+        | FALSE				      { $$ = new LiteralNode($1); $$->code = "false"; d("literal - false"); }
         ;
 
 %%

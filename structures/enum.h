@@ -1,5 +1,5 @@
 #ifndef __RPL_ENUM__
-#define __RPL_ENUM__ 1
+#define __RPL_ENUM__
 
 enum e_type {
     tINT,

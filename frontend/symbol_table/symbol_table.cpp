@@ -8,6 +8,7 @@
 
 SymbolTableNode::SymbolTableNode() {
     hashmap = new HashMap();
+    hashmap->put("print", tINT, 0);
     sibling = nullptr;
     child = nullptr;
     parent = nullptr;
