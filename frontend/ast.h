@@ -7,6 +7,7 @@
 #include <vector>
 #include "../structures/enum.h"
 #include "../structures/union.h"
+#include "symbol_table/hashmap.h"
 
 using namespace std;
 
@@ -17,12 +18,11 @@ class BinaryExpressionNode;
 class UnaryExpressionNode;
 class LiteralNode;
 class IDNode;
+class ArgsNode;
 class FunctionCallNode;
 class ArrayAccessNode;
 class DatasetAccessNode;
 class ExpressionNode;
-class ValueNode;
-class ArgsNode;
 class ConditionalStatementNode;
 class DeclarativeStatementNode;
 class JumpStatementNode;
@@ -59,34 +59,141 @@ union statements {
 class Node {
     public:
         string code;
+        e_type type;
 };
 
-class ValueNode: public Node {
-    public:
-    union value val;
+class ExpressionNode: public Node {
+public:
+    BinaryExpressionNode *bin_exp;
+    ValueNode *value;
 
-    ValueNode(IDNode *i) { val.id_val = i; }
-    ValueNode(LiteralNode *l) { val.lit_val = l; }
-    ValueNode(FunctionCallNode *f) { val.function_call_val = f; } 
-    ValueNode(ArrayAccessNode *a) { val.array_access_val = a; }
-    ValueNode(DatasetAccessNode *d) { val.dataset_access_val = d; }
-    ValueNode(ExpressionNode *e) { val.expression_val = e; }
+   ExpressionNode(BinaryExpressionNode *b) {
+        bin_exp = b;
+        value = NULL;
+   }
+
+   ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
+        bin_exp = b;
+        value = v;
+   }
+
+   ~ExpressionNode() {
+        delete bin_exp;
+   }
+
+   e_type get_type(){
+        return type;
+   }
 };
 
 class IDNode: public Node {
-    string name;
-    public:
-        IDNode(string idName) { name = idName; }
+    Entry *entry;
+public:
+        IDNode(Entry *ent) { entry = ent; }
         ~IDNode() { }
+
+        e_type get_type(){
+            return entry->type;
+        }
 };
 
 class FunctionCallNode: public Node {
     ArgsNode *args_list;
     IDNode *func_name;
 
+public:
+    FunctionCallNode(IDNode *func_name, ArgsNode *args_list){ 
+        this->func_name = func_name;
+        this->args_list = args_list;
+        type = func_name->get_type(); 
+    }
+    FunctionCallNode(IDNode *func_name) {
+        this->func_name = func_name;
+        type = func_name->get_type(); 
+    };
+
+    e_type get_type(){
+        return tINT;
+    }
+
+};
+
+class LiteralNode: public Node {
     public:
-        FunctionCallNode(IDNode *func_name, ArgsNode *args_list){ this->func_name = func_name ; this->args_list = args_list; };
-        FunctionCallNode(IDNode *func_name) { this->func_name = func_name; };
+    union literal val;
+
+    // Constructors for different types
+    LiteralNode(int i) { val.int_lit = i; type = tINT;  }
+    LiteralNode(double d) { val.float_lit = d; type = tFLOAT; cout << "float" << endl; }
+    LiteralNode(string s) { val.string_lit = s; type = tSTRING; }
+    LiteralNode(bool b) { val.bool_lit = b; type = tBOOL; }
+    LiteralNode(char b) { val.byte_lit = b; type = tBYTE; }
+
+    e_type get_type(){
+        return type;
+    }
+};
+
+class ArrayAccessNode: public Node {
+public:
+    ValueNode *vn;
+    ExpressionNode *en;
+
+    ArrayAccessNode(ValueNode *valueNode, ExpressionNode *expressionNode) {
+        vn = valueNode;
+        en = expressionNode;
+    }
+
+    e_type get_type(){
+        return tINT;
+    }
+};
+
+class DatasetAccessNode: public Node {
+public:
+    ValueNode *vn;
+    IDNode *idn;
+
+    DatasetAccessNode(ValueNode *valueNode, IDNode *idNode) {
+        vn = valueNode;
+        idn = idNode;
+    }
+
+    e_type get_type(){
+        return tINT;
+    }
+};
+
+class ValueNode: public Node {
+    public:
+    union value val;
+
+    ValueNode(IDNode *i) { val.id_val = i; type = i->get_type(); }
+    ValueNode(LiteralNode *l) { val.lit_val = l; type = l->get_type(); }
+    ValueNode(FunctionCallNode *f) { val.function_call_val = f; type = f->get_type(); } 
+    ValueNode(ArrayAccessNode *a) { val.array_access_val = a; type = a->get_type(); }
+    ValueNode(DatasetAccessNode *d) { val.dataset_access_val = d; type = d->get_type(); }
+    ValueNode(ExpressionNode *e) { val.expression_val = e; type = e->get_type(); }
+
+    void print_type(){
+        switch(type){
+            case tINT:
+                cout << "int" << endl;
+                break;
+            case tFLOAT:
+                cout << "float" << endl;
+                break;
+            case tSTRING:
+                cout << "string" << endl;
+                break;
+            case tBOOL:
+                cout << "bool" << endl;
+                break;
+            default:
+                cout << "crikey" << endl;
+        }
+    }
+
 
 };
 
@@ -106,40 +213,7 @@ class DeclArgsNode: public Node {
     void add_arg(IDNode* arg) { decl_args_list.push_back(arg); }
 };
 
-class LiteralNode: public Node {
-    public:
-    union literal val;
-    enum e_type type;
 
-    // Constructors for different types
-    LiteralNode(int i) { val.int_lit = i; type = tINT;  }
-    LiteralNode(double d) { val.float_lit = d; type = tFLOAT; }
-    LiteralNode(string s) { val.string_lit = s; type = tSTRING; }
-    LiteralNode(bool b) { val.bool_lit = b; type = tBOOL; }
-    LiteralNode(char b) { val.byte_lit = b; type = tBYTE; }
-};
-
-class ArrayAccessNode: public Node {
-public:
-    ValueNode *vn;
-    ExpressionNode *en;
-
-    ArrayAccessNode(ValueNode *valueNode, ExpressionNode *expressionNode) {
-        vn = valueNode;
-        en = expressionNode;
-    }
-};
-
-class DatasetAccessNode: public Node {
-public:
-    ValueNode *vn;
-    IDNode *idn;
-
-    DatasetAccessNode(ValueNode *valueNode, IDNode *idNode) {
-        vn = valueNode;
-        idn = idNode;
-    }
-};
 
 class UnaryExpressionNode: public Node {
     
@@ -200,26 +274,6 @@ public:
         op = NONE;
     }
 
-};
-
-class ExpressionNode: public Node {
-public:
-    BinaryExpressionNode *bin_exp;
-    ValueNode *value;
-
-   ExpressionNode(BinaryExpressionNode *b) {
-        bin_exp = b;
-        value = NULL;
-   }
-
-   ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
-        bin_exp = b;
-        value = v;
-   }
-
-   ~ExpressionNode() {
-        delete bin_exp;
-   }
 };
 
 class DeclarativeStatementNode: public Node {

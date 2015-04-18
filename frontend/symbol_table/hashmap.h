@@ -7,7 +7,7 @@
 #include "../../structures/union.h"
 #define HASH_PRIME 31
 
-#define TABLE_SIZE 997
+#define TABLE_SIZE 97
 
 using namespace std;
 
@@ -16,13 +16,10 @@ class Entry {
 
     string name;
     enum e_type type;
+    int line_no;
     union literal val;
 
-    Entry(string n, string v);
-    Entry(string n, long v);
-    Entry(string n, double v);
-    Entry(string n, bool v);
-    Entry(string n, char v);
+    Entry(string n, e_type v, int line);
     
     bool operator==(string n);
     
@@ -38,11 +35,7 @@ class HashMap{
     HashMap();
     ~HashMap();
     
-    bool put(string word, string v);
-    bool put(string word, long v);
-    bool put(string word, double v);
-    bool put(string word, bool v);
-    bool put(string word, char v);
+    bool put(string word, e_type v, int line_no);
 
     bool contains(string word);
     Entry *get(string word);
