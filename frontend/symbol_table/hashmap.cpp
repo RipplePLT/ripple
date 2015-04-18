@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iostream>
 #include "hashmap.h"
 
 using namespace std;
@@ -58,52 +59,12 @@ bool HashMap::contains(string word) {
     return list_contains(*t[pos], word);
 }
 
-bool HashMap::put(string word, string v) {
+bool HashMap::put(string word, e_type v, int line_no) {
     int pos = hashCode(word) % TABLE_SIZE;
     if(list_contains(*t[pos], word))
         return false;
 
-    Entry *new_entry = new Entry(word, v);
-    t[pos]->push_back(new_entry);
-    return true;
-}
-
-bool HashMap::put(string word, long v) {
-    int pos = hashCode(word) % TABLE_SIZE;
-    if(list_contains(*t[pos], word))
-        return false;
-
-    Entry *new_entry = new Entry(word, v);
-    t[pos]->push_back(new_entry);
-    return true;
-}
-
-bool HashMap::put(string word, double v) {
-    int pos = hashCode(word) % TABLE_SIZE;
-    if(list_contains(*t[pos], word))
-        return false;
-
-    Entry *new_entry = new Entry(word, v);
-    t[pos]->push_back(new_entry);
-    return true;
-}
-
-bool HashMap::put(string word, bool v) {
-    int pos = hashCode(word) % TABLE_SIZE;
-    if(list_contains(*t[pos], word))
-        return false;
-
-    Entry *new_entry = new Entry(word, v);
-    t[pos]->push_back(new_entry);
-    return true;
-}
-
-bool HashMap::put(string word, char v) {
-    int pos = hashCode(word) % TABLE_SIZE;
-    if(list_contains(*t[pos], word))
-        return false;
-
-    Entry *new_entry = new Entry(word, v);
+    Entry *new_entry = new Entry(word, v, line_no);
     t[pos]->push_back(new_entry);
     return true;
 }
@@ -120,35 +81,12 @@ Entry *HashMap::get(string word) {
     return nullptr;
 }
 
-Entry::Entry(string n, string v) {
+Entry::Entry(string n, e_type v, int line) {
     name = n;
-    val.string_lit = v;
-    type = tSTRING;
+    type = v;
+    line_no = line;
 }
 
-Entry::Entry(string n, long v) {
-    name = n;
-    val.int_lit = v;
-    type = tINT;
-}
-
-Entry::Entry(string n, double v) {
-    name = n;
-    val.float_lit = v;
-    type = tFLOAT;
-}
-
-Entry::Entry(string n, bool v) {
-    name = n;
-    val.bool_lit = v;
-    type = tBOOL;
-}
-
-Entry::Entry(string n, char v) {
-    name = n;
-    val.byte_lit = v;
-    type = tBYTE;
-}
 
 bool Entry::operator==(string n) {
     return name.compare(n) == 0;

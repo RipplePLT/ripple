@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 
 #include "symbol_table.h"
 
@@ -58,24 +59,8 @@ void SymbolTable::scope_out(int line_no) {
     current = node;
 }
 
-bool SymbolTable::put(string word, string v) {
-    return current->hashmap->put(word, v);
-}
-
-bool SymbolTable::put(string word, long v) {
-    return current->hashmap->put(word, v);
-}
-
-bool SymbolTable::put(string word, double v) {
-    return current->hashmap->put(word, v);
-}
-
-bool SymbolTable::put(string word, bool v) {
-    return current->hashmap->put(word, v);
-}
-
-bool SymbolTable::put(string word, char v) {
-    return current->hashmap->put(word, v);
+bool SymbolTable::put(string word, e_type v, int line_no) {
+    return current->hashmap->put(word, v, line_no);
 }
 
 bool SymbolTable::contains(string word) {

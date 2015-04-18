@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include "hashmap.h"
+#include "../../structures/enum.h"
 
 using namespace std;
 
@@ -27,11 +28,7 @@ class SymbolTable{
     void scope_in(int line_no);
     void scope_out(int line_no);
     
-    bool put(string word, string v);
-    bool put(string word, long v);
-    bool put(string word, double v);
-    bool put(string word, bool v);
-    bool put(string word, char v);
+    bool put(string word, e_type type, int line_no);
 
     bool contains(string word);
     
