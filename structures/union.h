@@ -1,3 +1,6 @@
+#ifndef __UNION_H__
+#define __UNION_H__
+
 #include <cstring>
 using namespace std;
 
@@ -11,3 +14,5 @@ union literal {
     literal() { memset(this, 0, sizeof(literal)); }
     ~literal() {}
 };
+
+#endif

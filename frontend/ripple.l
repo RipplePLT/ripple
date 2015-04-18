@@ -3,14 +3,17 @@
 #include "frontend/ast.h"
 #include "structures/enum.h"
 #include "ripple.tab.hpp"
+#include "frontend/symbol_table/symbol_table.h"
 
 extern "C" int yywrap();
-int line_no;
+int line_no = 1;
 bool ltype;
 e_type vtype;
 void db(std::string m){
 	//cout << m << endl;
 }
+
+SymbolTable sym_table;
 
 %}
 
@@ -54,8 +57,21 @@ or          {   db(yytext); ltype = false; return OR; }
 {id}        {	db(yytext); 
 				if(ltype){
 					// add the variable and type to symbol table
+					if(sym_table.contains(yytext)){
+						Entry *entry = sym_table.get(yytext);
+						if(entry != nullptr)
+							cout << "Redefinition of variable " << yytext << " previously defined on line " << entry->line_no << endl;
+							else{
+								sym_table.put(yytext, vtype, line_no);
+						}
+					}
+					else{
+						sym_table.put(yytext, vtype, line_no);
+					}
 				} else {
 					// check if id is valid
+					if(!sym_table.contains(yytext))
+						cout << "Use of undeclared identifier " << yytext << endl;
 				}
 				ltype = false;
 				yylval.string = new std::string(yytext);
@@ -66,7 +82,7 @@ or          {   db(yytext); ltype = false; return OR; }
 {float}	    {	db(yytext); ltype = false; yylval.decimal = atof(yytext);
 		        return FLOAT_LIT;		}
 {literal}   {	db(yytext); ltype = false; yylval.string = new std::string(yytext);
-                return LITERAL;			}
+                return STRING_LITERAL;			}
 
 "="			{   db(yytext); ltype = false; return tASSIGN; }
 "+"         {   db(yytext); ltype = false; return tPLUS;  }
@@ -87,8 +103,15 @@ or          {   db(yytext); ltype = false; return OR; }
 ")"			{	db(yytext); ltype = false; return tR_PAREN; }
 "["			{	db(yytext); ltype = false; return tL_BRACKET; }
 "]"			{	db(yytext); ltype = false; return tR_BRACKET; }
-"{"			{	db(yytext); ltype = false; return tL_CURLY; }
-"}"			{	db(yytext); ltype = false; return tR_CURLY; }
+"{"			{	db(yytext); sym_table.scope_in(line_no); ltype = false; return tL_CURLY; }
+"}"			{	db(yytext); sym_table.scope_out(line_no); ltype = false; return tR_CURLY; }
 ";"         {   db(yytext); ltype = false; return tSEMI;  }
 "\."        {  	db(yytext); ltype = false; return tACCESS; }
 %%
+
+int main(void) {
+    sym_table.scope_in(0);
+    sym_table.put("print", tVOID, 0);
+    yyparse();
+    return 0;
+}
