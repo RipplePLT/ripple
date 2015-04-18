@@ -5,6 +5,8 @@
 #include <string.h>
 #include <iostream>
 #include <vector>
+#include "../structures/enum.h"
+#include "../structures/union.h"
 
 using namespace std;
 
@@ -28,60 +30,14 @@ class LoopStatementNode;
 class StatementListNode;
 class FunctionNode;
 
-enum e_type {
-    tINT,
-    tBOOL,
-    tFLOAT,
-    tSTRING,
-    tBYTE,
-    tVOID
-};
-
-enum e_op {
-    PLUS,
-    MINUS,
-    TIMES,
-    DIV,
-    FLDIV,
-    EXP,
-    bAND,
-    bOR,
-    bNOT,
-    EQ,
-    NE,
-    GT,
-    LT,
-    GE,
-    LE,
-    SIZE,
-    NONE
-};
-
-enum e_jump {
-    tRETURN,
-    tCONTINUE,
-    tBREAK
-};
-
 enum e_op get_op(string op_string);
 enum e_type get_type(string type);
 enum e_jump get_jump(string type);
 
 union operand {
-        BinaryExpressionNode *b_exp;
-        UnaryExpressionNode *u_exp;
-        ValueNode *v_node;
-};
-
-union literal {
-    int int_lit;
-    double float_lit;
-    string string_lit;
-    bool bool_lit;
-    char byte_lit;
-
-    literal() { memset(this, 0, sizeof(literal)); }
-    ~literal() {}
+    BinaryExpressionNode *b_exp;
+    UnaryExpressionNode *u_exp;
+    ValueNode *v_node;
 };
 
 union value {
@@ -98,10 +54,6 @@ union statements {
     ConditionalStatementNode *cond;
     JumpStatementNode *jump;
     LoopStatementNode *loop;
-};
-
-struct ID {
-    string name;
 };
 
 class Node {
@@ -122,11 +74,10 @@ class ValueNode: public Node {
 };
 
 class IDNode: public Node {
+    string name;
     public:
-        struct ID id;
-
-        IDNode(string idName) { id.name = idName; }
-        ~IDNode() { delete &id.name; }
+        IDNode(string idName) { name = idName; }
+        ~IDNode() { }
 };
 
 class FunctionCallNode: public Node {

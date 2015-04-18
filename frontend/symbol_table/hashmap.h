@@ -3,6 +3,8 @@
 #include <list>
 #include <string>
 #include <array>
+#include "../../structures/enum.h"
+#include "../../structures/union.h"
 #define HASH_PRIME 31
 
 #define TABLE_SIZE 997
@@ -22,4 +24,9 @@ class HashMap{
     bool remove(string word);
 };
 
+class Entry {
+    string name;
+    enum e_type type;
+    union value val;
+}
 #endif
