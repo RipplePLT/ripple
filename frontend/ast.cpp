@@ -59,3 +59,55 @@ enum e_jump get_jump(const std::string type){
     else if (type.compare("CONTINUE") == 0)
         return tCONTINUE;
 }
+
+string gen_binary_code(string l_code, enum e_op op, string r_code){
+    string code;
+    switch(op) {
+        case PLUS:
+            code = l_code + "+" + r_code;
+            break;
+        case MINUS:
+            code = l_code + "-" + r_code;
+            break;
+        case TIMES:
+            code = l_code + "*" + r_code;
+            break;
+        case DIV:
+            code = l_code + "/" + r_code;
+            break;
+        case FLDIV:
+            code = "(double)" + l_code + "/(double)" + r_code;
+            break;
+        case EXP:
+            code = "Math.pow(" + l_code + "," + r_code + ")";
+            break;
+        case bAND:
+            code = l_code + "&&" + r_code;
+            break;
+        case bOR:
+            code = l_code + "||" + r_code;
+            break;
+        case EQ:
+            code = l_code + "==" + r_code;
+            break;
+        case NE:
+            code = l_code + "!=" + r_code;
+            break;
+        case GT:
+            code = l_code + ">" + r_code;
+            break;
+        case LT:
+            code = l_code + "<" + r_code;
+            break;
+        case GE:
+            code = l_code + ">=" + r_code;
+            break;
+        case LE:
+            code = l_code + "<=" + r_code;
+            break;
+        default:
+            code = "";
+            break;
+    }
+    return code;
+}

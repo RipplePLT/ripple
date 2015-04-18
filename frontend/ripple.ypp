@@ -142,7 +142,7 @@ void d(string m) {
 
 function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $6); d("function"); delete $1; delete $4; }
 
-statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; d("statement_block - curly_statement_block"); }
+statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{" + code + "}"; d("statement_block - curly_statement_block"); }
                 ;
 
 statement_list : statement_list statement       { $1->push_statement($2); d("statement_list - stmt-list"); }
@@ -173,7 +173,7 @@ loop_statement : FOR tL_PAREN opt_expression tSEMI opt_expression tSEMI opt_expr
                 | WHILE tL_PAREN expression tR_PAREN statement_block { $$ = new LoopStatementNode(NULL ,$3, NULL, $5); d("loop - while"); }
 
 declarative_statement : dtype expression tSEMI   { $$ = new DeclarativeStatementNode(*($1), $2); d("declarative statement -  type expr"); delete $1; }
-                      | expression tSEMI        { d("doing this 2"); $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
+                      | expression tSEMI        { $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
                       ;
 
 opt_expression : expression tL_PAREN           { $$ = $1; }
@@ -258,11 +258,11 @@ id : VAR { $$ = new IDNode(*yylval.string); }
 
 dtype : TYPE { $$ = yylval.string; }
 
-literal : INTEGER                 { $$ = new LiteralNode($1); d("literal - INT");}	
-        | FLOAT_LIT               { $$ = new LiteralNode($1); d("literal - FLOAT");}
-        | STRING                  { $$ = new LiteralNode($1);  d("literal - STRING"); }
-        | TRUE				            { $$ = new LiteralNode($1);  d("literal - true"); }
-        | FALSE				            { $$ = new LiteralNode($1);  d("literal - false"); }
+literal : INTEGER                 { $$ = new LiteralNode($1); $$.code = to_string(yylval.integer); d("literal - INT");}	
+        | FLOAT_LIT               { $$ = new LiteralNode($1); $$.code = to_string(yylval.decimal); d("literal - FLOAT");}
+        | STRING                  { $$ = new LiteralNode($1); $$.code = yylval.string; d("literal - STRING"); }
+        | TRUE				      { $$ = new LiteralNode($1); $$.code = "true";  d("literal - true"); }
+        | FALSE				      { $$ = new LiteralNode($1); $$.code = "false"; d("literal - false"); }
         ;
 
 %%
