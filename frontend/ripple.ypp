@@ -37,6 +37,7 @@ void d(string m) {
     LiteralNode *lit;
     ValueNode *val;
     ArgsNode *args;
+    DeclArgsNode *decl_args;
     IDNode *idn;
     
     int integer;
@@ -110,6 +111,7 @@ void d(string m) {
 %type <stmt> statement
 %type <stmt_list> statement_list statement_block else_statement
 %type <func> function
+%type <decl_args> decl_args
 
 %left tEQ
 %left tNE
@@ -138,7 +140,7 @@ void d(string m) {
 
 %%
 
-function : dtype id tL_PAREN decl_arg_list tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $6); d("function"); delete $1; delete $4; }
+function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $6); d("function"); delete $1; delete $4; }
 
 statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; d("statement_block - curly_statement_block"); }
                 ;
@@ -238,10 +240,10 @@ args : args tCOMMA expression   { $1->add_arg($3); d("arg added - 1"); }
      |                          { $$ = new ArgsNode(); }
      ;
 
-decl_arg_list : decl_arg_list tCOMMA dtype id
-              | dtype id
-              |
-              ;
+decl_args : decl_args tCOMMA dtype id   { $1->add_arg($4); d("arg added - 1"); }
+          | dtype id                    { $$ = new DeclArgsNode(); $$->add_arg($2); d("arg added"); }
+          |                             { $$ = new DeclArgsNode(); }
+          ;
 
 function_call : id tL_PAREN args tR_PAREN { $$ = new FunctionCallNode($1, $3); d("function call"); }
 	          ;

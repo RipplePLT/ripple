@@ -147,6 +147,14 @@ class ArgsNode: public Node {
 	void add_arg(ExpressionNode* arg) { args_list.push_back(arg); }
 };
 
+class DeclArgsNode: public Node {
+    std::vector<IDNode*> decl_args_list;
+
+    public:
+        DeclArgsNode() {};
+    void add_arg(IDNode* arg) { decl_args_list.push_back(arg); }
+};
+
 class LiteralNode: public Node {
     public:
     union literal val;
