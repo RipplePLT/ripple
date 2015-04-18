@@ -2,31 +2,46 @@
 #include <cctype>
 #include <cstdio>
 #include <string>
-
+#include <iostream>
 #include "frontend/ast.h"
+#define DEBUG
+using namespace std;
 
 extern int yylex();
 void yyerror(const char *s) { printf("%s\n", s); }
-#define YYSTYPE int
+//#define YYSTYPE std::string
+
+void d(string m) {
+//    cerr << m << endl;
+}
 %}
 
+
 %union {
-    ASTNode *node;
-    Expression *expr;
-    OrExpression *orExpr;
-    AndExpression *andExpr;
-    EqExpression *eqExpr;
-    RelExpression *relExpr;
-    AddExpression *addExpr;
-    MultExpression *multExpr;
-    ExpExpression *exprExpr;
-    UnaryExpression *unExpr;
+    FunctionNode *func;
+
+    StatementListNode *stmt_list;    
+    StatementNode *stmt;
+    DeclarativeStatementNode *dec_stmt;
+    ConditionalStatementNode *cond_stmt;
+    JumpStatementNode *jump_stmt;
+    LoopStatementNode *loop_stmt;
+
+    ExpressionNode *expr;
+    BinaryExpressionNode *bin_expr;
+    UnaryExpressionNode *un_expr;
+    
+    ArrayAccessNode *arr_acc;
+    DatasetAccessNode *ds_acc;
+    FunctionCallNode *fn_call;
+    LiteralNode *lit;
     ValueNode *val;
-    IntNode *intNode;
-    FloatNode *floatNode;
-    StringNode *stringNode;
+    ArgsNode *args;
+    DeclArgsNode *decl_args;
+    IDNode *idn;
+    
     int integer;
-    std::string string;
+    string *string;
     double decimal;
     bool boolean;
 }
@@ -55,130 +70,200 @@ void yyerror(const char *s) { printf("%s\n", s); }
 %token <integer> FLOAT
 %token <integer> STRING 
 %token <integer> DATASET
-%token <integer> VOID
-
-/***************
-       OP
-***************/
-%token <integer> AND 
-%token <integer> OR 
-%token <integer> NOT 
+%token <integer> VOid
 
 /***************
     VARIABLES 
 ***************/
-%token <integer> ID
+%token <string> VAR
 %token <integer> INTEGER
-%token <float>   FLOAT_LIT 
+%token <decimal> FLOAT_LIT 
 %token <string>  LITERAL 
-%token <integer> TRUE
-%token <integer> FALSE
+%token <boolean> TRUE
+%token <boolean> FALSE
 
+/*****************
+    SEPARATORS
+*****************/
+%token tSEMI
+%token tCOMMA
+%token tL_PAREN
+%token tR_PAREN
+%token tL_BRACKET
+%token tR_BRACKET
+%token tL_CURLY
+%token tR_CURLY
+%type <idn> id
+%type <string> dtype
+%type <lit> literal
+%type <un_expr> unary_expression
+%type <bin_expr> exp_expression mult_expression add_expression rel_expression eq_expression and_expression or_expression
+%type <expr> expression opt_expression
+%type <arr_acc> array_access
+%type <fn_call> function_call
+%type <ds_acc> dataset_access
+%type <val> value
+%type <args> args;
+%type <dec_stmt> declarative_statement
+%type <jump_stmt> jump_statement
+%type <cond_stmt> conditional_statement
+%type <loop_stmt> loop_statement
+%type <stmt> statement
+%type <stmt_list> statement_list statement_block else_statement
+%type <func> function
+%type <decl_args> decl_args
 
-%left "=="
-%left "!="
+%left tEQ
+%left tNE
 
-%left "<"
-%left "<="
-%left ">"
-%left ">="
+%left tLT
+%left tLE
+%left tGT
+%left tGE
 
 %left AND
 %left OR
 
-%left "+" 
-%left "-" 
-%left "*" 
-%left "/" 
-%left "%" 
-%left "//"
+%left tPLUS
+%left tMINUS
+%left tTIMES
+%left tDIV
+%left tMOD
+%left tFLDIV
 
-%right "^" 
-%right "@"
+%right tEXP
+%right tSIZE
 %right NOT 
+
+%right tASSIGN
+%right tACCESS
 
 %%
 
-/* TEMPORARY; ONLY HERE TO TEST EXPRESSIONS */
-program : program expression ";"
-        |
-        ;
+function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $6); d("function"); delete $1; delete $4; }
 
-args : args "," expression
-     | expression
-     ;
-
-expression : or_expression
-           | value "=" or_expression	
-           ;
-
-or_expression : and_expression
-              | or_expression OR and_expression
-              ;
-
-and_expression : eq_expression
-               | and_expression AND eq_expression
-               ;
-
-eq_expression : rel_expression
-              | eq_expression "==" rel_expression
-              | eq_expression "!=" rel_expression
-              ;
-
-rel_expression : add_expression
-               | rel_expression ">" add_expression
-               | rel_expression "<" add_expression
-               | rel_expression ">=" add_expression
-               | rel_expression "<=" add_expression
-               ;
-
-add_expression : mult_expression
-               | add_expression "+" mult_expression
-               | add_expression "-" mult_expression
-               ;
-
-mult_expression : exp_expression
-                | mult_expression "*" exp_expression
-                | mult_expression "/" exp_expression
-                | mult_expression "//" exp_expression
-                | mult_expression "%" exp_expression
+statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; d("statement_block - curly_statement_block"); }
                 ;
 
-exp_expression : unary_expression
-               | exp_expression "^" unary_expression
+statement_list : statement_list statement       { $1->push_statement($2); d("statement_list - stmt-list"); }
+               | statement                      { $$ = new StatementListNode(); $$->push_statement($1); d("statement_list - stmt"); }
+               | 
                ;
 
-unary_expression : value			
-                 | "-" unary_expression
-                 | "@" unary_expression	
-                 | "(" TYPE ")" unary_expression
-                 | NOT unary_expression
+statement : declarative_statement               { $$ = new StatementNode($1); d("statement - declarative"); }
+          | conditional_statement               { $$ = new StatementNode($1); d("statement - conditional"); }
+          | jump_statement                      { $$ = new StatementNode($1); d("statement - jump"); }
+          | loop_statement                      { $$ = new StatementNode($1); d("statement - loop"); }
+          ;
+
+jump_statement : RETURN expression tSEMI        { $$ = new JumpStatementNode("RETURN", $2); d("jump - return"); }
+               | CONTINUE tSEMI                 { $$ = new JumpStatementNode("CONTINUE"); d("jump - continue"); }
+               | BREAK tSEMI                    { $$ = new JumpStatementNode("BREAK"); d("jump - break"); }
+               ;
+
+
+conditional_statement : IF tL_PAREN expression tR_PAREN statement_block else_statement  { $$ = new ConditionalStatementNode($3, $5, $6); d("conditional statement"); }
+                        ;
+
+else_statement : ELSE statement_block   { $$ = $2; d("else statement"); }
+                |                       { $$ = NULL; }
+                ;
+
+loop_statement : FOR tL_PAREN opt_expression tSEMI opt_expression tSEMI opt_expression tR_PAREN statement_block { $$ = new LoopStatementNode($3, $5, $7, $9); d("loop - for"); }
+                | WHILE tL_PAREN expression tR_PAREN statement_block { $$ = new LoopStatementNode(NULL ,$3, NULL, $5); d("loop - while"); }
+
+declarative_statement : dtype expression tSEMI   { $$ = new DeclarativeStatementNode(*($1), $2); d("declarative statement -  type expr"); delete $1; }
+                      | expression tSEMI        { d("doing this 2"); $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
+                      ;
+
+opt_expression : expression tL_PAREN           { $$ = $1; }
+               |                       { $$ = NULL; }
+               ;
+
+expression : or_expression             { $$ = new ExpressionNode($1);  d("expression"); }
+           | value tASSIGN or_expression { $$ = new ExpressionNode($3, $1); d("expression assign"); }
+           ;
+
+or_expression : and_expression                  { $$ = new BinaryExpressionNode($1); d("or_expression"); }
+              | or_expression OR and_expression { $$ = new BinaryExpressionNode($1, "or", $3); d("or_expression OR"); }
+              ;
+
+and_expression : eq_expression                      { $$ = new BinaryExpressionNode($1); d("and_expression"); }
+               | and_expression AND eq_expression   { $$ = new BinaryExpressionNode($1, "and", $3); d("and_expression AND"); }
+               ;
+
+eq_expression : rel_expression                      { $$ = new BinaryExpressionNode($1); d("eq_expression"); }
+              | eq_expression tEQ rel_expression   { $$ = new BinaryExpressionNode($1, "==", $3); d("eq_expression =="); }
+              | eq_expression tNE rel_expression   { $$ = new BinaryExpressionNode($1, "!=", $3); d("eq_expression !="); }
+              ;
+
+rel_expression : add_expression                     { $$ = new BinaryExpressionNode($1); d("rel_expression"); }
+               | rel_expression tGT add_expression  { $$ = new BinaryExpressionNode($1, ">", $3); d("rel_expression >"); }
+               | rel_expression tLT add_expression  { $$ = new BinaryExpressionNode($1, "<", $3); d("rel_expression <"); }
+               | rel_expression tGE add_expression { $$ = new BinaryExpressionNode($1, ">=", $3); d("rel_expression >="); }
+               | rel_expression tLE add_expression { $$ = new BinaryExpressionNode($1, "<=", $3); d("rel_expression <="); }
+               ;
+
+add_expression : mult_expression                    { $$ = new BinaryExpressionNode($1); d("add_expression");}
+               | add_expression tPLUS mult_expression { $$ = new BinaryExpressionNode($1, "+", $3); d("add_expression +");}
+               | add_expression tMINUS mult_expression { $$ = new BinaryExpressionNode($1, "-", $3);  d("add_expression -"); }
+               ;
+
+mult_expression : exp_expression                        { $$ = new BinaryExpressionNode($1); d("mult_expression");}
+                | mult_expression tTIMES exp_expression    { $$ = new BinaryExpressionNode($1, "*", $3);  d("mult_expression *"); }
+                | mult_expression tDIV exp_expression    { $$ = new BinaryExpressionNode($1, "/", $3);  d("mult_expression /"); }
+                | mult_expression tFLDIV exp_expression   { $$ = new BinaryExpressionNode($1, "//", $3);  d("mult_expression //"); }
+                | mult_expression tMOD exp_expression    { $$ = new BinaryExpressionNode($1, "%", $3);  d("mult_expression %"); }
+                ;
+
+exp_expression : unary_expression                       { $$ = new BinaryExpressionNode($1); d("exp_expression");}
+               | exp_expression tEXP unary_expression    { $$ = new BinaryExpressionNode($1, "^", $3);  d("exp expression ^"); }
+               ;
+
+unary_expression : value                    { $$ = new UnaryExpressionNode($1); d("unary_expression");};	
+                 | tMINUS unary_expression     { $$ = new UnaryExpressionNode($2, "-");  d("unary_expression -"); }
+                 | tSIZE unary_expression     { $$ = new UnaryExpressionNode($2, "@");  d("unary_expression @"); }
+                 | tL_PAREN dtype tR_PAREN unary_expression { delete $2; }
+                 | NOT unary_expression     { $$ = new UnaryExpressionNode($2, "not");  d("unary_expression not"); }
                  ;
 
-value : unit
-      | function_call
-      | array_access
-      | dataset_access
+value : literal            { $$ = new ValueNode($1); d("value - literal"); }
+      | function_call      { $$ = new ValueNode($1); d("value - function_call"); }
+      | array_access       { $$ = new ValueNode($1); d("value - array_access"); }
+      | dataset_access     { $$ = new ValueNode($1); d("value - dataset_access"); }
+      | id                 { $$ = new ValueNode($1); d("value - id"); cout << $1 <<endl;}
+      | tL_PAREN expression tR_PAREN { $$ = new ValueNode($2); d("value - expression"); }
       ;
 
-function_call : ID "(" args ")"
-	      | ID "()"
-	      ;
+args : args tCOMMA expression   { $1->add_arg($3); d("arg added - 1"); }
+     | expression               { $$ = new ArgsNode(); $$->add_arg($1); d("arg added"); }
+     |                          { $$ = new ArgsNode(); }
+     ;
 
-array_access : value "[" expression "]"
+decl_args : decl_args tCOMMA dtype id   { $1->add_arg($4); d("arg added - 1"); }
+          | dtype id                    { $$ = new DeclArgsNode(); $$->add_arg($2); d("arg added"); }
+          |                             { $$ = new DeclArgsNode(); }
+          ;
+
+function_call : id tL_PAREN args tR_PAREN { $$ = new FunctionCallNode($1, $3); d("function call"); }
+	          ;
+
+array_access : value tL_BRACKET expression tR_BRACKET { $$ = new ArrayAccessNode($1, $3); d("Array access");}
              ;
 
-dataset_access : value "." ID 
+dataset_access : value tACCESS id { $$ = new DatasetAccessNode($1, $3); d("Dataset access");}
                ;
 
-unit  : ID				 
-      | INTEGER				
-      | FLOAT_LIT
-      | STRING 
-      | TRUE				
-      | FALSE				
-      | "(" expression ")"
-      ;
+id : VAR { $$ = new IDNode(*yylval.string); }
+
+dtype : TYPE { $$ = yylval.string; }
+
+literal : INTEGER                 { $$ = new LiteralNode($1); d("literal - INT");}	
+        | FLOAT_LIT               { $$ = new LiteralNode($1); d("literal - FLOAT");}
+        | STRING                  { $$ = new LiteralNode($1);  d("literal - STRING"); }
+        | TRUE				            { $$ = new LiteralNode($1);  d("literal - true"); }
+        | FALSE				            { $$ = new LiteralNode($1);  d("literal - false"); }
+        ;
 
 %%
 
