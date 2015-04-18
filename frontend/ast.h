@@ -10,6 +10,7 @@
 #include "../structures/enum.h"
 #include "../structures/union.h"
 
+
 using namespace std;
 
 class Node;
@@ -33,15 +34,19 @@ class LoopStatementNode;
 class StatementListNode;
 class FunctionNode;
 
-enum e_op get_op(string op_string);
-enum e_type get_type(string type);
-enum e_jump get_jump(string type);
+enum e_op str_to_op(string op_string);
+enum e_type str_to_type(string type);
+enum e_jump str_to_jump(string type);
+
+string gen_binary_code(string l_code, enum e_op op, string r_code);
+
 
 union operand {
     BinaryExpressionNode *b_exp;
     UnaryExpressionNode *u_exp;
     ValueNode *v_node;
 };
+
 
 union value {
     IDNode *id_val;
@@ -52,6 +57,7 @@ union value {
     ExpressionNode *expression_val;
 };
 
+
 union statements {
     DeclarativeStatementNode *decl;
     ConditionalStatementNode *cond;
@@ -59,10 +65,14 @@ union statements {
     LoopStatementNode *loop;
 };
 
+
 class Node {
-    public:
-        string code;
+public:
+    string code;
+    e_type type = tNONE;
+    e_type get_type();
 };
+
 
 class ValueNode: public Node {
     public:
@@ -76,12 +86,14 @@ class ValueNode: public Node {
         ValueNode(ExpressionNode *e);
 };
 
+
 class IDNode: public Node {
     Entry *entry;
     public:
         IDNode(Entry *ent);
         ~IDNode();
 };
+
 
 class FunctionCallNode: public Node {
     ArgsNode *args_list;
@@ -92,6 +104,7 @@ class FunctionCallNode: public Node {
         FunctionCallNode(IDNode *f);
 };
 
+
 class ArgsNode: public Node {
     std::vector<ExpressionNode*> args_list;
 
@@ -101,6 +114,7 @@ class ArgsNode: public Node {
         void add_arg(ExpressionNode *arg);
 };
 
+
 class DeclArgsNode: public Node {
     std::vector<IDNode*> decl_args_list;
 
@@ -109,6 +123,7 @@ class DeclArgsNode: public Node {
         DeclArgsNode(IDNode* arg);
         void add_arg(IDNode* arg);
 };
+
 
 class LiteralNode: public Node {
     public:
@@ -123,6 +138,7 @@ class LiteralNode: public Node {
         LiteralNode(char b);
 };
 
+
 class ArrayAccessNode: public Node {
     public:
         ValueNode *vn;
@@ -130,6 +146,7 @@ class ArrayAccessNode: public Node {
 
         ArrayAccessNode(ValueNode *v, ExpressionNode *e);
 };
+
 
 class DatasetAccessNode: public Node {
     public:
@@ -139,104 +156,119 @@ class DatasetAccessNode: public Node {
         DatasetAccessNode(ValueNode *valueNode, IDNode *idNode);
 };
 
+
 class UnaryExpressionNode: public Node {
+public:
+    enum e_op op;
     union operand right_operand;
 
-    public:
-        enum e_op op;
+    UnaryExpressionNode(UnaryExpressionNode *u, string _op);
+    UnaryExpressionNode(ValueNode *v);
 
-        UnaryExpressionNode(UnaryExpressionNode *u, string _op);
-        UnaryExpressionNode(ValueNode *v);
+private:
+    void typecheck();
 };
 
-string gen_binary_code(string l_code, enum e_op op, string r_code);
 
 class BinaryExpressionNode: public Node {
-    public:
-        union operand left_operand;
-        union operand right_operand;
-        enum e_op op;
-        bool left_is_binary;
-        bool right_is_binary;
+public:
+    union operand left_operand;
+    union operand right_operand;
+    enum e_op op;
+    bool left_is_binary;
+    bool right_is_binary;
 
-        BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br);
-        BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
-        BinaryExpressionNode(BinaryExpressionNode *bl);
-        BinaryExpressionNode(UnaryExpressionNode *ul);
+    BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br);
+    BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
+    BinaryExpressionNode(UnaryExpressionNode *ul);
+private:
+    void typecheck();
 };
+
 
 class ExpressionNode: public Node {
-    public:
-        BinaryExpressionNode *bin_exp;
-        ValueNode *value;
+public:
+    BinaryExpressionNode *bin_exp;
+    ValueNode *value;
 
-        ExpressionNode(BinaryExpressionNode *b);
-        ExpressionNode(BinaryExpressionNode *b, ValueNode *v);
-        ~ExpressionNode();
+    ExpressionNode(BinaryExpressionNode *b);
+    ExpressionNode(BinaryExpressionNode *b, ValueNode *v);
+    ~ExpressionNode();
+
+private:
+    void typecheck();
+
 };
+
 
 class DeclarativeStatementNode: public Node {
-    public:
-        e_type type;
-        ExpressionNode *en;
+public:
+    e_type type;
+    ExpressionNode *en;
 
-        DeclarativeStatementNode(string _type, ExpressionNode *expression_node);
-        DeclarativeStatementNode(ExpressionNode *expression_node);
+    DeclarativeStatementNode(string _type, ExpressionNode *expression_node);
+    DeclarativeStatementNode(ExpressionNode *expression_node);
 };
+
 
 class ConditionalStatementNode: public Node {
-    public:
-        ExpressionNode *condition;
-        StatementListNode *consequent;
-        StatementListNode *alternative;
+public:
+    ExpressionNode *condition;
+    StatementListNode *consequent;
+    StatementListNode *alternative;
 
-        ConditionalStatementNode(ExpressionNode *e, StatementListNode *s, StatementListNode *a);
+    ConditionalStatementNode(ExpressionNode *e, StatementListNode *s, StatementListNode *a);
 };
+
 
 class JumpStatementNode: public Node {
-    public:
-        e_jump type;
-        ExpressionNode *en;
+public:
+    e_jump type;
+    ExpressionNode *en;
 
-        JumpStatementNode(string _type, ExpressionNode *expression_node);
-        JumpStatementNode(string _type);
+    JumpStatementNode(string _type, ExpressionNode *expression_node);
+    JumpStatementNode(string _type);
 };
+
 
 class LoopStatementNode: public Node {
-    public:
-        ExpressionNode *initializer;
-        ExpressionNode *condition;
-        ExpressionNode *next;
-        StatementListNode *statements;
+public:
+    ExpressionNode *initializer;
+    ExpressionNode *condition;
+    ExpressionNode *next;
+    StatementListNode *statements;
 
-        LoopStatementNode(ExpressionNode *init, ExpressionNode *cond, ExpressionNode *n, StatementListNode *stmts);
+    LoopStatementNode(ExpressionNode *init, ExpressionNode *cond, ExpressionNode *n, StatementListNode *stmts);
 };
+
 
 class StatementNode: public Node {
-    public:
-        union statements stmts;
+public:
+    union statements stmts;
 
-        StatementNode(DeclarativeStatementNode *d);
-        StatementNode(ConditionalStatementNode *c);
-        StatementNode(JumpStatementNode *j);
-        StatementNode(LoopStatementNode *l);
+    StatementNode(DeclarativeStatementNode *d);
+    StatementNode(ConditionalStatementNode *c);
+    StatementNode(JumpStatementNode *j);
+    StatementNode(LoopStatementNode *l);
 };
+
 
 class StatementListNode: public Node {
-    public:
-        std::vector<StatementNode *> stmt_list;
+public:
+    std::vector<StatementNode *> stmt_list;
 
-        void push_statement(StatementNode *s);
+    void push_statement(StatementNode *s);
 };
 
-class FunctionNode: public Node {
-    public:
-        enum e_type type;
-        IDNode *id;
-        DeclArgsNode *decl_args;
-        StatementListNode *stmt_list;
 
-        FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n);
+class FunctionNode: public Node {
+public:
+    enum e_type type;
+    IDNode *id;
+    DeclArgsNode *decl_args;
+    StatementListNode *stmt_list;
+
+    FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n);
 };
 
 #endif

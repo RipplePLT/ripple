@@ -1,11 +1,10 @@
-int main(void){
+int main(){
 	int x = 4;
 	int y = 5;
 	if(y>x){
-		print(y);
+		int x = 4;
 	}
 	
-	print(x);
 
 	return 0;
 }
