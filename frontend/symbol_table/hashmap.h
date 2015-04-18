@@ -11,7 +11,25 @@
 
 using namespace std;
 
-typedef array<list<string>*, TABLE_SIZE> table;
+class Entry {
+    public:
+
+    string name;
+    enum e_type type;
+    union literal val;
+
+    Entry(string n, string v);
+    Entry(string n, long v);
+    Entry(string n, double v);
+    Entry(string n, bool v);
+    Entry(string n, char v);
+    
+    bool operator==(string n);
+    
+    ~Entry();
+};
+
+typedef array<list<Entry *>*, TABLE_SIZE> table;
 
 class HashMap{
     table t;
@@ -19,14 +37,15 @@ class HashMap{
     public:
     HashMap();
     ~HashMap();
-    string put(string word);
+    
+    bool put(string word, string v);
+    bool put(string word, long v);
+    bool put(string word, double v);
+    bool put(string word, bool v);
+    bool put(string word, char v);
+
     bool contains(string word);
-    bool remove(string word);
+    Entry *get(string word);
 };
 
-class Entry {
-    string name;
-    enum e_type type;
-    union value val;
-}
 #endif

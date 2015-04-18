@@ -8,12 +8,13 @@ CXX=clang++
 LEX=flex
 YACC=bison
 CXXFLAGS= -std=c++11 -w
+LDLIBS= -L./frontend/symbol_table/
 YFLAGS= -Wnone
 OUT= -o $@
 LFLAGS=
 
-rpl: ast.o ripple.tab.o lex.yy.o
-	$(CXX) -o rpl ast.o ripple.tab.o lex.yy.o -lfl
+rpl: ast.o ripple.tab.o lex.yy.o libsym.a
+	$(CXX) -o rpl ast.o ripple.tab.o lex.yy.o $(LDLIBS) -lsym -lfl
 	rm -f *.o *.hpp *.cpp *.c *.cc
 
 ast.o: ast.cpp ast.h
@@ -31,10 +32,13 @@ ripple.tab.o: ripple.tab.cpp ripple.tab.hpp ast.h
 ripple.tab.cpp ripple.tab.hpp: ripple.ypp ast.h
 	$(YACC) -d frontend/ripple.ypp $(YFLAGS)
 
-
+libsym.a: 
+	$(MAKE) -C frontend/symbol_table
+	
 .PHONY: clean
 clean:
 	rm -f *.o *.hpp *.cpp *.c *.cc rpl
+	$(MAKE) -C frontend/symbol_table clean
 
 .PHONY: all
 all: clean default

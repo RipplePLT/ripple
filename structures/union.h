@@ -1,3 +1,4 @@
+#include <cstring>
 using namespace std;
 
 union literal {

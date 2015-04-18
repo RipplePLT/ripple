@@ -58,8 +58,24 @@ void SymbolTable::scope_out(int line_no) {
     current = node;
 }
 
-string SymbolTable::put(string word) {
-    return current->hashmap->put(word);
+bool SymbolTable::put(string word, string v) {
+    return current->hashmap->put(word, v);
+}
+
+bool SymbolTable::put(string word, long v) {
+    return current->hashmap->put(word, v);
+}
+
+bool SymbolTable::put(string word, double v) {
+    return current->hashmap->put(word, v);
+}
+
+bool SymbolTable::put(string word, bool v) {
+    return current->hashmap->put(word, v);
+}
+
+bool SymbolTable::put(string word, char v) {
+    return current->hashmap->put(word, v);
 }
 
 bool SymbolTable::contains(string word) {
@@ -72,8 +88,8 @@ bool SymbolTable::contains(string word) {
     return false;
 }
 
-bool SymbolTable::remove(string word) {
-    return current->hashmap->remove(word);
+Entry *SymbolTable::get(string word) {
+    return current->hashmap->get(word);
 }
 
 SymbolTable::~SymbolTable() {

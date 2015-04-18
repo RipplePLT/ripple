@@ -27,8 +27,14 @@ class SymbolTable{
     void scope_in(int line_no);
     void scope_out(int line_no);
     
-    string put(string word);
+    bool put(string word, string v);
+    bool put(string word, long v);
+    bool put(string word, double v);
+    bool put(string word, bool v);
+    bool put(string word, char v);
+
     bool contains(string word);
-    bool remove(string word);
+    
+    Entry *get(string word);
 };
 #endif

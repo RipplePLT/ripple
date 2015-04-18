@@ -3,13 +3,13 @@
 
 using namespace std;
 
-int list_contains(list<string> l, string word) {
+bool list_contains(list<Entry *> l, string word) { 
     for (auto element = l.begin(); element != l.end(); ++element) {
-        if (*element == word) {
-            return 1;
+        if ((*element)->name.compare(word) == 0 ) {
+            return true;
         }
     }
-    return 0;
+    return false;
 }
 
 int hashCode(const string word) {
@@ -43,7 +43,7 @@ int isPrime(int num){
 
 HashMap::HashMap() {
     for (int i = 0; i < TABLE_SIZE; i++) {
-        t[i] = new list<string>; 
+        t[i] = new list<Entry *>; 
     }
 }
 
@@ -53,26 +53,105 @@ HashMap::~HashMap() {
     }
 }
 
-string HashMap::put(string word) {
-    int pos = hashCode(word) % TABLE_SIZE;
-    if(list_contains(*t[pos], word))
-        return NULL;
-
-    t[pos]->push_back(word);
-    return word;
-}
-
 bool HashMap::contains(string word) {
     int pos = hashCode(word) % TABLE_SIZE;
     return list_contains(*t[pos], word);
 }
 
-bool HashMap::remove(string word) {
+bool HashMap::put(string word, string v) {
     int pos = hashCode(word) % TABLE_SIZE;
-
-    if(!list_contains(*t[pos], word)) {
+    if(list_contains(*t[pos], word))
         return false;
-    }
-    t[pos]->remove(word);
+
+    Entry *new_entry = new Entry(word, v);
+    t[pos]->push_back(new_entry);
     return true;
 }
+
+bool HashMap::put(string word, long v) {
+    int pos = hashCode(word) % TABLE_SIZE;
+    if(list_contains(*t[pos], word))
+        return false;
+
+    Entry *new_entry = new Entry(word, v);
+    t[pos]->push_back(new_entry);
+    return true;
+}
+
+bool HashMap::put(string word, double v) {
+    int pos = hashCode(word) % TABLE_SIZE;
+    if(list_contains(*t[pos], word))
+        return false;
+
+    Entry *new_entry = new Entry(word, v);
+    t[pos]->push_back(new_entry);
+    return true;
+}
+
+bool HashMap::put(string word, bool v) {
+    int pos = hashCode(word) % TABLE_SIZE;
+    if(list_contains(*t[pos], word))
+        return false;
+
+    Entry *new_entry = new Entry(word, v);
+    t[pos]->push_back(new_entry);
+    return true;
+}
+
+bool HashMap::put(string word, char v) {
+    int pos = hashCode(word) % TABLE_SIZE;
+    if(list_contains(*t[pos], word))
+        return false;
+
+    Entry *new_entry = new Entry(word, v);
+    t[pos]->push_back(new_entry);
+    return true;
+}
+
+Entry *HashMap::get(string word) {
+    int pos = hashCode(word) % TABLE_SIZE;
+
+    for (auto element = t[pos]->begin(); element != t[pos]->end(); ++element) {
+        if ((*element)->name.compare(word) == 0 ) {
+            return *element;
+        }
+    }
+
+    return nullptr;
+}
+
+Entry::Entry(string n, string v) {
+    name = n;
+    val.string_lit = v;
+    type = tSTRING;
+}
+
+Entry::Entry(string n, long v) {
+    name = n;
+    val.int_lit = v;
+    type = tINT;
+}
+
+Entry::Entry(string n, double v) {
+    name = n;
+    val.float_lit = v;
+    type = tFLOAT;
+}
+
+Entry::Entry(string n, bool v) {
+    name = n;
+    val.bool_lit = v;
+    type = tBOOL;
+}
+
+Entry::Entry(string n, char v) {
+    name = n;
+    val.byte_lit = v;
+    type = tBYTE;
+}
+
+bool Entry::operator==(string n) {
+    return name.compare(n) == 0;
+}
+
+Entry::~Entry() {}
