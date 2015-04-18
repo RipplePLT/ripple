@@ -8,6 +8,7 @@
 
 using namespace std;
 
+class Node;
 class ValueNode;
 class ExpressionNode;
 class BinaryExpressionNode;
@@ -103,7 +104,12 @@ struct ID {
     string name;
 };
 
-class ValueNode {
+class Node {
+    public:
+        string code;
+};
+
+class ValueNode: public Node {
     public:
     union value val;
 
@@ -115,7 +121,7 @@ class ValueNode {
     ValueNode(ExpressionNode *e) { val.expression_val = e; }
 };
 
-class IDNode {
+class IDNode: public Node {
     public:
         struct ID id;
 
@@ -123,7 +129,7 @@ class IDNode {
         ~IDNode() { delete &id.name; }
 };
 
-class FunctionCallNode{
+class FunctionCallNode: public Node {
     ArgsNode *args_list;
     IDNode *func_name;
 
@@ -133,7 +139,7 @@ class FunctionCallNode{
 
 };
 
-class ArgsNode{
+class ArgsNode: public Node {
     std::vector<ExpressionNode*> args_list;
 
     public:
@@ -141,7 +147,7 @@ class ArgsNode{
 	void add_arg(ExpressionNode* arg) { args_list.push_back(arg); }
 };
 
-class LiteralNode {
+class LiteralNode: public Node {
     public:
     union literal val;
     enum e_type type;
@@ -154,7 +160,7 @@ class LiteralNode {
     LiteralNode(char b) { val.byte_lit = b; type = tBYTE; }
 };
 
-class ArrayAccessNode {
+class ArrayAccessNode: public Node {
 public:
     ValueNode *vn;
     ExpressionNode *en;
@@ -165,7 +171,7 @@ public:
     }
 };
 
-class DatasetAccessNode {
+class DatasetAccessNode: public Node {
 public:
     ValueNode *vn;
     IDNode *idn;
@@ -176,7 +182,7 @@ public:
     }
 };
 
-class UnaryExpressionNode {
+class UnaryExpressionNode: public Node {
     
     union operand right_operand;
 
@@ -196,7 +202,7 @@ public:
     }
 };
 
-class BinaryExpressionNode {
+class BinaryExpressionNode: public Node {
 public:
     union operand left_operand;
     union operand right_operand;
@@ -237,7 +243,7 @@ public:
 
 };
 
-class ExpressionNode {
+class ExpressionNode: public Node {
 public:
     BinaryExpressionNode *bin_exp;
     ValueNode *value;
@@ -257,7 +263,7 @@ public:
    }
 };
 
-class DeclarativeStatementNode {
+class DeclarativeStatementNode: public Node {
 public:
     e_type type;
     ExpressionNode *en;
@@ -273,7 +279,7 @@ public:
 
 };
 
-class ConditionalStatementNode {
+class ConditionalStatementNode: public Node {
 public:
     ExpressionNode *condition;
     StatementListNode *consequent;
@@ -286,7 +292,7 @@ public:
     }
 };
         
-class JumpStatementNode {
+class JumpStatementNode: public Node {
 public:
     e_jump type;
     ExpressionNode *en;
@@ -301,7 +307,7 @@ public:
     }
 };
 
-class LoopStatementNode {
+class LoopStatementNode: public Node {
 public:
     ExpressionNode *initializer;
     ExpressionNode *condition;
@@ -317,7 +323,7 @@ public:
 
 };
 
-class StatementNode {
+class StatementNode: public Node {
 public:
     union statements stmts;
 
@@ -338,7 +344,7 @@ public:
     }
 };
 
-class StatementListNode {
+class StatementListNode: public Node {
 public:
     std::vector<StatementNode *> stmt_list;
 
@@ -348,7 +354,7 @@ public:
 
 };
 
-class FunctionNode {
+class FunctionNode: public Node {
 public:
     enum e_type type;
     IDNode *id;
