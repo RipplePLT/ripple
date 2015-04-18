@@ -1,7 +1,7 @@
 #include "ast.h"
 #include <string>
 
-enum e_op get_op(const std::string op_string) {
+enum e_op str_to_op(const std::string op_string) {
     if(op_string.compare("+") == 0)
         return PLUS;
     else if (op_string.compare("-") == 0)
@@ -36,7 +36,7 @@ enum e_op get_op(const std::string op_string) {
         return SIZE;
 };
 
-enum e_type get_type(const std::string type){
+enum e_type str_to_type(const std::string type){
     if (type.compare("INT") == 0)
         return tINT;
     else if (type.compare("FLOAT") == 0)
@@ -51,7 +51,7 @@ enum e_type get_type(const std::string type){
         return tBYTE;
 }
 
-enum e_jump get_jump(const std::string type){
+enum e_jump str_to_jump(const std::string type){
     if (type.compare("RETURN") == 0)
         return tRETURN;
     else if (type.compare("BREAK") == 0)
@@ -112,35 +112,47 @@ string gen_binary_code(string l_code, enum e_op op, string r_code){
     return code;
 }
 
+/* Node */
+e_type Node::get_type() {
+    return type;
+}
+
 /* ValueNode */
 ValueNode::ValueNode(IDNode *i) {
     val.id_val = i;
+    type = i->type;
     code = i->code;
 }
 ValueNode::ValueNode(LiteralNode *l) {
     val.lit_val = l;
+    type = l->type;
     code = l->code;
 }
 ValueNode::ValueNode(FunctionCallNode *f) {
     val.function_call_val = f;
+    type = f->type;
     code = f->code;
 } 
 ValueNode::ValueNode(ArrayAccessNode *a) {
     val.array_access_val = a;
+    type = a->type;
     code = a->code;
 }
 ValueNode::ValueNode(DatasetAccessNode *d) {
     val.dataset_access_val = d;
+    type = d->type;
     code = d->code;
 }
 ValueNode::ValueNode(ExpressionNode *e) {
     val.expression_val = e;
+    type = e->type;
     code = "( " + e->code + " )";
 }
 
 /* IDNode */
 IDNode::IDNode(Entry *ent) {
     entry = ent;
+    type = ent->type;
     code = ent->name;
 }
 IDNode::~IDNode() { }
@@ -149,11 +161,12 @@ IDNode::~IDNode() { }
 FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a) {
     func_name = f;
     args_list = a;
-     
+    type = f->type;
     code = f->code + "( " + a->code + " )";
 }
 FunctionCallNode::FunctionCallNode(IDNode *f) {
     func_name = f;
+    type = f-> type;
     code = f->code + "()";
 }
 
@@ -188,7 +201,8 @@ void DeclArgsNode::add_arg(IDNode* arg) {
 
 /* LiteralNode */
 LiteralNode::LiteralNode(int i) {
-    val.int_lit = i; type = tINT;
+    val.int_lit = i;
+    type = tINT;
 }
 LiteralNode::LiteralNode(double d) {
     val.float_lit = d;
@@ -211,18 +225,20 @@ LiteralNode::LiteralNode(char b) {
 ArrayAccessNode::ArrayAccessNode(ValueNode *val, ExpressionNode *exp) {
     vn = val;
     en = exp;
+    type = val->type;
 }
 
 /* DatasetAccessNode */
 DatasetAccessNode::DatasetAccessNode(ValueNode *v, IDNode *i) {
     vn = v;
     idn = i;
+    type = v->type;
 }
 
 /* UnaryExpressionNode */
 UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op)
 {
-    op = get_op(_op);
+    op = str_to_op(_op);
     switch(op) {
         case MINUS:
             code = "-" + u->code;
@@ -249,29 +265,20 @@ UnaryExpressionNode::UnaryExpressionNode(ValueNode *v)
 BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br) {
     left_operand.b_exp = bl;
     right_operand.b_exp = br;
-    op = get_op(_op);
+    op = str_to_op(_op);
     code = gen_binary_code(bl->code, op, br->code); 
     left_is_binary = right_is_binary = true;
 }
 BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur) {
     left_operand.b_exp = bl;
     right_operand.u_exp = ur;
-    op = get_op(_op);
+    op = str_to_op(_op);
     code = gen_binary_code(bl->code, op, ur->code); 
     left_is_binary = true;
     right_is_binary = false;
 }
-BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl) {
 
-    left_operand = bl->left_operand;
-    right_operand = bl->right_operand;
-    op = bl->op;
-    code = bl->code; 
-    left_is_binary = bl->left_is_binary;
-    right_is_binary = bl->right_is_binary;
 
-    delete bl;
-}
 BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
     left_operand.u_exp = ul;
     code = ul->code;
@@ -290,12 +297,11 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
     value = v;
 }
 ExpressionNode::~ExpressionNode() {
-    delete bin_exp;
 }
 
 /* DeclarativeStatementNode */
 DeclarativeStatementNode::DeclarativeStatementNode(string _type, ExpressionNode *expression_node){
-    type = get_type(_type);
+    type = str_to_type(_type);
     en = expression_node;
 
     transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
@@ -323,11 +329,11 @@ ConditionalStatementNode::ConditionalStatementNode(ExpressionNode *e, StatementL
 
 /* JumpStatementNode */
 JumpStatementNode::JumpStatementNode(string _type, ExpressionNode *expression_node){
-    type = get_jump(_type);
+    type = str_to_jump(_type);
     en = expression_node;
 }
 JumpStatementNode::JumpStatementNode(string _type){
-    type = get_jump(_type);
+    type = str_to_jump(_type);
 }
 
 /* LoopStatementNode */
@@ -364,7 +370,7 @@ void StatementListNode::push_statement(StatementNode *s) {
 
 /* FunctionNode */
 FunctionNode::FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n){
-    type = get_type(_type);
+    type = str_to_type(_type);
     id = id_node;
     decl_args = decl_args_list;
     stmt_list = stmt_list_n;

@@ -7,7 +7,8 @@ enum e_type {
     tFLOAT,
     tSTRING,
     tBYTE,
-    tVOID
+    tVOID,
+    tNONE
 };
 
 enum e_op {

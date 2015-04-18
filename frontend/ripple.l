@@ -7,8 +7,8 @@
 
 extern "C" int yywrap();
 int line_no = 1;
-bool ltype;
-e_type vtype;
+bool saw_type;
+e_type last_type;
 void db(std::string m){
 	//cout << m << endl;
 }
@@ -33,80 +33,81 @@ float	    {digit}+\.{digit}*
 
 {nl}		{   line_no++;  }
 {ws}        {/* don't do anything for whitespace */	}
-if          {	db(yytext); ltype = false; return IF;	}
-else        {	db(yytext); ltype = false; return ELSE;	}
-while       {	db(yytext); ltype = false; return WHILE;	}
-for         {	db(yytext); ltype = false; return FOR;	}
-link        {	db(yytext); ltype = false; return LINK;	}
-dataset     {	db(yytext); ltype = false; return DATASET;	}
-return      {	db(yytext); ltype = false; return RETURN;	}
-continue    {   db(yytext); ltype = false; return CONTINUE; }
-break 		{   db(yytext); ltype = false; return BREAK; }
-int         {	db(yytext); ltype = true; vtype = tINT; yylval.string = new std::string("INT"); return TYPE;	}
-float       {	db(yytext); ltype = true; vtype = tFLOAT; yylval.string = new std::string("FLOAT"); return TYPE;	}
-void        {	db(yytext); ltype = true; vtype = tVOID; yylval.string = new std::string("VOID"); return TYPE;	}
-string      {	db(yytext); ltype = true; vtype = tSTRING; yylval.string = new std::string("STRING"); return TYPE;	}
-byte        {	db(yytext); ltype = true; vtype = tBYTE; yylval.string = new std::string("BYTE"); return TYPE;	}
-bool        {	db(yytext); ltype = true; vtype = tBOOL; yylval.string = new std::string("BOOL"); return TYPE;	}
-true        {	db(yytext); ltype = false; yylval.boolean = true; return BOOL;}
-false       {	db(yytext); ltype = false; yylval.boolean = false; return BOOL;}
-not         {   db(yytext); ltype = false; return NOT; }
-and         {   db(yytext); ltype = false; return AND; }
-or          {   db(yytext); ltype = false; return OR; }
+if          {	db(yytext); saw_type = false; return IF;	}
+else        {	db(yytext); saw_type = false; return ELSE;	}
+while       {	db(yytext); saw_type = false; return WHILE;	}
+for         {	db(yytext); saw_type = false; return FOR;	}
+link        {	db(yytext); saw_type = false; return LINK;	}
+dataset     {	db(yytext); saw_type = false; return DATASET;	}
+return      {	db(yytext); saw_type = false; return RETURN;	}
+continue    {   db(yytext); saw_type = false; return CONTINUE; }
+break 		{   db(yytext); saw_type = false; return BREAK; }
+int         {	db(yytext); saw_type = true; last_type = tINT; yylval.string = new std::string("INT"); return TYPE;	}
+float       {	db(yytext); saw_type = true; last_type = tFLOAT; yylval.string = new std::string("FLOAT"); return TYPE;	}
+void        {	db(yytext); saw_type = true; last_type = tVOID; yylval.string = new std::string("VOID"); return TYPE;	}
+string      {	db(yytext); saw_type = true; last_type = tSTRING; yylval.string = new std::string("STRING"); return TYPE;	}
+byte        {	db(yytext); saw_type = true; last_type = tBYTE; yylval.string = new std::string("BYTE"); return TYPE;	}
+bool        {	db(yytext); saw_type = true; last_type = tBOOL; yylval.string = new std::string("BOOL"); return TYPE;	}
+true        {	db(yytext); saw_type = false; yylval.boolean = true; return BOOL;}
+false       {	db(yytext); saw_type = false; yylval.boolean = false; return BOOL;}
+not         {   db(yytext); saw_type = false; return NOT; }
+and         {   db(yytext); saw_type = false; return AND; }
+or          {   db(yytext); saw_type = false; return OR; }
 
 {id}        {	db(yytext); 
-				if(ltype){
+				if(saw_type){
 					// add the variable and type to symbol table
 					if(sym_table.contains(yytext)){
 						Entry *entry = sym_table.get(yytext);
 						if(entry != nullptr)
 							cout << "Redefinition of variable " << yytext << " previously defined on line " << entry->line_no << endl;
 							else{
-								sym_table.put(yytext, vtype, line_no);
+								sym_table.put(yytext, last_type, line_no);
 						}
 					}
 					else{
-						sym_table.put(yytext, vtype, line_no);
+						sym_table.put(yytext, last_type, line_no);
 					}
 				} else {
 					// check if id is valid
 					if(!sym_table.contains(yytext))
 						cout << "Use of undeclared identifier " << yytext << endl;
 				}
-				ltype = false;
+				saw_type = false;
 				yylval.string = new std::string(yytext);
-				return VAR; }
+				return VAR;
+			}
 
-{integer}   {	db(yytext); ltype = false; yylval.integer = atoi(yytext);
+{integer}   {	db(yytext); saw_type = false; yylval.integer = atoi(yytext);
 		        return INTEGER;			}
-{float}	    {	db(yytext); ltype = false; yylval.decimal = atof(yytext);
+{float}	    {	db(yytext); saw_type = false; yylval.decimal = atof(yytext);
 		        return FLOAT_LIT;		}
-{literal}   {	db(yytext); ltype = false; yylval.string = new std::string(yytext);
+{literal}   {	db(yytext); saw_type = false; yylval.string = new std::string(yytext);
                 return STRING_LITERAL;			}
 
-"="			{   db(yytext); ltype = false; return tASSIGN; }
-"+"         {   db(yytext); ltype = false; return tPLUS;  }
-"-"         {   db(yytext); ltype = false; return tMINUS; }
-"*"         {   db(yytext); ltype = false; return tTIMES; } 
-"/"			{	db(yytext); ltype = false; return tDIV; }
-"//"		{	db(yytext); ltype = false; return tFLDIV; }
-"^"			{	db(yytext); ltype = false; return tEXP;  }
-"@"			{	db(yytext); ltype = false; return tSIZE; }
-">"			{	db(yytext); ltype = false; return tGT;  }
-"<"			{	db(yytext); ltype = false; return tLT;  }
-">="		{	db(yytext); ltype = false; return tGE;	}
-"<="		{	db(yytext); ltype = false; return tLE;	}
-"=="		{	db(yytext); ltype = false; return tEQ; }
-"!="		{	db(yytext); ltype = false; return tNE;	}
-","			{	db(yytext); ltype = false; return tCOMMA; }
-"("			{	db(yytext); ltype = false; return tL_PAREN; }
-")"			{	db(yytext); ltype = false; return tR_PAREN; }
-"["			{	db(yytext); ltype = false; return tL_BRACKET; }
-"]"			{	db(yytext); ltype = false; return tR_BRACKET; }
-"{"			{	db(yytext); sym_table.scope_in(line_no); ltype = false; return tL_CURLY; }
-"}"			{	db(yytext); sym_table.scope_out(line_no); ltype = false; return tR_CURLY; }
-";"         {   db(yytext); ltype = false; return tSEMI;  }
-"\."        {  	db(yytext); ltype = false; return tACCESS; }
+"="			{   db(yytext); saw_type = false; return tASSIGN; }
+"+"         {   db(yytext); saw_type = false; return tPLUS;  }
+"-"         {   db(yytext); saw_type = false; return tMINUS; }
+"*"         {   db(yytext); saw_type = false; return tTIMES; } 
+"/"			{	db(yytext); saw_type = false; return tDIV; }
+"//"		{	db(yytext); saw_type = false; return tFLDIV; }
+"^"			{	db(yytext); saw_type = false; return tEXP;  }
+"@"			{	db(yytext); saw_type = false; return tSIZE; }
+">"			{	db(yytext); saw_type = false; return tGT;  }
+"<"			{	db(yytext); saw_type = false; return tLT;  }
+">="		{	db(yytext); saw_type = false; return tGE;	}
+"<="		{	db(yytext); saw_type = false; return tLE;	}
+"=="		{	db(yytext); saw_type = false; return tEQ; }
+"!="		{	db(yytext); saw_type = false; return tNE;	}
+","			{	db(yytext); saw_type = false; return tCOMMA; }
+"("			{	db(yytext); saw_type = false; return tL_PAREN; }
+")"			{	db(yytext); saw_type = false; return tR_PAREN; }
+"["			{	db(yytext); saw_type = false; return tL_BRACKET; }
+"]"			{	db(yytext); saw_type = false; return tR_BRACKET; }
+"{"			{	db(yytext); sym_table.scope_in(line_no); saw_type = false; return tL_CURLY; }
+"}"			{	db(yytext); sym_table.scope_out(line_no); saw_type = false; return tR_CURLY; }
+";"         {   db(yytext); saw_type = false; return tSEMI;  }
+"\."        {  	db(yytext); saw_type = false; return tACCESS; }
 %%
 
 int main(void) {

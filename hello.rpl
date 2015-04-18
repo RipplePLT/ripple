@@ -1,4 +1,4 @@
 #* A simple program to print hello world *#
-void main(string[] args) {
-	output("hello, world\m"); # prints 'hello, world'
+int main() {
+    print("hello, world\n"); # prints 'hello, world'
 }
