@@ -143,9 +143,9 @@ void d(string m) {
 
 %%
 
-function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $6); d("function"); delete $1; delete $4; }
+function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $4, $6); d("function"); delete $1; delete $4; }
 
-statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{" + code + "}"; d("statement_block - curly_statement_block"); }
+statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{" + $2->code + "}"; d("statement_block - curly_statement_block"); }
                 ;
 
 statement_list : statement_list statement       { $1->push_statement($2); d("statement_list - stmt-list"); }
