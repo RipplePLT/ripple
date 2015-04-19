@@ -6,9 +6,12 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <fstream>
 #include "symbol_table/hashmap.h"
 #include "../structures/enum.h"
 #include "../structures/union.h"
+
+#define PRINT_FUNCTION "print"
 
 #define INVAL_UNARY_NOT_ERR "unary not error"
 #define INVAL_UNARY_MINUS_ERR "unary minus error"
@@ -26,6 +29,7 @@
 #define INVAL_BINARY_LE_ERR "binary le error"
 #define INVAL_BINARY_AND_ERR "binary and error"
 #define INVAL_BINARY_OR_ERR "binary or error"
+#define LOOP_CONDITION_ERR "loop condition error"
 #define ERROR "error"
 
 using namespace std;
@@ -56,13 +60,15 @@ enum e_type str_to_type(string type);
 enum e_jump str_to_jump(string type);
 string type_to_str(e_type type);
 
-string gen_binary_code(string l_code, enum e_op op, string r_code);
+void write_to_file(string filename, string code);
 
 inline void INVAL_ASSIGN_ERR(string val_type, string expression_type, int line_no) {
     cout << "Invalid assignment between operands of type: " << val_type << " and " << expression_type << " on line " << line_no << endl;
 }
 
 extern int line_no;
+extern bool error;
+extern string filename;
 
 union operand {
     BinaryExpressionNode *b_exp;
@@ -210,6 +216,7 @@ public:
     BinaryExpressionNode(UnaryExpressionNode *ul);
 private:
     void typecheck(Node *left, Node *right, e_op op);
+    string gen_binary_code(string l_code, enum e_op op, string r_code);
 };
 
 

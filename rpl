@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+make > /dev/zero
+
+./parser ${1} ${2}.cpp > /dev/zero
+
+clang++ ${2}.cpp -o ${2} > /dev/zero
+
+rm -f ${2}.cpp parser

@@ -77,56 +77,13 @@ string type_to_str(e_type type){
     }
 }
 
-string gen_binary_code(string l_code, enum e_op op, string r_code){
-    string code;
-    switch(op) {
-        case PLUS:
-            code = l_code + " + " + r_code;
-            break;
-        case MINUS:
-            code = l_code + " - " + r_code;
-            break;
-        case TIMES:
-            code = l_code + " * " + r_code;
-            break;
-        case DIV:
-            code = l_code + " / " + r_code;
-            break;
-        case FLDIV:
-            code = "(double)" + l_code + "/ (double)" + r_code;
-            break;
-        case EXP:
-            code = "Math.pow(" + l_code + ", " + r_code + ")";
-            break;
-        case bAND:
-            code = l_code + " && " + r_code;
-            break;
-        case bOR:
-            code = l_code + " || " + r_code;
-            break;
-        case EQ:
-            code = l_code + " == " + r_code;
-            break;
-        case NE:
-            code = l_code + " != " + r_code;
-            break;
-        case GT:
-            code = l_code + " > " + r_code;
-            break;
-        case LT:
-            code = l_code + " < " + r_code;
-            break;
-        case GE:
-            code = l_code + " >= " + r_code;
-            break;
-        case LE:
-            code = l_code + " <= " + r_code;
-            break;
-        default:
-            code = "";
-            break;
-    }
-    return code;
+void write_to_file(string filename, string code){
+
+    ofstream file;
+    file.open(filename);
+    file << "#include \"link_files/ripple_header.h\"\n";
+    file << code;
+    file.close();
 }
 
 
@@ -195,7 +152,23 @@ FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a) {
     func_name = f;
     args_list = a;
     type = f->type;
-    code = f->code + "( " + a->code + " )";
+
+    // TODO: Really hacky, need to fix
+    if(f->code.compare(PRINT_FUNCTION) == 0){
+        size_t index = 0;
+        string arg_code = a->code;
+        while (true) {
+             index = arg_code.find("      ,      ", index);
+             if (index == string::npos)
+                break;
+
+            arg_code.replace(index, 13, " << \" \" << ");
+        index += 2;
+    }
+        code = "std::cout << " + arg_code + " << std::endl";
+    } else {
+        code = f->code + "( " + a->code + " )";
+    }   
 }
 
 FunctionCallNode::FunctionCallNode(IDNode *f) {
@@ -221,7 +194,7 @@ void ArgsNode::add_arg(ExpressionNode *arg) {
     if(code.compare("") == 0)
         code += arg->code;
     else
-        code += ", " + arg->code;
+        code += "      ,      " + arg->code;
 }
 
 
@@ -245,20 +218,23 @@ void DeclArgsNode::add_arg(IDNode* arg) {
 LiteralNode::LiteralNode(int i) {
     val.int_lit = i;
     type = tINT;
-
 }
+
 LiteralNode::LiteralNode(double d) {
     val.float_lit = d;
     type = tFLOAT;
 }
+
 LiteralNode::LiteralNode(string *s) {
     val.string_lit = s;
     type = tSTRING;
 }
+
 LiteralNode::LiteralNode(bool b) {
     val.bool_lit = b;
     type = tBOOL;
 }
+
 LiteralNode::LiteralNode(char b) {
     val.byte_lit = b;
     type = tBYTE;
@@ -315,14 +291,18 @@ void UnaryExpressionNode::typecheck(e_op op){
 
     switch(op){
         case bNOT:
-            if(child_type != tBOOL)
+            if(child_type != tBOOL){
                 cout << INVAL_UNARY_NOT_ERR << endl;
+                error = true;
+            }
             else
                 type = tBOOL;
             break;
         case MINUS:
-            if(child_type != tINT || child_type != tFLOAT)
+            if(child_type != tINT || child_type != tFLOAT){
                 cout << INVAL_UNARY_MINUS_ERR << endl;
+                error = true;
+            }
             else
                 type = child_type;
             break;
@@ -378,29 +358,37 @@ void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
             switch(op){
                 case PLUS:
                     cout << INVAL_BINARY_PLUS_ERR << endl;
+                    error = true;
                     break;
                 case MINUS:
                     cout << INVAL_BINARY_MINUS_ERR << endl;
+                    error = true;
                     break;
                 case TIMES:
                     cout << INVAL_BINARY_TIMES_ERR << endl;
+                    error = true;
                     break;
                 case DIV:
                     cout << INVAL_BINARY_DIV_ERR << endl;
+                    error = true;
                     break;
                 case EXP:
                     cout << INVAL_BINARY_EXP_ERR << endl;
+                    error = true;
                     break;
                 default:
                     cout << ERROR << endl;
+                    error = true;
             }
         
     } else if (op == FLDIV) {
 
         if (left->is_number() && right->is_number())
             type = tFLOAT;
-        else
+        else{
             cout << INVAL_BINARY_FLDIV_ERR << endl;
+            error = true;
+        }
 
     } else if (op == EQ || op == NE || op == GT ||
                op == LT || op == GE || op == LE) {
@@ -411,24 +399,31 @@ void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
             switch(op){
                 case EQ:
                     cout << INVAL_BINARY_EQ_ERR << endl;
+                    error = true;
                     break;
                 case NE:
                     cout << INVAL_BINARY_NE_ERR << endl;
+                    error = true;
                     break;
                 case GT:
                     cout << INVAL_BINARY_GT_ERR << endl;
+                    error = true;
                     break;
                 case LT:
                     cout << INVAL_BINARY_LT_ERR << endl;
+                    error = true;
                     break;
                 case GE:
                     cout << INVAL_BINARY_GE_ERR << endl;
+                    error = true;
                     break;
                 case LE:
                     cout << INVAL_BINARY_LE_ERR << endl;
+                    error = true;
                     break;
                 default:
                     cout << ERROR << endl;
+                    error = true;
             }
 
     } else if (op == bAND || bOR) {
@@ -438,15 +433,70 @@ void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
             switch(op){
                 case bAND:
                     cout << INVAL_BINARY_AND_ERR << endl;
+                    error = true;
                     break;
                 case bOR:
                     cout << INVAL_BINARY_OR_ERR << endl;
+                    error = true;
                     break;
                 default:
                     cout << ERROR << endl;
+                    error = true;
             }
     }
 
+}
+
+string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string r_code){
+    string code;
+    switch(op) {
+        case PLUS:
+            code = l_code + " + " + r_code;
+            break;
+        case MINUS:
+            code = l_code + " - " + r_code;
+            break;
+        case TIMES:
+            code = l_code + " * " + r_code;
+            break;
+        case DIV:
+            code = l_code + " / " + r_code;
+            break;
+        case FLDIV:
+            code = "(double)" + l_code + "/ (double)" + r_code;
+            break;
+        case EXP:
+            code = "Math.pow(" + l_code + ", " + r_code + ")";
+            break;
+        case bAND:
+            code = l_code + " && " + r_code;
+            break;
+        case bOR:
+            code = l_code + " || " + r_code;
+            break;
+        case EQ:
+            code = l_code + " == " + r_code;
+            break;
+        case NE:
+            code = l_code + " != " + r_code;
+            break;
+        case GT:
+            code = l_code + " > " + r_code;
+            break;
+        case LT:
+            code = l_code + " < " + r_code;
+            break;
+        case GE:
+            code = l_code + " >= " + r_code;
+            break;
+        case LE:
+            code = l_code + " <= " + r_code;
+            break;
+        default:
+            code = "";
+            break;
+    }
+    return code;
 }
 
 
@@ -478,6 +528,7 @@ void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *valu
     }
     else{
         INVAL_ASSIGN_ERR(type_to_str(value->type), type_to_str(expression->type), line_no);
+        error = true;
     }
 }
 
@@ -508,7 +559,6 @@ ConditionalStatementNode::ConditionalStatementNode(ExpressionNode *e, StatementL
 
     if(a != nullptr)
         code += "else " + a->code;
-
 }
 
 
@@ -516,10 +566,12 @@ ConditionalStatementNode::ConditionalStatementNode(ExpressionNode *e, StatementL
 JumpStatementNode::JumpStatementNode(string _type, ExpressionNode *expression_node){
     type = str_to_jump(_type);
     en = expression_node;
+    code = _type + " " + expression_node->code + ";\n";
 }
 
 JumpStatementNode::JumpStatementNode(string _type){
     type = str_to_jump(_type);
+    code = _type + ";\n";
 }
 
 
@@ -529,6 +581,28 @@ LoopStatementNode::LoopStatementNode(ExpressionNode *init, ExpressionNode *cond,
     condition = cond;
     next = n;
     statements = stmts;
+    if(cond->type != tBOOL){
+        cout << LOOP_CONDITION_ERR << endl;
+        error = true;
+    }
+    
+    string init_code, cond_code, n_code;
+    if(init != nullptr)
+        init_code = init->code;
+    else
+        init_code = "";
+
+    if(cond != nullptr)
+        cond_code = init->code;
+    else
+        cond_code = "";
+
+    if(n != nullptr)
+        n_code = init->code;
+    else
+        n_code = "";
+
+    code = "for (" + init_code + ", " + cond_code + ", " + n_code + ")" + stmts->code;
 }
 
 /* StatementNode */

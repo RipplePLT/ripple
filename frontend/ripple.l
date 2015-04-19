@@ -8,7 +8,8 @@
 extern "C" int yywrap();
 
 int line_no = 1;
-bool err = false;
+bool error = false;
+string filename;
 
 bool saw_type;
 e_type last_type;
@@ -58,23 +59,22 @@ and         {   db(yytext); saw_type = false; return AND; }
 or          {   db(yytext); saw_type = false; return OR; }
 
 {id}        {	db(yytext); 
+
 				if(saw_type){
-					// add the variable and type to symbol table
-					if(sym_table.contains(yytext)){
-						Entry *entry = sym_table.get(yytext);
-						if(entry != nullptr)
-							cout << "Redefinition of variable " << yytext << " previously defined on line " << entry->line_no << endl;
-							else{
-								sym_table.put(yytext, last_type, line_no);
-						}
-					}
-					else{
-						sym_table.put(yytext, last_type, line_no);
+					if(sym_table.contains_in_scope(yytext)) {
+					    error = true;
+					    Entry *entry = sym_table.get(yytext);
+					    cout << "Redefinition of variable " << yytext << " previously defined on line " << entry->line_no << endl;
+					} else if (sym_table.contains(yytext)) {
+						// possible redeclaration
+					} else {
+						if(!sym_table.put(yytext, last_type, line_no))
+							exit(1);
 					}
 				} else {
 					// check if id is valid
 					if(!sym_table.contains(yytext))
-						cout << "Use of undeclared identifier " << yytext << endl;
+						cout << "Use of undeclared identifier " << yytext << " on line " << line_no << endl;
 				}
 				saw_type = false;
 				yylval.string = new std::string(yytext);
@@ -113,9 +113,21 @@ or          {   db(yytext); saw_type = false; return OR; }
 "\."        {  	db(yytext); saw_type = false; return tACCESS; }
 %%
 
-int main(void) {
+int main(int argc, char **argv) {
+
+	if(argc < 2){
+		cout << "usage ./rpl <input_file> [output_file]" << endl;
+		exit(1);
+	} else if (argc < 3){
+		filename = "ripple.cpp";
+	}
+	else {
+		filename = argv[2];
+	}
+
     sym_table.scope_in(0);
     sym_table.put("print", tVOID, 0);
+    yyin = fopen(argv[1], "r");
     yyparse();
     return 0;
 }
