@@ -20,7 +20,8 @@ class SymbolTableNode {
 
 class SymbolTable{
     SymbolTableNode *start;
-	SymbolTableNode *current;
+    SymbolTableNode *current;
+    void insert_reserved_words();
 
     public:
     SymbolTable();
@@ -31,6 +32,7 @@ class SymbolTable{
     bool put(string word, e_type type, int line_no);
 
     bool contains(string word);
+    bool contains_in_scope(string word);
     
     Entry *get(string word);
 };
