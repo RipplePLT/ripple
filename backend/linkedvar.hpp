@@ -21,6 +21,7 @@ class LinkedVar {
 		int get_value();
         //T update_value();
         int update_value();
+		void add_reference(LinkedVar *var);
 };
 
 #endif

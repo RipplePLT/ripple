@@ -18,3 +18,7 @@ int LinkedVar::get_value() {
 int LinkedVar::update_value() {
 	return 0;
 }
+
+void LinkedVar::add_reference(LinkedVar *var) {
+	references.push_front(var);
+}

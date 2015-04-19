@@ -31,5 +31,7 @@ int main()
     LinkedVar var_x (&x, e_x);
 	LinkedVar var_y (&y, e_y);
 
+	var_x.add_reference(&var_y);
+
     return 0;
 }
