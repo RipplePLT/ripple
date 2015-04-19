@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "linkedvar.hpp"
 #include "../frontend/ast.h"
 
 int main()
@@ -16,7 +17,9 @@ int main()
     ExpressionNode e (&b);
 
     // Create Variable
-
+    int x = 5;
+    // LinkedVar<int> var_x (&x, e);
+    LinkedVar var_x (&x, e);
 
     return 0;
 }
