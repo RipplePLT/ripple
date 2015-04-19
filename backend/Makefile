@@ -1,22 +1,21 @@
 CC=g++-4.9
 CXX=clang++
 CCFLAGS=-pthread -std=c++11 -Wall -Werror
-CXXFLAGS= -std=c++11 -w
 
 main: main.o 
-	$(CXX) main.o -o main $(CXXFLAGS)
+	$(CXX) main.o -o main $(CCFLAGS)
 
 main.o: main.cpp
-	$(CXX) -c main.cpp $(CXXFLAGS)
+	$(CXX) -c main.cpp $(CCFLAGS)
 
 vartest: vartest.o ../ast.o
-	$(CXX) vartest.o ../ast.o -o vartest $(CXXFLAGS)
+	$(CXX) vartest.o ../ast.o -o vartest $(CCFLAGS)
 
 vartest.o: vartest.cpp ../frontend/ast.h linkedvar.o
-	$(CXX) -c vartest.cpp $(CXXFLAGS)
+	$(CXX) -c vartest.cpp $(CCFLAGS)
 
 linkedvar.o: linkedvar.cpp linkedvar.hpp
-	$(CXX) -c linkedvar.cpp $(CXXFLAGS)
+	$(CXX) -c linkedvar.cpp $(CCFLAGS)
 
 clean:
 	rm -rf main *.o test vartest
