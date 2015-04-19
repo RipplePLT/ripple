@@ -286,6 +286,7 @@ BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
 }
 
 /* ExpressionNode */
+ExpressionNode::ExpressionNode() { }
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     bin_exp = b;
     code = b->code;

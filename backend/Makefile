@@ -8,8 +8,8 @@ main: main.o
 main.o: main.cpp
 	$(CXX) -c main.cpp $(CCFLAGS)
 
-vartest: vartest.o ../ast.o
-	$(CXX) vartest.o ../ast.o -o vartest $(CCFLAGS)
+vartest: vartest.o
+	$(CXX) vartest.o ../ast.o linkedvar.o ../frontend/symbol_table/hashmap.o -o vartest $(CCFLAGS)
 
 vartest.o: vartest.cpp ../frontend/ast.h linkedvar.o
 	$(CXX) -c vartest.cpp $(CCFLAGS)
