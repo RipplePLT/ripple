@@ -7,6 +7,8 @@
 
 using namespace std;
 
+const string reserved[20] = {"if", "else", "while", "for", "link", "dataset", "return", "continue", "break", "int", "float", "void", "string", "byte", "bool", "true", "false", "not", "and", "or"}; 
+
 class SymbolTableNode {
     public:
 	HashMap *hashmap;
@@ -22,6 +24,7 @@ class SymbolTable{
     SymbolTableNode *start;
     SymbolTableNode *current;
     void insert_reserved_words();
+
 
     public:
     SymbolTable();

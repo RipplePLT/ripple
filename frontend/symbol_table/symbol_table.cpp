@@ -31,12 +31,10 @@ SymbolTableNode::~SymbolTableNode() {
 
 
 SymbolTable::SymbolTable(){
-    SymbolTableNode *main = new SymbolTableNode;
+    SymbolTableNode *main = new SymbolTableNode();
     start = main; 
     current = main;
     insert_reserved_words();
-    bool contain = contains("for");
-    cout << contain << endl;
 }
 
 void SymbolTable::scope_in(int line_no) {
@@ -66,8 +64,10 @@ void SymbolTable::scope_out(int line_no) {
 
 void SymbolTable::insert_reserved_words(){
 
-    current->hashmap->put("if", tVOID, 0);
-    cout << "This ran" << 0;
+    int i;
+    for(i = 0; i< sizeof(reserved); i++){
+	current->hashmap->put(reserved[i], tVOID, 0);
+    }
 
 }
 
