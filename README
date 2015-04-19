@@ -1,0 +1,16 @@
+Ripple README
+
+Authors:
+Alexander Roth
+Amar Dhingra
+Artur Renault
+Spencer Brown
+Tom Segarra
+
+The makefile is no longer responsible for compiling.
+Mkae now produces "parser" which is the same as the old "rpl" file
+
+To compile a Ripple program:
+./rpl <input_filename> [output_filename]
+
+Someone should make the script not suck
