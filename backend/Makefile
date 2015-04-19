@@ -4,14 +4,17 @@ CCFLAGS=-pthread -std=c++11 -Wall -Werror
 main: main.o 
 	$(CC) main.o -o main $(CCFLAGS)
 
-main.o: main.cpp variable.hpp variable.cpp
+main.o: main.cpp
 	$(CC) -c main.cpp $(CCFLAGS)
 
 vartest: vartest.o ../ast.o
 	$(CC) vartest.o ../ast.o -o vartest $(CCFLAGS)
 
-vartest.o: vartest.cpp ../frontend/ast.h
+vartest.o: vartest.cpp ../frontend/ast.h linkedvar.o
 	$(CC) -c vartest.cpp $(CCFLAGS)
 
+linkedvar.o: linkedvar.cpp linkedvar.hpp
+	$(CC) -c linkedvar.cpp $(CCFLAGS)
+
 clean:
-	rm -rf main *.o test
+	rm -rf main *.o test vartest
