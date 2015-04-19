@@ -153,9 +153,11 @@ FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a) {
     args_list = a;
     type = f->type;
 
+    cout << func_name << endl;
     // TODO: Really hacky, need to fix
-    if(f->code.compare(PRINT_FUNCTION) == 0){
-        size_t index = 0;
+    if(IS_STD_RPL_FUNCTION(func_name->code)){
+        code = generate_std_rpl_function(func_name->code, a);
+        /*size_t index = 0;
         string arg_code = a->code;
         while (true) {
              index = arg_code.find("      ,      ", index);
@@ -165,7 +167,7 @@ FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a) {
             arg_code.replace(index, 13, " << \" \" << ");
         index += 2;
     }
-        code = "std::cout << " + arg_code + " << std::endl";
+        code = "std::cout << " + arg_code + " << std::endl";*/
     } else {
         code = f->code + "( " + a->code + " )";
     }   
@@ -177,6 +179,27 @@ FunctionCallNode::FunctionCallNode(IDNode *f) {
     code = f->code + "()";
 }
 
+string FunctionCallNode::generate_std_rpl_function(string function_name, ArgsNode *a){
+    
+    string code;
+    if (function_name.compare(RPL_STD_OUTPUT_FUNCTION) == 0){
+        code = "std::cout << ";
+        for(std::vector<ExpressionNode *>::iterator it = a->args_list.begin(); it != a->args_list.end(); ++it) {
+            code += (*it)->code + " << ";
+        }
+        code += "std::endl";
+    } else if (function_name.compare(RPL_STD_INPUT_FUNCTION) == 0){
+
+    } else if (function_name.compare(RPL_STD_OPEN_FUNCTION) == 0){
+
+    } else if (function_name.compare(RPL_STD_CLOSE_FUNCTION) == 0){
+
+    } else if (function_name.compare(RPL_STD_READ_FUNCTION) == 0){
+
+    }
+
+    return code;
+}
 
 /* ArgsNode */
 ArgsNode::ArgsNode() {
@@ -194,7 +217,7 @@ void ArgsNode::add_arg(ExpressionNode *arg) {
     if(code.compare("") == 0)
         code += arg->code;
     else
-        code += "      ,      " + arg->code;
+        code += ", " + arg->code;
 }
 
 

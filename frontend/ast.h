@@ -11,7 +11,11 @@
 #include "../structures/enum.h"
 #include "../structures/union.h"
 
-#define PRINT_FUNCTION "print"
+#define RPL_STD_OUTPUT_FUNCTION "print"
+#define RPL_STD_INPUT_FUNCTION "input"
+#define RPL_STD_OPEN_FUNCTION "open"
+#define RPL_STD_CLOSE_FUNCTION "close"
+#define RPL_STD_READ_FUNCTION "read"
 
 #define INVAL_UNARY_NOT_ERR "unary not error"
 #define INVAL_UNARY_MINUS_ERR "unary minus error"
@@ -61,6 +65,12 @@ enum e_jump str_to_jump(string type);
 string type_to_str(e_type type);
 
 void write_to_file(string filename, string code);
+
+#define IS_STD_RPL_FUNCTION(f_name) (f_name).compare(RPL_STD_INPUT_FUNCTION) == 0    || \
+                                      (f_name).compare(RPL_STD_OUTPUT_FUNCTION) == 0   || \
+                                      (f_name).compare(RPL_STD_OPEN_FUNCTION) == 0     || \
+                                      (f_name).compare(RPL_STD_READ_FUNCTION) == 0     || \
+                                      (f_name).compare(RPL_STD_CLOSE_FUNCTION) == 0
 
 inline void INVAL_ASSIGN_ERR(string val_type, string expression_type, int line_no) {
     cout << "Invalid assignment between operands of type: " << val_type << " and " << expression_type << " on line " << line_no << endl;
@@ -135,13 +145,14 @@ class FunctionCallNode: public Node {
     public:
         FunctionCallNode(IDNode *f, ArgsNode *a);
         FunctionCallNode(IDNode *f);
+        string generate_std_rpl_function(string function_name, ArgsNode *args);
 };
 
 
 class ArgsNode: public Node {
-    std::vector<ExpressionNode*> args_list;
-
     public:
+        std::vector<ExpressionNode*> args_list;
+
         ArgsNode();
         ArgsNode(ExpressionNode *arg);
         void add_arg(ExpressionNode *arg);
