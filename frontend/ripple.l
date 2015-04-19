@@ -6,7 +6,10 @@
 #include "frontend/symbol_table/symbol_table.h"
 
 extern "C" int yywrap();
+
 int line_no = 1;
+bool err = false;
+
 bool saw_type;
 e_type last_type;
 void db(std::string m){
@@ -48,8 +51,8 @@ void        {	db(yytext); saw_type = true; last_type = tVOID; yylval.string = ne
 string      {	db(yytext); saw_type = true; last_type = tSTRING; yylval.string = new std::string("STRING"); return TYPE;	}
 byte        {	db(yytext); saw_type = true; last_type = tBYTE; yylval.string = new std::string("BYTE"); return TYPE;	}
 bool        {	db(yytext); saw_type = true; last_type = tBOOL; yylval.string = new std::string("BOOL"); return TYPE;	}
-true        {	db(yytext); saw_type = false; yylval.boolean = true; return BOOL;}
-false       {	db(yytext); saw_type = false; yylval.boolean = false; return BOOL;}
+true        {	db(yytext); saw_type = false; yylval.boolean = true; return TRUE;}
+false       {	db(yytext); saw_type = false; yylval.boolean = false; return FALSE;}
 not         {   db(yytext); saw_type = false; return NOT; }
 and         {   db(yytext); saw_type = false; return AND; }
 or          {   db(yytext); saw_type = false; return OR; }
@@ -79,11 +82,11 @@ or          {   db(yytext); saw_type = false; return OR; }
 			}
 
 {integer}   {	db(yytext); saw_type = false; yylval.integer = atoi(yytext);
-		        return INTEGER;			}
+		        return INTEGER;	}
 {float}	    {	db(yytext); saw_type = false; yylval.decimal = atof(yytext);
-		        return FLOAT_LIT;		}
-{literal}   {	db(yytext); saw_type = false; yylval.string = new std::string(yytext);
-                return STRING_LITERAL;			}
+		        return FLOAT_LIT; }
+{literal}   {	db(yytext); saw_type = false; yylval.string = new string(yytext);
+                return STRING_LITERAL; }
 
 "="			{   db(yytext); saw_type = false; return tASSIGN; }
 "+"         {   db(yytext); saw_type = false; return tPLUS;  }

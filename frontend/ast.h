@@ -10,6 +10,23 @@
 #include "../structures/enum.h"
 #include "../structures/union.h"
 
+#define INVAL_UNARY_NOT_ERR "unary not error"
+#define INVAL_UNARY_MINUS_ERR "unary minus error"
+#define INVAL_BINARY_PLUS_ERR "binary plus error"
+#define INVAL_BINARY_MINUS_ERR "binary minus error"
+#define INVAL_BINARY_TIMES_ERR "binary times error"
+#define INVAL_BINARY_DIV_ERR "binary div error"
+#define INVAL_BINARY_EXP_ERR "binary exp error"
+#define INVAL_BINARY_FLDIV_ERR "binary fldiv error"
+#define INVAL_BINARY_EQ_ERR "binary eq error"
+#define INVAL_BINARY_NE_ERR "binary ne error"
+#define INVAL_BINARY_GT_ERR "binary gt error"
+#define INVAL_BINARY_LT_ERR "binary lt error"
+#define INVAL_BINARY_GE_ERR "binary ge error"
+#define INVAL_BINARY_LE_ERR "binary le error"
+#define INVAL_BINARY_AND_ERR "binary and error"
+#define INVAL_BINARY_OR_ERR "binary or error"
+#define ERROR "error"
 
 using namespace std;
 
@@ -37,9 +54,15 @@ class FunctionNode;
 enum e_op str_to_op(string op_string);
 enum e_type str_to_type(string type);
 enum e_jump str_to_jump(string type);
+string type_to_str(e_type type);
 
 string gen_binary_code(string l_code, enum e_op op, string r_code);
 
+inline void INVAL_ASSIGN_ERR(string val_type, string expression_type, int line_no) {
+    cout << "Invalid assignment between operands of type: " << val_type << " and " << expression_type << " on line " << line_no << endl;
+}
+
+extern int line_no;
 
 union operand {
     BinaryExpressionNode *b_exp;
@@ -71,6 +94,10 @@ public:
     string code;
     e_type type = tNONE;
     e_type get_type();
+    bool is_number();
+    bool is_bool();
+    bool is_string();
+    bool is_byte();
 };
 
 
@@ -133,7 +160,7 @@ class LiteralNode: public Node {
         // Constructors for different types
         LiteralNode(int i);
         LiteralNode(double d);
-        LiteralNode(string s);
+        LiteralNode(string *s);
         LiteralNode(bool b);
         LiteralNode(char b);
 };
@@ -166,7 +193,7 @@ public:
     UnaryExpressionNode(ValueNode *v);
 
 private:
-    void typecheck();
+    void typecheck(e_op op);
 };
 
 
@@ -182,7 +209,7 @@ public:
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
     BinaryExpressionNode(UnaryExpressionNode *ul);
 private:
-    void typecheck();
+    void typecheck(Node *left, Node *right, e_op op);
 };
 
 
@@ -196,7 +223,7 @@ public:
     ~ExpressionNode();
 
 private:
-    void typecheck();
+    void typecheck(BinaryExpressionNode *expression, ValueNode *value);
 
 };
 
