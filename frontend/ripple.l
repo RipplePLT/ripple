@@ -5,6 +5,8 @@
 #include "ripple.tab.hpp"
 #include "frontend/symbol_table/symbol_table.h"
 
+void install_id();
+
 extern "C" int yywrap();
 
 int line_no = 1;
@@ -59,23 +61,7 @@ and         {   db(yytext); saw_type = false; return AND; }
 or          {   db(yytext); saw_type = false; return OR; }
 
 {id}        {	db(yytext); 
-
-				if(saw_type){
-					if(sym_table.contains_in_scope(yytext)) {
-					    error = true;
-					    Entry *entry = sym_table.get(yytext);
-					    cout << "Redefinition of variable " << yytext << " previously defined on line " << entry->line_no << endl;
-					} else if (sym_table.contains(yytext)) {
-						// possible redeclaration
-					} else {
-						if(!sym_table.put(yytext, last_type, line_no))
-							exit(1);
-					}
-				} else {
-					// check if id is valid
-					if(!sym_table.contains(yytext))
-						cout << "Use of undeclared identifier " << yytext << " on line " << line_no << endl;
-				}
+				install_id();
 				saw_type = false;
 				yylval.string = new std::string(yytext);
 				return VAR;
@@ -113,6 +99,29 @@ or          {   db(yytext); saw_type = false; return OR; }
 "\."        {  	db(yytext); saw_type = false; return tACCESS; }
 %%
 
+void install_id(){
+	if(saw_type){
+		if(sym_table.contains_in_scope(yytext)) {
+		    error = true;
+		    Entry *entry = sym_table.get(yytext);
+		    cout << "Redefinition of variable " << yytext << " previously defined on line " << entry->line_no << endl;
+		} else if (sym_table.contains(yytext)) {
+			// possible redeclaration
+			if(!sym_table.put(yytext, last_type, line_no))
+				exit(1);
+		} else {
+			if(!sym_table.put(yytext, last_type, line_no))
+				exit(1);
+		}
+	} else {
+		// check if id is valid
+		if(!sym_table.contains(yytext)){
+			cout << "Use of undeclared identifier " << yytext << " on line " << line_no << endl;
+			error = true;
+		}
+	}
+}
+
 int main(int argc, char **argv) {
 
 	if(argc < 2){
@@ -129,5 +138,11 @@ int main(int argc, char **argv) {
     sym_table.put("print", tVOID, 0);
     yyin = fopen(argv[1], "r");
     yyparse();
+
+    if(error){
+    	cout << COMPILE_ERR << endl;
+    	return 1;
+    }
+
     return 0;
 }

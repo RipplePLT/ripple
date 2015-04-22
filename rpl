@@ -4,8 +4,8 @@ set -e
 
 make > /dev/zero
 
-./parser ${1} ${2}.cpp > /dev/zero
+./parser ${1} ${2}.cpp 
 
 clang++ ${2}.cpp -o ${2} > /dev/zero
 
-rm -f ${2}.cpp parser
+rm -f ${2}.cpp

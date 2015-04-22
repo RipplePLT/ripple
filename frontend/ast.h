@@ -17,24 +17,25 @@
 #define RPL_STD_CLOSE_FUNCTION "close"
 #define RPL_STD_READ_FUNCTION "read"
 
-#define INVAL_UNARY_NOT_ERR "unary not error"
-#define INVAL_UNARY_MINUS_ERR "unary minus error"
-#define INVAL_BINARY_PLUS_ERR "binary plus error"
-#define INVAL_BINARY_MINUS_ERR "binary minus error"
-#define INVAL_BINARY_TIMES_ERR "binary times error"
-#define INVAL_BINARY_DIV_ERR "binary div error"
-#define INVAL_BINARY_EXP_ERR "binary exp error"
-#define INVAL_BINARY_FLDIV_ERR "binary fldiv error"
-#define INVAL_BINARY_EQ_ERR "binary eq error"
-#define INVAL_BINARY_NE_ERR "binary ne error"
-#define INVAL_BINARY_GT_ERR "binary gt error"
-#define INVAL_BINARY_LT_ERR "binary lt error"
-#define INVAL_BINARY_GE_ERR "binary ge error"
-#define INVAL_BINARY_LE_ERR "binary le error"
-#define INVAL_BINARY_AND_ERR "binary and error"
-#define INVAL_BINARY_OR_ERR "binary or error"
-#define LOOP_CONDITION_ERR "loop condition error"
+#define INVAL_UNARY_NOT_ERR "\tunary not error"
+#define INVAL_UNARY_MINUS_ERR "\tunary minus error"
+#define INVAL_BINARY_PLUS_ERR "\tbinary plus error"
+#define INVAL_BINARY_MINUS_ERR "\tbinary minus error"
+#define INVAL_BINARY_TIMES_ERR "\tbinary times error"
+#define INVAL_BINARY_DIV_ERR "\tbinary div error"
+#define INVAL_BINARY_EXP_ERR "\tbinary exp error"
+#define INVAL_BINARY_FLDIV_ERR "\tbinary fldiv error"
+#define INVAL_BINARY_EQ_ERR "\tbinary eq error"
+#define INVAL_BINARY_NE_ERR "\tbinary ne error"
+#define INVAL_BINARY_GT_ERR "\tbinary gt error"
+#define INVAL_BINARY_LT_ERR "\tbinary lt error"
+#define INVAL_BINARY_GE_ERR "\tbinary ge error"
+#define INVAL_BINARY_LE_ERR "\tbinary le error"
+#define INVAL_BINARY_AND_ERR "\tbinary and error"
+#define INVAL_BINARY_OR_ERR "\tbinary or error"
+#define LOOP_CONDITION_ERR "\tloop condition error"
 #define ERROR "error"
+#define COMPILE_ERR "compilation halted because of error in code"
 
 using namespace std;
 
@@ -67,14 +68,15 @@ string type_to_str(e_type type);
 void write_to_file(string filename, string code);
 
 #define IS_STD_RPL_FUNCTION(f_name) (f_name).compare(RPL_STD_INPUT_FUNCTION) == 0    || \
-                                      (f_name).compare(RPL_STD_OUTPUT_FUNCTION) == 0   || \
-                                      (f_name).compare(RPL_STD_OPEN_FUNCTION) == 0     || \
-                                      (f_name).compare(RPL_STD_READ_FUNCTION) == 0     || \
-                                      (f_name).compare(RPL_STD_CLOSE_FUNCTION) == 0
+                                    (f_name).compare(RPL_STD_OUTPUT_FUNCTION) == 0   || \
+                                    (f_name).compare(RPL_STD_OPEN_FUNCTION) == 0     || \
+                                    (f_name).compare(RPL_STD_READ_FUNCTION) == 0     || \
+                                    (f_name).compare(RPL_STD_CLOSE_FUNCTION) == 0
 
-inline void INVAL_ASSIGN_ERR(string val_type, string expression_type, int line_no) {
-    cout << "Invalid assignment between operands of type: " << val_type << " and " << expression_type << " on line " << line_no << endl;
-}
+#define INVAL_ASSIGN_ERR(val_type, expression_type, line_no) { cout <<        \
+                        "\tInvalid assignment between operands of type: " <<  \
+                        val_type << " and " << expression_type << " on line " \
+                        << line_no << endl; }
 
 extern int line_no;
 extern bool error;
@@ -118,86 +120,86 @@ public:
 
 
 class ValueNode: public Node {
-    public:
-        union value val;
+public:
+    union value val;
 
-        ValueNode(IDNode *i);
-        ValueNode(LiteralNode *l);
-        ValueNode(FunctionCallNode *f);
-        ValueNode(ArrayAccessNode *a);
-        ValueNode(DatasetAccessNode *d);
-        ValueNode(ExpressionNode *e);
+    ValueNode(IDNode *i);
+    ValueNode(LiteralNode *l);
+    ValueNode(FunctionCallNode *f);
+    ValueNode(ArrayAccessNode *a);
+    ValueNode(DatasetAccessNode *d);
+    ValueNode(ExpressionNode *e);
 };
 
 
 class IDNode: public Node {
-    Entry *entry;
-    public:
-        IDNode(Entry *ent);
-        ~IDNode();
+Entry *entry;
+public:
+    IDNode(Entry *ent);
+    ~IDNode();
 };
 
 
 class FunctionCallNode: public Node {
-    ArgsNode *args_list;
-    IDNode *func_name;
+ArgsNode *args_list;
+IDNode *func_name;
 
-    public:
-        FunctionCallNode(IDNode *f, ArgsNode *a);
-        FunctionCallNode(IDNode *f);
-        string generate_std_rpl_function(string function_name, ArgsNode *args);
+public:
+    FunctionCallNode(IDNode *f, ArgsNode *a);
+    FunctionCallNode(IDNode *f);
+    string generate_std_rpl_function(string function_name, ArgsNode *args);
 };
 
 
 class ArgsNode: public Node {
-    public:
-        std::vector<ExpressionNode*> args_list;
+public:
+    std::vector<ExpressionNode*> args_list;
 
-        ArgsNode();
-        ArgsNode(ExpressionNode *arg);
-        void add_arg(ExpressionNode *arg);
+    ArgsNode();
+    ArgsNode(ExpressionNode *arg);
+    void add_arg(ExpressionNode *arg);
 };
 
 
 class DeclArgsNode: public Node {
-    std::vector<IDNode*> decl_args_list;
+std::vector<IDNode*> decl_args_list;
 
-    public:
-        DeclArgsNode();
-        DeclArgsNode(IDNode* arg);
-        void add_arg(IDNode* arg);
+public:
+    DeclArgsNode();
+    DeclArgsNode(IDNode* arg);
+    void add_arg(IDNode* arg);
 };
 
 
 class LiteralNode: public Node {
-    public:
-        union literal val;
-        enum e_type type;
+public:
+    union literal val;
+    enum e_type type;
 
-        // Constructors for different types
-        LiteralNode(int i);
-        LiteralNode(double d);
-        LiteralNode(string *s);
-        LiteralNode(bool b);
-        LiteralNode(char b);
+    // Constructors for different types
+    LiteralNode(int i);
+    LiteralNode(double d);
+    LiteralNode(string *s);
+    LiteralNode(bool b);
+    LiteralNode(char b);
 };
 
 
 class ArrayAccessNode: public Node {
-    public:
-        ValueNode *vn;
-        ExpressionNode *en;
+public:
+    ValueNode *vn;
+    ExpressionNode *en;
 
-        ArrayAccessNode(ValueNode *v, ExpressionNode *e);
+    ArrayAccessNode(ValueNode *v, ExpressionNode *e);
 };
 
 
 class DatasetAccessNode: public Node {
-    public:
-        ValueNode *vn;
-        IDNode *idn;
+public:
+    ValueNode *vn;
+    IDNode *idn;
 
-        DatasetAccessNode(ValueNode *valueNode, IDNode *idNode);
+    DatasetAccessNode(ValueNode *valueNode, IDNode *idNode);
 };
 
 
