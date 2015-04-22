@@ -153,21 +153,8 @@ FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a) {
     args_list = a;
     type = f->type;
 
-    cout << func_name << endl;
-    // TODO: Really hacky, need to fix
     if(IS_STD_RPL_FUNCTION(func_name->code)){
         code = generate_std_rpl_function(func_name->code, a);
-        /*size_t index = 0;
-        string arg_code = a->code;
-        while (true) {
-             index = arg_code.find("      ,      ", index);
-             if (index == string::npos)
-                break;
-
-            arg_code.replace(index, 13, " << \" \" << ");
-        index += 2;
-    }
-        code = "std::cout << " + arg_code + " << std::endl";*/
     } else {
         code = f->code + "( " + a->code + " )";
     }   
@@ -176,7 +163,12 @@ FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a) {
 FunctionCallNode::FunctionCallNode(IDNode *f) {
     func_name = f;
     type = f->type;
-    code = f->code + "()";
+    if(IS_STD_RPL_FUNCTION(func_name->code)){
+        code = generate_std_rpl_function(func_name->code, nullptr);
+    } else {
+        code = f->code + "()";
+    }  
+    
 }
 
 string FunctionCallNode::generate_std_rpl_function(string function_name, ArgsNode *a){
@@ -184,8 +176,10 @@ string FunctionCallNode::generate_std_rpl_function(string function_name, ArgsNod
     string code;
     if (function_name.compare(RPL_STD_OUTPUT_FUNCTION) == 0){
         code = "std::cout << ";
-        for(std::vector<ExpressionNode *>::iterator it = a->args_list.begin(); it != a->args_list.end(); ++it) {
-            code += (*it)->code + " << ";
+        if(a){
+            for(std::vector<ExpressionNode *>::iterator it = a->args_list.begin(); it != a->args_list.end(); ++it) {
+                code += (*it)->code + " << \" \" << ";
+            }
         }
         code += "std::endl";
     } else if (function_name.compare(RPL_STD_INPUT_FUNCTION) == 0){
@@ -561,12 +555,13 @@ DeclarativeStatementNode::DeclarativeStatementNode(string _type, ExpressionNode 
     en = expression_node;
 
     transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
-
+    // TODO TYPE CHECK
     //TODO TYPE CONVERSIONS
     code = _type + " " + expression_node->code + ";\n"; 
 }
 
 DeclarativeStatementNode::DeclarativeStatementNode(ExpressionNode *expression_node){
+    type = expression_node->type;
     en = expression_node;
     code = expression_node->code + ";\n";
 }
@@ -578,6 +573,7 @@ ConditionalStatementNode::ConditionalStatementNode(ExpressionNode *e, StatementL
     consequent = s;
     alternative = a;
 
+    // TYPE CHECK
     code = "if (" + e->code + ")" + s->code;
 
     if(a != nullptr)
