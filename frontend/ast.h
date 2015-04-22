@@ -78,7 +78,7 @@ inline void INVAL_ASSIGN_ERR(string val_type, string expression_type, int line_n
 
 extern int line_no;
 extern bool error;
-extern string filename;
+extern string filename_cpp;
 
 union operand {
     BinaryExpressionNode *b_exp;

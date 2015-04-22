@@ -1,5 +1,5 @@
 .PHONY: default
-default: parser
+default: rpl
 
 VPATH=.:frontend
 
@@ -14,8 +14,8 @@ OUT= -o $@
 LFLAGS=
 
 
-parser: ast.o ripple.tab.o lex.yy.o libsym.a
-	$(CXX) -o parser ast.o ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o frontend/symbol_table/hashmap.o $(LDLIBS) -lfl
+rpl: ast.o ripple.tab.o lex.yy.o libsym.a
+	$(CXX) -o rpl ast.o ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o frontend/symbol_table/hashmap.o $(LDLIBS) -lfl
 	rm -f *.o *.hpp *.cpp *.c *.cc
 
 ast.o: ast.cpp ast.h
@@ -38,7 +38,7 @@ libsym.a:
 	
 .PHONY: clean
 clean:
-	rm -f *.o *.hpp *.cpp *.c *.cc parser
+	rm -f *.o *.hpp *.cpp *.c *.cc rpl
 	$(MAKE) -C frontend/symbol_table clean
 
 .PHONY: all

@@ -9,6 +9,7 @@ extern "C" int yywrap();
 
 int line_no = 1;
 bool error = false;
+string filename_cpp;
 string filename;
 
 bool saw_type;
@@ -119,15 +120,21 @@ int main(int argc, char **argv) {
 		cout << "usage ./rpl <input_file> [output_file]" << endl;
 		exit(1);
 	} else if (argc < 3){
-		filename = "ripple.cpp";
+		filename = "output";
+        filename_cpp = "output.cpp";
 	}
 	else {
 		filename = argv[2];
+        filename_cpp = filename + ".cpp";
 	}
 
     sym_table.scope_in(0);
     sym_table.put("print", tVOID, 0);
     yyin = fopen(argv[1], "r");
+    yyout = fopen(filename_cpp.c_str(), "w");
     yyparse();
+
+    string compile_cpp = "clang++ " + filename_cpp;
+    system(compile_cpp.c_str());
     return 0;
 }

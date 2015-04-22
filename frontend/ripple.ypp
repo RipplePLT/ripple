@@ -145,7 +145,7 @@ void d(string m) {
 
 %%
 
-function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $4, $6); d("function"); delete $1; delete $4; if(!error) write_to_file(filename, $$->code); }
+function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $4, $6); d("function"); delete $1; delete $4; if(!error) write_to_file(filename_cpp, $$->code); }
 
 statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{\n" + $2->code + "}\n"; d("statement_block - curly_statement_block"); }
                 ;
