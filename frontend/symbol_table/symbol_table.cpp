@@ -67,8 +67,6 @@ void SymbolTable::scope_out(int line_no) {
 void SymbolTable::insert_reserved_words(){
 
     current->hashmap->put("if", tVOID, 0);
-    cout << "This ran" << 0;
-
 }
 
 bool SymbolTable::put(string word, e_type v, int line_no) {

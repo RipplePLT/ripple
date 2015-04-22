@@ -5,7 +5,6 @@
 #include <iostream>
 #include "frontend/symbol_table/symbol_table.h"
 #include "frontend/ast.h"
-#define DEBUG
 using namespace std;
 
 extern int yylex();
@@ -17,7 +16,9 @@ extern SymbolTable sym_table;
 extern int line_no;
 
 void d(string m) {
- //   cout << m << endl;
+#ifdef DEBUG
+    cout << m << endl;
+#endif
 }
 %}
 

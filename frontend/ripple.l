@@ -148,8 +148,11 @@ int main(int argc, char **argv) {
     	return 1;
     }
 
-    string compile_cpp = "clang++ " + filename_cpp;
+    string compile_cpp = "clang++ " + filename_cpp + " -o " + filename;
     system(compile_cpp.c_str());
-    
+   
+#ifndef DEBUG
+    remove(filename_cpp.c_str());
+#endif
     return 0;
 }
