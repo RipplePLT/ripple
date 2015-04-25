@@ -3,7 +3,7 @@
 
 #include <queue>
 
-#include "variant.hpp"
+#include "linked_var"
 
 /**
  * sync_queue.hpp - The synchronized queue that will be used for the producer
@@ -16,13 +16,13 @@ using namespace std;
 
 class sync_queue {
     private:
-        queue<variant> sync_queue {nullptr};
+        queue<linked_var> sync_queue {nullptr};
         int size;
     public:
         sync_queue(int size);
         ~sync_queue();
-        void push(variant item);
-        void pop();
+        void push(linked_var item);
+        linked_var pop();
 }
 
 #endif

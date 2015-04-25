@@ -18,7 +18,9 @@ sync_queue::~sync_queue() {
 }
 
 void sync_queue::push(variant item) {
+
 }
 
-void sync_queue::pop() {
+linked_var sync_queue::pop() {
+
 }
