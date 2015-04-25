@@ -1,47 +1,84 @@
-#ifndef __VARIABLE_TREE_HPP__
-#define
+#ifndef __VAR_TREE_HPP__
+#define __VAR_TREE_HPP__
 
-#include <list>
+#include <string>
+#include <string.h>
+#include <iostream>
+#include "../structures/enum.h"
 
-#include "variable.hpp"
+using namespace std;
 
-/**
- * variable_tree - A tree data structure that holds a pointer to a variable 
- * object. The tree should call evaluate on a given node, which will go down
- * the tree and evaluate the return expression based  
- **/
+class ExpressionNode;
+class BinaryExpressionNode;
+class UnaryExpressionNode;
+class ExpressionNode;
+class ValueNode;
 
-class variable_tree {
-    private:
-        variable& node;
-        list<variable&> children;
-    public:
-        variable_tree();
-        ~variable_tree(); 
-        void evaluate(variable node, int position);
-}
+union operand {
+    BinaryExpressionNode *b_exp;
+    UnaryExpressionNode *u_exp;
+    ValueNode *v_node;
+};
 
-/*
- * Constructuor method
- */
-variable_tree::variable_tree() {
-}
+enum link_val_type {
+	ltINT,
+	ltINT_PTR,
+	ltNONE
+};
 
-/* 
- * Destructor method
- */
-variable_tree::~variable_tree() {
-}
+struct link_val {
+	enum link_val_type type;
+	union {
+		int i;
+		void *ptr;
+	} value;
+};
 
-/*
- * Updates a value of a variable node. You are going to have to mess around with
- * this a bit to figure out the best way to implement this. I was considering a 
- * bottom-up tree evaulation method where the first link statement creates the
- * tree, however, that could cause issues, in that each link would need a tree?
- *
- * Think it over
- */
-void variable_tree::evaulate(variable node, int position) {
+class ValueNode {
+public:
+	struct link_val val;
+	bool is_literal;
 
-}
+	ValueNode (int *i);
+	ValueNode (int i);
+	struct link_val evaluate();
+};
+
+class UnaryExpressionNode {
+public:
+    enum e_op op;
+    union operand right_operand;
+
+    UnaryExpressionNode(UnaryExpressionNode *u, string _op);
+    UnaryExpressionNode(ValueNode *v);
+	struct link_val evaluate();
+};
+
+
+class BinaryExpressionNode {
+public:
+    union operand left_operand;
+    union operand right_operand;
+    enum e_op op;
+    bool left_is_binary;
+    bool right_is_binary;
+
+    BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br);
+    BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
+    BinaryExpressionNode(UnaryExpressionNode *ul);
+	struct link_val evaluate();
+};
+
+
+class ExpressionNode {
+public:
+    BinaryExpressionNode *bin_exp;
+    ValueNode *value;
+
+	ExpressionNode();
+	~ExpressionNode();
+    ExpressionNode(BinaryExpressionNode *b);
+	struct link_val evaluate();
+};
+
 #endif
