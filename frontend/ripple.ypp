@@ -5,7 +5,6 @@
 #include <iostream>
 #include "frontend/symbol_table/symbol_table.h"
 #include "frontend/ast.h"
-#define DEBUG
 using namespace std;
 
 extern int yylex();
@@ -14,8 +13,12 @@ void yyerror(const char *s) { printf("%s\n", s); }
 
 extern SymbolTable sym_table;
 
+extern int line_no;
+
 void d(string m) {
-//    cout << m << endl;
+#ifdef DEBUG
+    cout << m << endl;
+#endif
 }
 %}
 
@@ -73,7 +76,7 @@ void d(string m) {
 %token <integer> FLOAT
 %token <integer> STRING 
 %token <integer> DATASET
-%token <integer> VOid
+%token <integer> VOID
 
 /***************
     VARIABLES 
@@ -143,9 +146,9 @@ void d(string m) {
 
 %%
 
-function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $4, $6); d("function"); delete $1; delete $4; cout << $$->code << endl; }
+function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $4, $6); d("function"); delete $1; delete $4; if(!error) write_to_file(filename_cpp, $$->code); }
 
-statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{\n" + $2->code + "\n}"; d("statement_block - curly_statement_block"); }
+statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{\n" + $2->code + "}\n"; d("statement_block - curly_statement_block"); }
                 ;
 
 statement_list : statement_list statement       { $1->push_statement($2); d("statement_list - stmt-list"); }
@@ -176,14 +179,14 @@ loop_statement : FOR tL_PAREN opt_expression tSEMI opt_expression tSEMI opt_expr
                 | WHILE tL_PAREN expression tR_PAREN statement_block { $$ = new LoopStatementNode(NULL ,$3, NULL, $5); d("loop - while"); }
 
 declarative_statement : dtype expression tSEMI   { $$ = new DeclarativeStatementNode(*($1), $2); d("declarative statement -  type expr"); delete $1; }
-                      | expression tSEMI        { $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
+                      | expression tSEMI         { $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
                       ;
 
 opt_expression : expression tL_PAREN           { $$ = $1; }
-               |                       { $$ = NULL; }
+               |                               { $$ = NULL; }
                ;
 
-expression : or_expression             { $$ = new ExpressionNode($1);  d("expression"); }
+expression : or_expression               { $$ = new ExpressionNode($1);  d("expression"); }
            | value tASSIGN or_expression { $$ = new ExpressionNode($3, $1); d("expression assign"); }
            ;
 
@@ -196,38 +199,38 @@ and_expression : eq_expression                      { $$ = $1; d("and_expression
                ;
 
 eq_expression : rel_expression                      { $$ = $1; d("eq_expression"); }
-              | eq_expression tEQ rel_expression   { $$ = new BinaryExpressionNode($1, "==", $3); d("eq_expression =="); }
-              | eq_expression tNE rel_expression   { $$ = new BinaryExpressionNode($1, "!=", $3); d("eq_expression !="); }
+              | eq_expression tEQ rel_expression    { $$ = new BinaryExpressionNode($1, "==", $3); d("eq_expression =="); }
+              | eq_expression tNE rel_expression    { $$ = new BinaryExpressionNode($1, "!=", $3); d("eq_expression !="); }
               ;
 
 rel_expression : add_expression                     { $$ = $1; d("rel_expression"); }
                | rel_expression tGT add_expression  { $$ = new BinaryExpressionNode($1, ">", $3); d("rel_expression >"); }
                | rel_expression tLT add_expression  { $$ = new BinaryExpressionNode($1, "<", $3); d("rel_expression <"); }
-               | rel_expression tGE add_expression { $$ = new BinaryExpressionNode($1, ">=", $3); d("rel_expression >="); }
-               | rel_expression tLE add_expression { $$ = new BinaryExpressionNode($1, "<=", $3); d("rel_expression <="); }
+               | rel_expression tGE add_expression  { $$ = new BinaryExpressionNode($1, ">=", $3); d("rel_expression >="); }
+               | rel_expression tLE add_expression  { $$ = new BinaryExpressionNode($1, "<=", $3); d("rel_expression <="); }
                ;
 
-add_expression : mult_expression                    { $$ = $1; d("add_expression");}
-               | add_expression tPLUS mult_expression { $$ = new BinaryExpressionNode($1, "+", $3); d("add_expression +");}
+add_expression : mult_expression                       { $$ = $1; d("add_expression");}
+               | add_expression tPLUS mult_expression  { $$ = new BinaryExpressionNode($1, "+", $3); d("add_expression +");}
                | add_expression tMINUS mult_expression { $$ = new BinaryExpressionNode($1, "-", $3);  d("add_expression -"); }
                ;
 
-mult_expression : exp_expression                        { $$ = $1; d("mult_expression");}
-                | mult_expression tTIMES exp_expression    { $$ = new BinaryExpressionNode($1, "*", $3);  d("mult_expression *"); }
+mult_expression : exp_expression                         { $$ = $1; d("mult_expression");}
+                | mult_expression tTIMES exp_expression  { $$ = new BinaryExpressionNode($1, "*", $3);  d("mult_expression *"); }
                 | mult_expression tDIV exp_expression    { $$ = new BinaryExpressionNode($1, "/", $3);  d("mult_expression /"); }
-                | mult_expression tFLDIV exp_expression   { $$ = new BinaryExpressionNode($1, "//", $3);  d("mult_expression //"); }
+                | mult_expression tFLDIV exp_expression  { $$ = new BinaryExpressionNode($1, "//", $3);  d("mult_expression //"); }
                 | mult_expression tMOD exp_expression    { $$ = new BinaryExpressionNode($1, "%", $3);  d("mult_expression %"); }
                 ;
 
-exp_expression : unary_expression                       { $$ = new BinaryExpressionNode($1); d("exp_expression");}
+exp_expression : unary_expression                        { $$ = new BinaryExpressionNode($1); d("exp_expression");}
                | exp_expression tEXP unary_expression    { $$ = new BinaryExpressionNode($1, "^", $3);  d("exp expression ^"); }
                ;
 
-unary_expression : value                    { $$ = new UnaryExpressionNode($1); d("unary_expression");};	
+unary_expression : value                       { $$ = new UnaryExpressionNode($1); d("unary_expression");};	
                  | tMINUS unary_expression     { $$ = new UnaryExpressionNode($2, "-");  d("unary_expression -"); }
-                 | tSIZE unary_expression     { $$ = new UnaryExpressionNode($2, "@");  d("unary_expression @"); }
+                 | tSIZE unary_expression      { $$ = new UnaryExpressionNode($2, "@");  d("unary_expression @"); }
                  | tL_PAREN dtype tR_PAREN unary_expression { delete $2; }
-                 | NOT unary_expression     { $$ = new UnaryExpressionNode($2, "not");  d("unary_expression not"); }
+                 | NOT unary_expression        { $$ = new UnaryExpressionNode($2, "not");  d("unary_expression not"); }
                  ;
 
 value : literal            { $$ = new ValueNode($1); d("value - literal"); }
@@ -264,8 +267,8 @@ dtype : TYPE { $$ = yylval.string; }
 literal : INTEGER                 { $$ = new LiteralNode($1); $$->code = to_string(yylval.integer); d("literal - INT");}	
         | FLOAT_LIT               { $$ = new LiteralNode($1); $$->code = to_string(yylval.decimal); d("literal - FLOAT");}
         | STRING_LITERAL          { $$ = new LiteralNode($1); $$->code = *yylval.string; d("literal - STRING"); }
-        | TRUE				      { $$ = new LiteralNode($1); $$->code = "true";  d("literal - true"); }
-        | FALSE				      { $$ = new LiteralNode($1); $$->code = "false"; d("literal - false"); }
+        | TRUE				            { $$ = new LiteralNode($1); $$->code = "true";  d("literal - true"); }
+        | FALSE				            { $$ = new LiteralNode($1); $$->code = "false"; d("literal - false"); }
         ;
 
 %%

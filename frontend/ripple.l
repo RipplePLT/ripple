@@ -5,8 +5,15 @@
 #include "ripple.tab.hpp"
 #include "frontend/symbol_table/symbol_table.h"
 
+void install_id();
+
 extern "C" int yywrap();
+
 int line_no = 1;
+bool error = false;
+string filename_cpp;
+string filename;
+
 bool saw_type;
 e_type last_type;
 void db(std::string m){
@@ -48,42 +55,25 @@ void        {	db(yytext); saw_type = true; last_type = tVOID; yylval.string = ne
 string      {	db(yytext); saw_type = true; last_type = tSTRING; yylval.string = new std::string("STRING"); return TYPE;	}
 byte        {	db(yytext); saw_type = true; last_type = tBYTE; yylval.string = new std::string("BYTE"); return TYPE;	}
 bool        {	db(yytext); saw_type = true; last_type = tBOOL; yylval.string = new std::string("BOOL"); return TYPE;	}
-true        {	db(yytext); saw_type = false; yylval.boolean = true; return BOOL;}
-false       {	db(yytext); saw_type = false; yylval.boolean = false; return BOOL;}
+true        {	db(yytext); saw_type = false; yylval.boolean = true; return TRUE;}
+false       {	db(yytext); saw_type = false; yylval.boolean = false; return FALSE;}
 not         {   db(yytext); saw_type = false; return NOT; }
 and         {   db(yytext); saw_type = false; return AND; }
 or          {   db(yytext); saw_type = false; return OR; }
 
 {id}        {	db(yytext); 
-				if(saw_type){
-					// add the variable and type to symbol table
-					if(sym_table.contains(yytext)){
-						Entry *entry = sym_table.get(yytext);
-						if(entry != nullptr)
-							cout << "Redefinition of variable " << yytext << " previously defined on line " << entry->line_no << endl;
-							else{
-								sym_table.put(yytext, last_type, line_no);
-						}
-					}
-					else{
-						sym_table.put(yytext, last_type, line_no);
-					}
-				} else {
-					// check if id is valid
-					if(!sym_table.contains(yytext))
-						cout << "Use of undeclared identifier " << yytext << endl;
-				}
+				install_id();
 				saw_type = false;
 				yylval.string = new std::string(yytext);
 				return VAR;
 			}
 
 {integer}   {	db(yytext); saw_type = false; yylval.integer = atoi(yytext);
-		        return INTEGER;			}
+		        return INTEGER;	}
 {float}	    {	db(yytext); saw_type = false; yylval.decimal = atof(yytext);
-		        return FLOAT_LIT;		}
-{literal}   {	db(yytext); saw_type = false; yylval.string = new std::string(yytext);
-                return STRING_LITERAL;			}
+		        return FLOAT_LIT; }
+{literal}   {	db(yytext); saw_type = false; yylval.string = new string(yytext);
+                return STRING_LITERAL; }
 
 "="			{   db(yytext); saw_type = false; return tASSIGN; }
 "+"         {   db(yytext); saw_type = false; return tPLUS;  }
@@ -110,9 +100,59 @@ or          {   db(yytext); saw_type = false; return OR; }
 "\."        {  	db(yytext); saw_type = false; return tACCESS; }
 %%
 
-int main(void) {
+void install_id(){
+	if(saw_type){
+		if(sym_table.contains_in_scope(yytext)) {
+		    error = true;
+		    Entry *entry = sym_table.get(yytext);
+		    cout << "Redefinition of variable " << yytext << " previously defined on line " << entry->line_no << endl;
+		} else if (sym_table.contains(yytext)) {
+			// possible redeclaration
+			if(!sym_table.put(yytext, last_type, line_no))
+				exit(1);
+		} else {
+			if(!sym_table.put(yytext, last_type, line_no))
+				exit(1);
+		}
+	} else {
+		// check if id is valid
+		if(!sym_table.contains(yytext)){
+			cout << "Use of undeclared identifier " << yytext << " on line " << line_no << endl;
+			error = true;
+		}
+	}
+}
+
+int main(int argc, char **argv) {
+
+	if(argc < 2){
+		cout << "usage ./rpl <input_file> [output_file]" << endl;
+		exit(1);
+	} else if (argc < 3){
+		filename = "output";
+        filename_cpp = "output.cpp";
+	}
+	else {
+		filename = argv[2];
+        filename_cpp = filename + ".cpp";
+	}
+
     sym_table.scope_in(0);
     sym_table.put("print", tVOID, 0);
+    yyin = fopen(argv[1], "r");
+    yyout = fopen(filename_cpp.c_str(), "w");
     yyparse();
+    
+    if(error){
+    	cout << COMPILE_ERR << endl;
+    	return 1;
+    }
+
+    string compile_cpp = "clang++ " + filename_cpp + " -o " + filename;
+    system(compile_cpp.c_str());
+   
+#ifndef DEBUG
+    remove(filename_cpp.c_str());
+#endif
     return 0;
 }

@@ -1,4 +1,4 @@
 #* A simple program to print hello world *#
 int main() {
-    print("hello, world\n"); # prints 'hello, world'
+    print("hello, world", 5); # prints 'hello, world'
 }

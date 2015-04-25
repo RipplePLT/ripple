@@ -3,15 +3,19 @@ default: rpl
 
 VPATH=.:frontend
 
+debug: MODE=-DDEBUG
+debug: rpl
+
+MODE=
 CC=gcc-4.9
 CXX=clang++
 LEX=flex
 YACC=bison
-CXXFLAGS= -std=c++11 -w
+CXXFLAGS= -std=c++11 -w $(MODE)
 LDLIBS= -L./frontend/symbol_table/
-YFLAGS= -Wnone
-OUT= -o $@
-LFLAGS=
+YFLAGS= -Wnone 
+LFLAGS= 
+MISCFLAGS= 
 
 rpl: ast.o ripple.tab.o lex.yy.o libsym.a
 	$(CXX) -o rpl ast.o ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o frontend/symbol_table/hashmap.o $(LDLIBS) -lfl

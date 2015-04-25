@@ -31,8 +31,12 @@ SymbolTableNode::~SymbolTableNode() {
 
 
 SymbolTable::SymbolTable(){
-    start = nullptr; 
-    current = nullptr;
+    SymbolTableNode *main = new SymbolTableNode;
+    start = main; 
+    current = main;
+    insert_reserved_words();
+    bool contain = contains("for");
+    cout << contain << endl;
 }
 
 void SymbolTable::scope_in(int line_no) {
@@ -60,6 +64,11 @@ void SymbolTable::scope_out(int line_no) {
     current = node;
 }
 
+void SymbolTable::insert_reserved_words(){
+
+    current->hashmap->put("if", tVOID, 0);
+}
+
 bool SymbolTable::put(string word, e_type v, int line_no) {
     return current->hashmap->put(word, v, line_no);
 }
@@ -72,6 +81,10 @@ bool SymbolTable::contains(string word) {
         n = n->parent;
     }
     return false;
+}
+
+bool SymbolTable::contains_in_scope(string word){
+    return current->hashmap->contains(word);
 }
 
 Entry *SymbolTable::get(string word) {

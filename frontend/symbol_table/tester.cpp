@@ -22,7 +22,7 @@ int main () {
       		} else if(line.compare("}") == 0) {
       			myfile.seekg(0);
 				while (getline(myfile,line)){
-		  			cout << st.remove(line) << endl;
+		  			cout << st.get(line) << endl;
 				}
       		} else {
       			st.put(line);

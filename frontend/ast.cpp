@@ -60,7 +60,411 @@ enum e_jump str_to_jump(const std::string type){
         return tCONTINUE;
 }
 
-string gen_binary_code(string l_code, enum e_op op, string r_code){
+string type_to_str(e_type type){
+    switch(type){
+        case tBYTE:
+            return "byte";
+        case tBOOL:
+            return "bool";
+        case tINT:
+            return "int";
+        case tFLOAT:
+            return "float";
+        case tSTRING:
+            return "string";
+        default:
+            return "undefined type";
+    }
+}
+
+void write_to_file(string filename, string code){
+
+    ofstream file;
+    file.open(filename);
+    file << "#include \"link_files/ripple_header.h\"\n";
+    file << code;
+    file.close();
+}
+
+
+/* Node */
+e_type Node::get_type() {
+    return this->type;
+}
+
+bool Node::is_bool() {
+    return (type == tBOOL);
+}
+
+bool Node::is_number() {
+    return (type == tINT || type == tFLOAT);
+}
+
+bool Node::is_string() {
+    return (type == tSTRING);
+}
+
+
+/* ValueNode */
+ValueNode::ValueNode(IDNode *i) {
+    val.id_val = i;
+    type = i->type;
+    code = i->code;
+}
+ValueNode::ValueNode(LiteralNode *l) {
+    val.lit_val = l;
+    type = l->type;
+    code = l->code;
+}
+ValueNode::ValueNode(FunctionCallNode *f) {
+    val.function_call_val = f;
+    type = f->type;
+    code = f->code;
+} 
+ValueNode::ValueNode(ArrayAccessNode *a) {
+    val.array_access_val = a;
+    type = a->type;
+    code = a->code;
+}
+ValueNode::ValueNode(DatasetAccessNode *d) {
+    val.dataset_access_val = d;
+    type = d->type;
+    code = d->code;
+}
+ValueNode::ValueNode(ExpressionNode *e) {
+    val.expression_val = e;
+    type = e->type;
+    code = "( " + e->code + " )";
+}
+
+
+/* IDNode */
+IDNode::IDNode(Entry *ent) {
+    entry = ent;
+    type = ent->type;
+    code = ent->name;
+}
+IDNode::~IDNode() { }
+
+
+/* FunctionCallNode */
+FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a) {
+    func_name = f;
+    args_list = a;
+    type = f->type;
+
+    if(IS_STD_RPL_FUNCTION(func_name->code)){
+        code = generate_std_rpl_function(func_name->code, a);
+    } else {
+        code = f->code + "( " + a->code + " )";
+    }   
+}
+
+FunctionCallNode::FunctionCallNode(IDNode *f) {
+    func_name = f;
+    type = f->type;
+    if(IS_STD_RPL_FUNCTION(func_name->code)){
+        code = generate_std_rpl_function(func_name->code, nullptr);
+    } else {
+        code = f->code + "()";
+    }  
+    
+}
+
+string FunctionCallNode::generate_std_rpl_function(string function_name, ArgsNode *a){
+    
+    string code;
+    if (function_name.compare(RPL_STD_OUTPUT_FUNCTION) == 0){
+        code = "std::cout << ";
+        if(a){
+            for(std::vector<ExpressionNode *>::iterator it = a->args_list.begin(); it != a->args_list.end(); ++it) {
+                code += (*it)->code + " << \" \" << ";
+            }
+        }
+        code += "std::endl";
+    } else if (function_name.compare(RPL_STD_INPUT_FUNCTION) == 0){
+
+    } else if (function_name.compare(RPL_STD_OPEN_FUNCTION) == 0){
+
+    } else if (function_name.compare(RPL_STD_CLOSE_FUNCTION) == 0){
+
+    } else if (function_name.compare(RPL_STD_READ_FUNCTION) == 0){
+
+    }
+
+    return code;
+}
+
+/* ArgsNode */
+ArgsNode::ArgsNode() {
+    code = "";
+}
+
+ArgsNode::ArgsNode(ExpressionNode *arg) {
+    args_list.push_back(arg);
+    code = arg->code;
+}
+
+void ArgsNode::add_arg(ExpressionNode *arg) {
+    args_list.push_back(arg);
+
+    if(code.compare("") == 0)
+        code += arg->code;
+    else
+        code += ", " + arg->code;
+}
+
+
+/* DeclArgsNode */
+DeclArgsNode::DeclArgsNode() {
+    code = "";
+}
+
+DeclArgsNode::DeclArgsNode(IDNode* arg) {
+    decl_args_list.push_back(arg);
+    code = arg->code;
+}
+
+void DeclArgsNode::add_arg(IDNode* arg) {
+    decl_args_list.push_back(arg);
+    code += arg->code;
+}
+
+
+/* LiteralNode */
+LiteralNode::LiteralNode(int i) {
+    val.int_lit = i;
+    type = tINT;
+}
+
+LiteralNode::LiteralNode(double d) {
+    val.float_lit = d;
+    type = tFLOAT;
+}
+
+LiteralNode::LiteralNode(string *s) {
+    val.string_lit = s;
+    type = tSTRING;
+}
+
+LiteralNode::LiteralNode(bool b) {
+    val.bool_lit = b;
+    type = tBOOL;
+}
+
+LiteralNode::LiteralNode(char b) {
+    val.byte_lit = b;
+    type = tBYTE;
+}
+
+
+/* ArrayAccessNode */
+ArrayAccessNode::ArrayAccessNode(ValueNode *val, ExpressionNode *exp) {
+    vn = val;
+    en = exp;
+    type = val->type;
+}
+
+
+/* DatasetAccessNode */
+DatasetAccessNode::DatasetAccessNode(ValueNode *val, IDNode *i) {
+    vn = val;
+    idn = i;
+    type = val->type;
+}
+
+
+/* UnaryExpressionNode */
+UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op) {
+
+    right_operand.u_exp = u;
+    op = str_to_op(_op);
+    typecheck(op);
+    switch(op) {
+        case MINUS:
+            code = "-" + u->code;
+            break;
+        case SIZE:
+            code = "sizeof( " + u->code + " )";
+            break;
+        case bNOT:
+            code = "!" + u->code;
+            break;
+        default:
+            break;
+    }
+}
+
+UnaryExpressionNode::UnaryExpressionNode(ValueNode *v){
+    op = NONE;
+    right_operand.v_node = v;
+    type = v->type;
+    code = v->code;
+}
+
+void UnaryExpressionNode::typecheck(e_op op){
+
+    e_type child_type = right_operand.u_exp->type;
+
+    switch(op){
+        case bNOT:
+            if(child_type != tBOOL){
+                cout << INVAL_UNARY_NOT_ERR << endl;
+                error = true;
+            }
+            else
+                type = tBOOL;
+            break;
+        case MINUS:
+            if(child_type != tINT || child_type != tFLOAT){
+                cout << INVAL_UNARY_MINUS_ERR << endl;
+                error = true;
+            }
+            else
+                type = child_type;
+            break;
+        default:
+            type = child_type;
+    }
+}
+
+
+/* BinaryExpressionNode */
+BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op, BinaryExpressionNode *br) {
+    left_operand.b_exp = bl;
+    right_operand.b_exp = br;
+    op = str_to_op(_op);
+    typecheck(bl, br, op);
+    code = gen_binary_code(bl->code, op, br->code); 
+    left_is_binary = right_is_binary = true;
+}
+
+BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur) {
+    left_operand.b_exp = bl;
+    right_operand.u_exp = ur;
+    op = str_to_op(_op);
+    typecheck(bl, ur, op);
+    code = gen_binary_code(bl->code, op, ur->code); 
+    left_is_binary = true;
+    right_is_binary = false;
+}
+
+
+BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
+    left_operand.u_exp = ul;
+    type = ul->type;
+    code = ul->code;
+    op = NONE;
+}
+
+void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
+
+    if((left->is_string() || right->is_string()) && op == PLUS) {
+        type = tSTRING;
+        return;
+    }
+
+    if (op == PLUS || op == MINUS || op == TIMES || op == DIV || op == EXP) {
+
+        if (left->is_number() && right->is_number())
+            if (left->type == tFLOAT || right->type == tFLOAT)
+                type = tFLOAT;
+            else
+                type = tINT;
+        else
+            switch(op){
+                case PLUS:
+                    cout << INVAL_BINARY_PLUS_ERR << endl;
+                    error = true;
+                    break;
+                case MINUS:
+                    cout << INVAL_BINARY_MINUS_ERR << endl;
+                    error = true;
+                    break;
+                case TIMES:
+                    cout << INVAL_BINARY_TIMES_ERR << endl;
+                    error = true;
+                    break;
+                case DIV:
+                    cout << INVAL_BINARY_DIV_ERR << endl;
+                    error = true;
+                    break;
+                case EXP:
+                    cout << INVAL_BINARY_EXP_ERR << endl;
+                    error = true;
+                    break;
+                default:
+                    cout << ERROR << endl;
+                    error = true;
+            }
+        
+    } else if (op == FLDIV) {
+
+        if (left->is_number() && right->is_number())
+            type = tFLOAT;
+        else{
+            cout << INVAL_BINARY_FLDIV_ERR << endl;
+            error = true;
+        }
+
+    } else if (op == EQ || op == NE || op == GT ||
+               op == LT || op == GE || op == LE) {
+
+        if (left->is_number() && right->is_number())
+            type = tBOOL;
+        else
+            switch(op){
+                case EQ:
+                    cout << INVAL_BINARY_EQ_ERR << endl;
+                    error = true;
+                    break;
+                case NE:
+                    cout << INVAL_BINARY_NE_ERR << endl;
+                    error = true;
+                    break;
+                case GT:
+                    cout << INVAL_BINARY_GT_ERR << endl;
+                    error = true;
+                    break;
+                case LT:
+                    cout << INVAL_BINARY_LT_ERR << endl;
+                    error = true;
+                    break;
+                case GE:
+                    cout << INVAL_BINARY_GE_ERR << endl;
+                    error = true;
+                    break;
+                case LE:
+                    cout << INVAL_BINARY_LE_ERR << endl;
+                    error = true;
+                    break;
+                default:
+                    cout << ERROR << endl;
+                    error = true;
+            }
+
+    } else if (op == bAND || bOR) {
+        if (left->is_bool() && right->is_bool())
+            type = tBOOL;
+        else
+            switch(op){
+                case bAND:
+                    cout << INVAL_BINARY_AND_ERR << endl;
+                    error = true;
+                    break;
+                case bOR:
+                    cout << INVAL_BINARY_OR_ERR << endl;
+                    error = true;
+                    break;
+                default:
+                    cout << ERROR << endl;
+                    error = true;
+            }
+    }
+
+}
+
+string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string r_code){
     string code;
     switch(op) {
         case PLUS:
@@ -112,192 +516,38 @@ string gen_binary_code(string l_code, enum e_op op, string r_code){
     return code;
 }
 
-/* Node */
-e_type Node::get_type() {
-    return type;
-}
-
-/* ValueNode */
-ValueNode::ValueNode(IDNode *i) {
-    val.id_val = i;
-    type = i->type;
-    code = i->code;
-}
-ValueNode::ValueNode(LiteralNode *l) {
-    val.lit_val = l;
-    type = l->type;
-    code = l->code;
-}
-ValueNode::ValueNode(FunctionCallNode *f) {
-    val.function_call_val = f;
-    type = f->type;
-    code = f->code;
-} 
-ValueNode::ValueNode(ArrayAccessNode *a) {
-    val.array_access_val = a;
-    type = a->type;
-    code = a->code;
-}
-ValueNode::ValueNode(DatasetAccessNode *d) {
-    val.dataset_access_val = d;
-    type = d->type;
-    code = d->code;
-}
-ValueNode::ValueNode(ExpressionNode *e) {
-    val.expression_val = e;
-    type = e->type;
-    code = "( " + e->code + " )";
-}
-
-/* IDNode */
-IDNode::IDNode(Entry *ent) {
-    entry = ent;
-    type = ent->type;
-    code = ent->name;
-}
-IDNode::~IDNode() { }
-
-/* FunctionCallNode */
-FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a) {
-    func_name = f;
-    args_list = a;
-    type = f->type;
-    code = f->code + "( " + a->code + " )";
-}
-FunctionCallNode::FunctionCallNode(IDNode *f) {
-    func_name = f;
-    type = f-> type;
-    code = f->code + "()";
-}
-
-/* ArgsNode */
-ArgsNode::ArgsNode() {
-    code = "";
-}
-ArgsNode::ArgsNode(ExpressionNode *arg) {
-    args_list.push_back(arg);
-    code = arg->code;
-}
-void ArgsNode::add_arg(ExpressionNode *arg) {
-    args_list.push_back(arg);
-
-    if(code.compare("") == 0)
-        code += arg->code;
-    else
-        code += ", " + arg->code;
-}
-
-/* DeclArgsNode */
-DeclArgsNode::DeclArgsNode() {
-    code = "";
-}
-DeclArgsNode::DeclArgsNode(IDNode* arg) {
-    decl_args_list.push_back(arg); code = arg->code;
-}
-void DeclArgsNode::add_arg(IDNode* arg) {
-    decl_args_list.push_back(arg);
-    code += arg->code;
-}
-
-/* LiteralNode */
-LiteralNode::LiteralNode(int i) {
-    val.int_lit = i;
-    type = tINT;
-}
-LiteralNode::LiteralNode(double d) {
-    val.float_lit = d;
-    type = tFLOAT;
-}
-LiteralNode::LiteralNode(string s) {
-    val.string_lit = s;
-    type = tSTRING;
-}
-LiteralNode::LiteralNode(bool b) {
-    val.bool_lit = b;
-    type = tBOOL;
-}
-LiteralNode::LiteralNode(char b) {
-    val.byte_lit = b;
-    type = tBYTE;
-}
-
-/* ArrayAccessNode */
-ArrayAccessNode::ArrayAccessNode(ValueNode *val, ExpressionNode *exp) {
-    vn = val;
-    en = exp;
-    type = val->type;
-}
-
-/* DatasetAccessNode */
-DatasetAccessNode::DatasetAccessNode(ValueNode *v, IDNode *i) {
-    vn = v;
-    idn = i;
-    type = v->type;
-}
-
-/* UnaryExpressionNode */
-UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op)
-{
-    op = str_to_op(_op);
-    switch(op) {
-        case MINUS:
-            code = "-" + u->code;
-            break;
-        case SIZE:
-            code = "sizeof( " + u->code + " )";
-            break;
-        case bNOT:
-            code = "!" + u->code;
-            break;
-        default:
-            break;
-    }
-    right_operand.u_exp = u;
-}
-UnaryExpressionNode::UnaryExpressionNode(ValueNode *v)
-{
-    op = NONE;
-    right_operand.v_node = v;
-    code = v->code;
-}
-
-/* BinaryExpressionNode */
-BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br) {
-    left_operand.b_exp = bl;
-    right_operand.b_exp = br;
-    op = str_to_op(_op);
-    code = gen_binary_code(bl->code, op, br->code); 
-    left_is_binary = right_is_binary = true;
-}
-BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur) {
-    left_operand.b_exp = bl;
-    right_operand.u_exp = ur;
-    op = str_to_op(_op);
-    code = gen_binary_code(bl->code, op, ur->code); 
-    left_is_binary = true;
-    right_is_binary = false;
-}
-
-
-BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
-    left_operand.u_exp = ul;
-    code = ul->code;
-    op = NONE;
-}
 
 /* ExpressionNode */
 ExpressionNode::ExpressionNode() { }
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     bin_exp = b;
+    type = b->type;
     code = b->code;
     value = NULL;
 }
+
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
     bin_exp = b;
-    code = v->code + "=" + b->code;
+    typecheck(b, v);
+    code = v->code + " = " + b->code;
     value = v;
 }
-ExpressionNode::~ExpressionNode() {
+
+ExpressionNode::~ExpressionNode() {}
+
+void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *value){
+
+    if (expression->type == value->type){
+        type = value->type;
+    }
+    else if (value->type == tFLOAT){
+        if(expression->type == tINT)
+            type = tFLOAT;
+    }
+    else{
+        INVAL_ASSIGN_ERR(type_to_str(value->type), type_to_str(expression->type), line_no);
+        error = true;
+    }
 }
 
 /* DeclarativeStatementNode */
@@ -306,14 +556,17 @@ DeclarativeStatementNode::DeclarativeStatementNode(string _type, ExpressionNode 
     en = expression_node;
 
     transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
-
+    // TODO TYPE CHECK
     //TODO TYPE CONVERSIONS
     code = _type + " " + expression_node->code + ";\n"; 
 }
+
 DeclarativeStatementNode::DeclarativeStatementNode(ExpressionNode *expression_node){
+    type = expression_node->type;
     en = expression_node;
     code = expression_node->code + ";\n";
 }
+
 
 /* ConditionalStatementNode */
 ConditionalStatementNode::ConditionalStatementNode(ExpressionNode *e, StatementListNode *s, StatementListNode *a) {
@@ -321,21 +574,26 @@ ConditionalStatementNode::ConditionalStatementNode(ExpressionNode *e, StatementL
     consequent = s;
     alternative = a;
 
+    // TYPE CHECK
     code = "if (" + e->code + ")" + s->code;
 
     if(a != nullptr)
         code += "else " + a->code;
-
 }
+
 
 /* JumpStatementNode */
 JumpStatementNode::JumpStatementNode(string _type, ExpressionNode *expression_node){
     type = str_to_jump(_type);
     en = expression_node;
+    code = _type + " " + expression_node->code + ";\n";
 }
+
 JumpStatementNode::JumpStatementNode(string _type){
     type = str_to_jump(_type);
+    code = _type + ";\n";
 }
+
 
 /* LoopStatementNode */
 LoopStatementNode::LoopStatementNode(ExpressionNode *init, ExpressionNode *cond, ExpressionNode *n, StatementListNode *stmts){
@@ -343,6 +601,28 @@ LoopStatementNode::LoopStatementNode(ExpressionNode *init, ExpressionNode *cond,
     condition = cond;
     next = n;
     statements = stmts;
+    if(cond->type != tBOOL){
+        cout << LOOP_CONDITION_ERR << endl;
+        error = true;
+    }
+    
+    string init_code, cond_code, n_code;
+    if(init != nullptr)
+        init_code = init->code;
+    else
+        init_code = "";
+
+    if(cond != nullptr)
+        cond_code = init->code;
+    else
+        cond_code = "";
+
+    if(n != nullptr)
+        n_code = init->code;
+    else
+        n_code = "";
+
+    code = "for (" + init_code + ", " + cond_code + ", " + n_code + ")" + stmts->code;
 }
 
 /* StatementNode */

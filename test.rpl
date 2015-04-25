@@ -1,10 +1,17 @@
 int main(){
-	int x = 4;
-	int y = 5;
-	if(y>x){
-		int x = 4;
-	}
-	
+    int x = 4;
+    float y = 5;
+    string z = "hello";
+    bool w = true;
 
-	return 0;
+    x + w;
+    x + y;
+    x + z;
+    x - z;
+    
+    float a = 1;
+    int b = 1.2;
+    string q = 1;
+    bool c = 1.5;
+
 }
