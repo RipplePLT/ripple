@@ -3,10 +3,11 @@
 
 #include <queue>
 
-//#include "linked_var"
+#include "variable_tree.hpp"
 
+using namespace std;
 
-struct update{
+struct update {
     void *address;
     struct link_val new_value;
 };
@@ -19,17 +20,19 @@ struct update{
  * Author: Alexander Roth
  * Date:   2015-04-09
  **/
-using namespace std;
 
 class sync_queue {
     private:
-        queue<struct update> sync_queue {nullptr};
+        queue<struct update> *update_queue;
         int size;
     public:
+        sync_queue();
         sync_queue(int size);
         ~sync_queue();
         void push(struct update info);
         struct update pop();
-}
+        bool empty();
+        int get_size();
+};
 
 #endif
