@@ -1,6 +1,9 @@
-CC=g++-4.9
-CXX=clang++
-CCFLAGS=-pthread -std=c++11
+CC = g++-4.9
+CXX = clang++
+CCFLAGS = -pthread -std=c++11
+
+.PHONY: tests
+tests: vartest sync_test
 
 main: main.o 
 	$(CXX) main.o -o main $(CCFLAGS)
@@ -21,5 +24,18 @@ linked_var.o: linked_var.cpp linked_var.hpp
 variable_tree.o: variable_tree.cpp variable_tree.hpp
 	$(CXX) -c variable_tree.cpp $(CCFLAGS)
 
+sync_test: sync_test.o sync_queue.o
+	$(CXX) sync_test.o sync_queue.o -o sync_test $(CCFLAGS)
+
+sync_test.o: sync_test.cpp sync_test.hpp
+	$(CXX) -c sync_test.cpp $(CCFLAGS)
+
+sync_queue.o: sync_queue.cpp sync_queue.hpp
+	$(CXX) -c sync_queue.cpp $(CCFLAGS)
+
+.PHONY: clean
 clean:
-	rm -rf main *.o test vartest
+	rm -rf main *.o test vartest sync_test
+
+.PHONY: all
+all: clean sync_test vartest main test
