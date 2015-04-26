@@ -3,7 +3,14 @@
 
 #include <queue>
 
-#include "linked_var"
+//#include "linked_var"
+
+
+struct update{
+    void *address;
+    struct link_val new_value;
+};
+
 
 /**
  * sync_queue.hpp - The synchronized queue that will be used for the producer
@@ -16,13 +23,13 @@ using namespace std;
 
 class sync_queue {
     private:
-        queue<linked_var> sync_queue {nullptr};
+        queue<struct update> sync_queue {nullptr};
         int size;
     public:
         sync_queue(int size);
         ~sync_queue();
-        void push(linked_var item);
-        linked_var pop();
+        void push(struct update info);
+        struct update pop();
 }
 
 #endif

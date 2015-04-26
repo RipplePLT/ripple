@@ -17,10 +17,11 @@ sync_queue::~sync_queue() {
     this->size = nullptr;
 }
 
-void sync_queue::push(variant item) {
-
+void sync_queue::push(struct update info) {
+    sync_queue.push(info);
 }
 
-linked_var sync_queue::pop() {
+struct update sync_queue::pop() {
+    return  sync_queue.pop();
 
 }
