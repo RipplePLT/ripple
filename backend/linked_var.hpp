@@ -1,7 +1,8 @@
 #ifndef __LINKED_VAR_HPP__
 #define __LINKED_VAR_HPP__
 
-#include <list>
+#include <vector>
+#include <unordered_map>
 #include "variable_tree.hpp"
 
 /*
@@ -12,13 +13,15 @@
 
 class Linked_Var {
 private:
-	int value;
+	struct link_val value;
+	void *address;
 	ExpressionNode expression; // Linked expression
-	list<Linked_Var*> references; // Linked_Vars to update -- (?)
 public:
+	static unordered_map<void *, vector<Linked_Var*>> references;
 	Linked_Var(int *var, ExpressionNode exp);
-	int get_value();
-	int update();
+	struct link_val get_value();
+	void update(struct link_val new_value);
+	void update();
 };
 
 #endif

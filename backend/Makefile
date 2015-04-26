@@ -10,6 +10,7 @@ main.o: main.cpp
 
 vartest: vartest.o variable_tree.o
 	$(CXX) vartest.o linked_var.o variable_tree.o -o vartest $(CCFLAGS)
+	./vartest
 
 vartest.o: vartest.cpp linked_var.o
 	$(CXX) -c vartest.cpp $(CCFLAGS)

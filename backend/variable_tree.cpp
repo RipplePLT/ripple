@@ -1,3 +1,4 @@
+#include <iostream>
 #include "variable_tree.hpp"
 #include <string>
 
@@ -50,7 +51,9 @@ UnaryExpressionNode::UnaryExpressionNode(ValueNode *v)
     right_operand.v_node = v;
 }
 struct link_val UnaryExpressionNode::evaluate() {
-	return this->right_operand.v_node->evaluate();
+	struct link_val result =  (op == NONE) ? this->right_operand.v_node->evaluate() :
+		this->right_operand.v_node->evaluate();
+	return result;
 }
 
 /* BinaryExpressionNode */
@@ -75,7 +78,14 @@ struct link_val BinaryExpressionNode::evaluate() {
 	struct link_val result;
 	switch(op) {
 	case (PLUS):
-		// add
+		result.type = ltINT;
+		result.value.intval =
+			// this->left_operand.b_exp->evaluate().value.intval +
+			*(int *)this->left_operand.b_exp->evaluate().value.ptr +
+			(right_is_binary ?
+				this->right_operand.b_exp->evaluate().value.intval :
+				this->right_operand.u_exp->evaluate().value.intval );
+		return result;
 		break;
 	case (TIMES):
 		// multiply

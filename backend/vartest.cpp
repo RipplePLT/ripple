@@ -1,10 +1,11 @@
-#include <stdio.h>
+#include <iostream>
 #include "linked_var.hpp"
 #include "variable_tree.hpp"
 
 int main()
 {
     int x, y;
+	struct link_val temp_link_val;
 
 	// @TODO everything on the heap
 
@@ -29,10 +30,21 @@ int main()
     ExpressionNode e_y (&b_y);
 	Linked_Var var_y (&y, e_y);
 
-	// @TODO add refs to global queue
+	// @TODO dynamically detect & assign refs
+	vector<Linked_Var*> x_refs;
+	x_refs.push_back(&var_y);
+	Linked_Var::references[&x] = x_refs;
 
-	// fprintf(stderr, "x = %d\n", var_x.get_value());
-	// fprintf(stderr, "y = %d\n", var_y.get_value());
+	cout << "x == " << var_x.get_value().value.intval << endl;
+	cout << "y == " << var_y.get_value().value.intval << endl;
+	
+	x = 6;
+	// problem -- x is linked to 5. evaluating x sets x back to 5.
+	// var_x.update();
+	var_y.update();
+
+	cout << "x == " << var_x.get_value().value.intval << endl;
+	cout << "y == " << var_y.get_value().value.intval << endl;
 
     return 0;
 }
