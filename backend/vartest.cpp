@@ -1,23 +1,41 @@
 #include <iostream>
 #include "linked_var.hpp"
-#include "variable_tree.hpp"
+#include "expression_tree.hpp"
 
+/*
+ * This test is an example of the intermediate code that link
+ * statements will compile to.
+ */
 int main()
 {
     int x, y;
-    struct link_val temp_link_val;
+	int root;
 
-    // @TODO everything on the heap
+	/*
+     * @TODO Everything must be allocated on the heap, since both
+	 * threads need access to it.
+	 */
 
-    // link (x <- 5)
-    LiteralNode l (5);
+	// Assignment to a Ripple or C++ int is the same.
+	root = 5;
+
+	cout << "about to make X" << endl;
+	/* === Link Statement ===
+     * 		link (x <- root);
+	 */
+	VariableNode l (&root);
     ValueNode v (&l);
     UnaryExpressionNode u (&v);
     BinaryExpressionNode b_x (&u);
     ExpressionNode e_x (&b_x);
+	cout << "about to construct linked_var" << endl;
     linked_var var_x (&x, e_x);
+	cout << "constructed linked_var" << endl;
+	/* === End of code for link (x <- root) === */
 
-    /* link (y <- x + 2) */
+    /* === Link Statement ===
+	 * 		link (y <- x + 2)
+	 */
     VariableNode l1 (&x);
     ValueNode v1 (&l1);
     LiteralNode l2 (2);
@@ -30,20 +48,25 @@ int main()
     ExpressionNode e_y (&b_y);
     linked_var var_y (&y, e_y);
 
-    // @TODO dynamically detect & assign refs
+	// Assign references
+	// @TODO these must be detected and assigned dynamically
     vector<linked_var *> x_refs;
     x_refs.push_back(&var_y);
     linked_var::references[&x] = x_refs;
+	/* === End of code for "link (y <- x + 2)" === */
 
-    cout << "x == " << var_x.get_value().value.intval << endl;
+    cout << "x == " << *(int *)var_x.get_value().value.ptr << endl;
     cout << "y == " << var_y.get_value().value.intval << endl;
 
-    x = 6;
-    // problem -- x is linked to 5. evaluating x sets x back to 5.
-    // var_x.update();
-    var_y.update();
+	/*
+	 * === Assignment ===
+	 * 		root = 6;
+	 */
+    root = 6;
+    var_x.update();
+	/* === End of code for "root = 6" === */
 
-    cout << "x == " << var_x.get_value().value.intval << endl;
+    cout << "x == " << *(int *)var_x.get_value().value.ptr << endl;
     cout << "y == " << var_y.get_value().value.intval << endl;
 
     return 0;

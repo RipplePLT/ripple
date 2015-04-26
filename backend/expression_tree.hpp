@@ -6,6 +6,15 @@
 #include <iostream>
 #include "../structures/enum.h"
 
+/*
+ * The nodes defined in this file are used at runtime to construct
+ * an ExpressionNode, which represents the expression to which a
+ * linked variable is linked.
+ *
+ * All node classes implement the evaluate() method, which returns a
+ * link_val struct representing the value of a given node.
+ */
+
 using namespace std;
 
 class ExpressionNode;
@@ -20,6 +29,10 @@ union operand {
     ValueNode *v_node;
 };
 
+/*
+ * The struct link_val represents a linked variable's value and its
+ * type, so that we can deal with dynamic types.
+ */
 enum link_val_type {
 	ltINT,
 	ltINT_PTR,
@@ -34,23 +47,34 @@ struct link_val {
 	} value;
 };
 
+
+// @TODO Implement non-integer literals
 class LiteralNode {
 public:
 	struct link_val val;
 	LiteralNode (int i);
 	struct link_val evaluate();
-	// @TODO other literal types
 };
 
+/*
+ * Used to represent regular variables (e.g. "int x") in a link
+ * expression.
+ * Ex: If x is a Ripple integer, then "link (y <- x)" should create a
+ * VariableNode for x.
+ *
+ * @TODO Implement non-integer types
+ */
 class VariableNode {
 public:
 	struct link_val val;
 	int *var;
 	VariableNode (int *var);
-	// @TODO other var types
 	struct link_val evaluate();
 };
 
+/*
+ * Contains a LiteralNode or a VariableNode.
+ */
 class ValueNode {
 public:
 	bool is_literal;
@@ -85,6 +109,10 @@ public:
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
     BinaryExpressionNode(UnaryExpressionNode *ul);
 	struct link_val evaluate();
+	static int get_int_val(struct link_val l);
+	static struct link_val add(struct link_val a, struct link_val b);
+	static struct link_val multiply(struct link_val a,
+		struct link_val b);
 };
 
 

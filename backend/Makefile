@@ -11,8 +11,8 @@ main: main.o
 main.o: main.cpp
 	$(CXX) -c main.cpp $(CCFLAGS)
 
-vartest: vartest.o variable_tree.o
-	$(CXX) vartest.o linked_var.o variable_tree.o -o vartest $(CCFLAGS)
+vartest: vartest.o expression_tree.o
+	$(CXX) vartest.o linked_var.o expression_tree.o -o vartest $(CCFLAGS)
 	./vartest
 
 vartest.o: vartest.cpp linked_var.o
@@ -21,8 +21,8 @@ vartest.o: vartest.cpp linked_var.o
 linked_var.o: linked_var.cpp linked_var.hpp
 	$(CXX) -c linked_var.cpp $(CCFLAGS)
 
-variable_tree.o: variable_tree.cpp variable_tree.hpp
-	$(CXX) -c variable_tree.cpp $(CCFLAGS)
+expression_tree.o: expression_tree.cpp expression_tree.hpp
+	$(CXX) -c expression_tree.cpp $(CCFLAGS)
 
 sync_test: sync_test.o sync_queue.o
 	$(CXX) sync_test.o sync_queue.o -o sync_test $(CCFLAGS)

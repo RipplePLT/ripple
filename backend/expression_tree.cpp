@@ -1,5 +1,5 @@
 #include <iostream>
-#include "variable_tree.hpp"
+#include "expression_tree.hpp"
 #include <string>
 
 enum e_op str_to_op(const std::string op_string) {
@@ -51,8 +51,10 @@ UnaryExpressionNode::UnaryExpressionNode(ValueNode *v)
     right_operand.v_node = v;
 }
 struct link_val UnaryExpressionNode::evaluate() {
+	cout << "Evaluate unary" << endl;
+	cout << "op = " << op << endl;
 	struct link_val result =  (op == NONE) ? this->right_operand.v_node->evaluate() :
-		this->right_operand.v_node->evaluate();
+		this->right_operand.u_exp->evaluate();
 	return result;
 }
 
@@ -74,21 +76,51 @@ BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
     left_operand.u_exp = ul;
     op = NONE;
 }
-struct link_val BinaryExpressionNode::evaluate() {
+int BinaryExpressionNode::get_int_val(struct link_val l) {
+	return (l.type == ltINT) ? l.value.intval :
+		(l.type == ltINT_PTR) ? *(int *)l.value.ptr :
+		-1000000; // should never happen
+}
+struct link_val BinaryExpressionNode::add(struct link_val a,
+		struct link_val b) {
+	int a_int, b_int;
 	struct link_val result;
+
+	a_int = get_int_val(a);
+	b_int = get_int_val(b);
+
+	result.type = ltINT;
+	result.value.intval = a_int + b_int;
+	return result;
+
+}
+struct link_val BinaryExpressionNode::multiply (struct link_val a,
+		struct link_val b) {
+	int a_int, b_int;
+	struct link_val result;
+
+	a_int = get_int_val(a);
+	b_int = get_int_val(b);
+
+	result.type = ltINT;
+	result.value.intval = a_int * b_int;
+	return result;
+}
+struct link_val BinaryExpressionNode::evaluate() {
+	struct link_val result, left_value, right_value;
+	cout << "get left val -- binary ?" << left_is_binary  << endl;
+	left_value = left_is_binary ? this->left_operand.b_exp->evaluate() :
+		this->left_operand.u_exp->evaluate();
+	cout << "get right val - binary ? " << right_is_binary << endl;
+	right_value = right_is_binary ? this->right_operand.b_exp->evaluate() :
+		this->right_operand.u_exp->evaluate();
+	cout << "got both" << endl;
 	switch(op) {
 	case (PLUS):
-		result.type = ltINT;
-		result.value.intval =
-			// this->left_operand.b_exp->evaluate().value.intval +
-			*(int *)this->left_operand.b_exp->evaluate().value.ptr +
-			(right_is_binary ?
-				this->right_operand.b_exp->evaluate().value.intval :
-				this->right_operand.u_exp->evaluate().value.intval );
-		return result;
+		return add(left_value, right_value);
 		break;
 	case (TIMES):
-		// multiply
+		return multiply(left_value, right_value);
 		break;
 	case (NONE):
 		return this->left_operand.u_exp->evaluate();
