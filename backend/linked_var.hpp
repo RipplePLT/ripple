@@ -2,8 +2,7 @@
 #define __LINKED_VAR_HPP__
 
 #include <list>
-// #include "variable_tree.hpp"
-#include "../frontend/ast.h"
+#include "variable_tree.hpp"
 
 /*
  * The Linked_Var class represents a single linked variable.
@@ -15,12 +14,11 @@ class Linked_Var {
 private:
 	int value;
 	ExpressionNode expression; // Linked expression
-	list<Linked_Var*> references; // Linked_Vars to update
+	list<Linked_Var*> references; // Linked_Vars to update -- (?)
 public:
 	Linked_Var(int *var, ExpressionNode exp);
 	int get_value();
-	int update_value();
-	void add_reference(Linked_Var *var);
+	int update();
 };
 
 #endif

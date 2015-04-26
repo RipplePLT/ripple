@@ -102,12 +102,33 @@ struct link_val ExpressionNode::evaluate() {
 }
 
 /* ValueNode */
-ValueNode::ValueNode(int *i) {
-	this->val = { ltINT_PTR, (void *)i };
+ValueNode::ValueNode(LiteralNode *l) {
+	this->is_literal = true;
+	this->lit_node = l;
 }
-ValueNode::ValueNode(int i) {
-	this->val = { ltINT, i };
+ValueNode::ValueNode(VariableNode *v) {
+	this->is_literal = false;
+	this->var_node = v;
 }
 struct link_val ValueNode::evaluate() {
-	return {tINT, 5};
+	return is_literal ? lit_node->evaluate() : var_node->evaluate();
+}
+
+/* LiteralNode */
+LiteralNode::LiteralNode(int i) {
+	this->val.type = ltINT;
+	this->val.value.intval = i;
+}
+struct link_val LiteralNode::evaluate() {
+	return this->val;
+}
+
+/* VariableNode */
+VariableNode::VariableNode(int *var) {
+	this->var = var;
+	this->val.type = ltINT_PTR;
+	this->val.value.ptr = (void *)var;
+}
+struct link_val VariableNode::evaluate() {
+	return this->val;
 }

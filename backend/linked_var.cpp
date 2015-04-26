@@ -1,4 +1,4 @@
-// #include "variable_tree.hpp"
+#include "variable_tree.hpp"
 #include "linked_var.hpp"
 
 Linked_Var::Linked_Var(int *var, ExpressionNode exp) {

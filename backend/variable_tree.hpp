@@ -29,18 +29,36 @@ enum link_val_type {
 struct link_val {
 	enum link_val_type type;
 	union {
-		int i;
+		int intval;
 		void *ptr;
 	} value;
 };
 
-class ValueNode {
+class LiteralNode {
 public:
 	struct link_val val;
-	bool is_literal;
+	LiteralNode (int i);
+	struct link_val evaluate();
+	// @TODO other literal types
+};
 
-	ValueNode (int *i);
-	ValueNode (int i);
+class VariableNode {
+public:
+	struct link_val val;
+	int *var;
+	VariableNode (int *var);
+	// @TODO other var types
+	struct link_val evaluate();
+};
+
+class ValueNode {
+public:
+	bool is_literal;
+	LiteralNode *lit_node;
+	VariableNode *var_node;
+
+	ValueNode (LiteralNode *l);
+	ValueNode (VariableNode *v);
 	struct link_val evaluate();
 };
 
