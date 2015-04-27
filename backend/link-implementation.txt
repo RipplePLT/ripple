@@ -9,6 +9,6 @@
  	* Referenced address as key
 	* List of Linked_Var*s as value (i.e. references)
 
- - Upon receiving a condition signal, the worker thread recursively
-	calls the update() functions of all Linked_Vars which
-	reference the updated variable.
+ - Upon receiving a condition signal, the worker thread calls the
+ 	update() function on all Linked_Vars which reference the updated
+	variable.
