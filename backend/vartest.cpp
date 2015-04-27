@@ -1,6 +1,7 @@
 #include <iostream>
 #include "linked_var.hpp"
 #include "expression_tree.hpp"
+#include "sync_queue.hpp"
 
 /*
  * This test is an example of the intermediate code that link
@@ -30,6 +31,12 @@ int main()
     BinaryExpressionNode b_x (&u);
     ExpressionNode e_x (&b_x);
     linked_var var_x (&x, e_x);
+
+	// Assign references
+	// @TODO these must be detected and assigned dynamically
+    vector<linked_var *> root_refs;
+    root_refs.push_back(&var_x);
+    linked_var::references[&root] = root_refs;
 	/* === End of code for link (x <- root) === */
 
     /* === Link Statement ===
@@ -49,14 +56,13 @@ int main()
     linked_var var_y (&y, e_y);
 
 	// Assign references
-	// @TODO these must be detected and assigned dynamically
     vector<linked_var *> x_refs;
     x_refs.push_back(&var_y);
     linked_var::references[&x] = x_refs;
 	/* === End of code for "link (y <- x + 2)" === */
 
-    cout << "x == " << *(int *)var_x.get_value().value.ptr << endl;
-    cout << "y == " << var_y.get_value().value.intval << endl;
+    cout << "\tx == " << *(int *)var_x.get_value().value.ptr << endl;
+    cout << "\ty == " << var_y.get_value().value.intval << endl;
 
 	/*
 	 * === Assignment ===
@@ -68,8 +74,8 @@ int main()
     var_x.update();
 	/* === End of code for "root = 6" === */
 
-    cout << "x == " << *(int *)var_x.get_value().value.ptr << endl;
-    cout << "y == " << var_y.get_value().value.intval << endl;
+    cout << "\tx == " << *(int *)var_x.get_value().value.ptr << endl;
+    cout << "\ty == " << var_y.get_value().value.intval << endl;
 
     return 0;
 }
