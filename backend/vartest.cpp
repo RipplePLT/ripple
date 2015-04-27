@@ -44,8 +44,7 @@ int main()
     UnaryExpressionNode u2 (&v2);
     BinaryExpressionNode b1 (&u1);
     BinaryExpressionNode b2 (&u2);
-    // BinaryExpressionNode b_y (&b1, "+", &b2);
-    BinaryExpressionNode b_y (&b1, "*", &b2);
+    BinaryExpressionNode b_y (&b1, "+", &b2);
     ExpressionNode e_y (&b_y);
     linked_var var_y (&y, e_y);
 
@@ -65,6 +64,7 @@ int main()
 	 */
 	cout << "root = 6;" << endl;
     root = 6;
+	// @TODO use the sync_queue for updates
     var_x.update();
 	/* === End of code for "root = 6" === */
 
