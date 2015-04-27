@@ -17,25 +17,25 @@ int main()
 	 */
 
 	// Assignment to a Ripple or C++ int is the same.
+	cout << "root = 5;" << endl;
 	root = 5;
 
-	cout << "about to make X" << endl;
 	/* === Link Statement ===
      * 		link (x <- root);
 	 */
+	cout << "link (x <- root);" << endl;
 	VariableNode l (&root);
     ValueNode v (&l);
     UnaryExpressionNode u (&v);
     BinaryExpressionNode b_x (&u);
     ExpressionNode e_x (&b_x);
-	cout << "about to construct linked_var" << endl;
     linked_var var_x (&x, e_x);
-	cout << "constructed linked_var" << endl;
 	/* === End of code for link (x <- root) === */
 
     /* === Link Statement ===
 	 * 		link (y <- x + 2)
 	 */
+	cout << "link (y <- x + 2);" << endl;
     VariableNode l1 (&x);
     ValueNode v1 (&l1);
     LiteralNode l2 (2);
@@ -44,7 +44,8 @@ int main()
     UnaryExpressionNode u2 (&v2);
     BinaryExpressionNode b1 (&u1);
     BinaryExpressionNode b2 (&u2);
-    BinaryExpressionNode b_y (&b1, "+", &b2);
+    // BinaryExpressionNode b_y (&b1, "+", &b2);
+    BinaryExpressionNode b_y (&b1, "*", &b2);
     ExpressionNode e_y (&b_y);
     linked_var var_y (&y, e_y);
 
@@ -62,6 +63,7 @@ int main()
 	 * === Assignment ===
 	 * 		root = 6;
 	 */
+	cout << "root = 6;" << endl;
     root = 6;
     var_x.update();
 	/* === End of code for "root = 6" === */

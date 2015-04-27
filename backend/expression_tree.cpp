@@ -51,9 +51,7 @@ UnaryExpressionNode::UnaryExpressionNode(ValueNode *v)
     right_operand.v_node = v;
 }
 struct link_val UnaryExpressionNode::evaluate() {
-	cout << "Evaluate unary" << endl;
-	cout << "op = " << op << endl;
-	struct link_val result =  (op == NONE) ? this->right_operand.v_node->evaluate() :
+	struct link_val result = (op == NONE) ? this->right_operand.v_node->evaluate() :
 		this->right_operand.u_exp->evaluate();
 	return result;
 }
@@ -108,22 +106,21 @@ struct link_val BinaryExpressionNode::multiply (struct link_val a,
 }
 struct link_val BinaryExpressionNode::evaluate() {
 	struct link_val result, left_value, right_value;
-	cout << "get left val -- binary ?" << left_is_binary  << endl;
+
+	if (this->op == NONE)
+		return this->left_operand.u_exp->evaluate();
+
 	left_value = left_is_binary ? this->left_operand.b_exp->evaluate() :
 		this->left_operand.u_exp->evaluate();
-	cout << "get right val - binary ? " << right_is_binary << endl;
 	right_value = right_is_binary ? this->right_operand.b_exp->evaluate() :
 		this->right_operand.u_exp->evaluate();
-	cout << "got both" << endl;
+
 	switch(op) {
 	case (PLUS):
 		return add(left_value, right_value);
 		break;
 	case (TIMES):
 		return multiply(left_value, right_value);
-		break;
-	case (NONE):
-		return this->left_operand.u_exp->evaluate();
 		break;
 	default:
 		result.type = ltNONE;
