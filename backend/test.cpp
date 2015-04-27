@@ -1,24 +1,30 @@
-#include <stdio.h>
-#include "value_node.hpp"
+#include <iostream>
+#include <thread>
 
-void null(int val) {}
+#include "sync_queue.hpp"
 
-int plus7(int val) {
-    return val + 7;
+using namespace std;
+
+void worker_thread(bool test) {
+    cout << "In worker thread" << endl;
+    cout << "Test value: " << test << endl;
 }
 
-int update_value(int n)
-{
-    fprintf(stderr, "root updated! arg = {%d}\n", n);
-    return 0;
+void consume(bool working, sync_queue& queue) {
+    while (working) {
+        while (!queue.empty()) {
+            // TODO: Tom put your code here for updating the thread.
+            // struct update info = queue.pop()
+            cout << "Updating" << endl;
+        }
+    }
 }
 
-int main()
-{
-    // Construct node
-    //value_node<int, void (&)(int), int (&)(int)> void_root(3, null, update_value);
-    //void_root.run();
 
-    value_node<int, int (&)(int), int(&)(int)> int_root(3, plus7, update_value);
-    int_root.run();
+int main() {
+    bool test = false;
+    sync_queue t1;
+
+    std::thread worker(consume, test, t1);
+    worker.join();
 }
