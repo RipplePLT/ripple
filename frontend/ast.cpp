@@ -654,7 +654,6 @@ FunctionNode::FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_arg
     id = id_node;
     decl_args = decl_args_list;
     stmt_list = stmt_list_n;
-    //TODO typing and symbol_table interactions
     
     transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
 

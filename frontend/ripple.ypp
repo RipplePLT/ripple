@@ -168,8 +168,9 @@ jump_statement : RETURN expression tSEMI        { $$ = new JumpStatementNode("RE
                ;
 
 
-conditional_statement : IF tL_PAREN expression tR_PAREN statement_block else_statement  { $$ = new ConditionalStatementNode($3, $5, $6); d("conditional statement"); }
-                        ;
+conditional_statement : IF tL_PAREN expression tR_PAREN statement_block else_statement  { $$ = new ConditionalStatementNode($3, $5, $6);
+                                                                                          d("conditional statement"); }
+                      ;
 
 else_statement : ELSE statement_block   { $$ = $2; d("else statement"); }
                 |                       { $$ = NULL; }

@@ -108,10 +108,10 @@ void install_id(){
 		    cout << "Redefinition of variable " << yytext << " previously defined on line " << entry->line_no << endl;
 		} else if (sym_table.contains(yytext)) {
 			// possible redeclaration
-			if(!sym_table.put(yytext, last_type, line_no))
+			if(!sym_table.put(yytext, last_type, line_no, tNOSTYPE))
 				exit(1);
 		} else {
-			if(!sym_table.put(yytext, last_type, line_no))
+			if(!sym_table.put(yytext, last_type, line_no, tNOSTYPE))
 				exit(1);
 		}
 	} else {
@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
 	}
 
     sym_table.scope_in(0);
-    sym_table.put("print", tVOID, 0);
+    sym_table.put("print", tVOID, 0, tFUNC);
     yyin = fopen(argv[1], "r");
     yyout = fopen(filename_cpp.c_str(), "w");
     yyparse();

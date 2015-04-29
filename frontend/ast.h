@@ -110,7 +110,7 @@ union statements {
 class Node {
 public:
     string code;
-    e_type type = tNONE;
+    e_type type = tNOTYPE;
     e_type get_type();
     bool is_number();
     bool is_bool();

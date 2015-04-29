@@ -2,13 +2,22 @@
 #define __RPL_ENUM__
 
 enum e_type {
+    tNOTYPE,
     tINT,
     tBOOL,
     tFLOAT,
     tSTRING,
     tBYTE,
-    tVOID,
-    tNONE
+    tVOID
+};
+
+enum e_symbol_type {
+    tNOSTYPE,
+    tVAR,
+    tFUNC,
+    tDSET,
+    tARR,
+    tRES
 };
 
 enum e_op {

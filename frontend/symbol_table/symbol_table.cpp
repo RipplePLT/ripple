@@ -8,7 +8,6 @@
 
 SymbolTableNode::SymbolTableNode() {
     hashmap = new HashMap();
-    hashmap->put("print", tINT, 0);
     sibling = nullptr;
     child = nullptr;
     parent = nullptr;
@@ -66,11 +65,15 @@ void SymbolTable::scope_out(int line_no) {
 
 void SymbolTable::insert_reserved_words(){
 
-    current->hashmap->put("if", tVOID, 0);
+    put("if", tVOID, 0, tRES);
 }
 
-bool SymbolTable::put(string word, e_type v, int line_no) {
-    return current->hashmap->put(word, v, line_no);
+bool SymbolTable::put(string word, e_type v, int line_no, e_symbol_type s = tNOSTYPE) {
+    return current->hashmap->put(word, v, line_no, s);
+}
+
+void SymbolTable::classify(string word, e_symbol_type s) {
+    get(word)->classify(s);
 }
 
 bool SymbolTable::contains(string word) {
