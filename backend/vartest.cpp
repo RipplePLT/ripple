@@ -13,8 +13,8 @@ int main()
 	int root;
 
 	/*
-     * @TODO Everything must be allocated on the heap, since both
-	 * threads need access to it.
+     * Everything is allocated on the heap, since all threads need
+	 * access to this data.
 	 */
 
 	// Assignment to a Ripple or C++ int is the same.
@@ -25,17 +25,17 @@ int main()
      * 		link (x <- root);
 	 */
 	cout << "link (x <- root);" << endl;
-	VariableNode l (&root);
-    ValueNode v (&l);
-    UnaryExpressionNode u (&v);
-    BinaryExpressionNode b_x (&u);
-    ExpressionNode e_x (&b_x);
-    linked_var var_x (&x, e_x);
+	VariableNode *l = new VariableNode (&root);
+    ValueNode *v = new ValueNode (l);
+    UnaryExpressionNode *u = new UnaryExpressionNode (v);
+    BinaryExpressionNode *b_x = new BinaryExpressionNode (u);
+    ExpressionNode *e_x = new ExpressionNode (b_x);
+    linked_var *var_x = new linked_var (&x, e_x);
 
 	// Assign references
 	// @TODO these must be detected and assigned dynamically
     vector<linked_var *> root_refs;
-    root_refs.push_back(&var_x);
+    root_refs.push_back(var_x);
     linked_var::references[&root] = root_refs;
 	/* === End of code for link (x <- root) === */
 
@@ -43,26 +43,26 @@ int main()
 	 * 		link (y <- x + 2)
 	 */
 	cout << "link (y <- x + 2);" << endl;
-    VariableNode l1 (&x);
-    ValueNode v1 (&l1);
-    LiteralNode l2 (2);
-    ValueNode v2 (&l2);
-    UnaryExpressionNode u1 (&v1);
-    UnaryExpressionNode u2 (&v2);
-    BinaryExpressionNode b1 (&u1);
-    BinaryExpressionNode b2 (&u2);
-    BinaryExpressionNode b_y (&b1, "+", &b2);
-    ExpressionNode e_y (&b_y);
-    linked_var var_y (&y, e_y);
+    VariableNode *l1 = new VariableNode (&x);
+    ValueNode *v1 = new ValueNode (l1);
+    LiteralNode *l2 = new LiteralNode (2);
+    ValueNode *v2 = new ValueNode (l2);
+    UnaryExpressionNode *u1 = new UnaryExpressionNode (v1);
+    UnaryExpressionNode *u2 = new UnaryExpressionNode (v2);
+    BinaryExpressionNode *b1 = new BinaryExpressionNode (u1);
+    BinaryExpressionNode *b2 = new BinaryExpressionNode (u2);
+    BinaryExpressionNode *b_y = new BinaryExpressionNode (b1, "+", b2);
+    ExpressionNode *e_y = new ExpressionNode (b_y);
+    linked_var *var_y = new linked_var (&y, e_y);
 
 	// Assign references
     vector<linked_var *> x_refs;
-    x_refs.push_back(&var_y);
+    x_refs.push_back(var_y);
     linked_var::references[&x] = x_refs;
 	/* === End of code for "link (y <- x + 2)" === */
 
-    cout << "\tx == " << *(int *)var_x.get_value().value.ptr << endl;
-    cout << "\ty == " << var_y.get_value().value.intval << endl;
+    cout << "\tx == " << *(int *)var_x->get_value().value.ptr << endl;
+    cout << "\ty == " << var_y->get_value().value.intval << endl;
 
 	/*
 	 * === Assignment ===
@@ -71,11 +71,11 @@ int main()
 	cout << "root = 6;" << endl;
     root = 6;
 	// @TODO use the sync_queue for updates
-    var_x.update();
+    var_x->update();
 	/* === End of code for "root = 6" === */
 
-    cout << "\tx == " << *(int *)var_x.get_value().value.ptr << endl;
-    cout << "\ty == " << var_y.get_value().value.intval << endl;
+    cout << "\tx == " << *(int *)var_x->get_value().value.ptr << endl;
+    cout << "\ty == " << var_y->get_value().value.intval << endl;
 
     return 0;
 }

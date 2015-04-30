@@ -15,11 +15,11 @@ unordered_map<void *, vector<linked_var *>> linked_var::references;
  * It takes a pointer to the corresponding C++ variable, and the
  * link expression represented as an ExpressionNode.
  */
-linked_var::linked_var(int *var, ExpressionNode exp) {
+linked_var::linked_var(int *var, ExpressionNode *exp) {
 	// Assign member values
 	this->address = var;
-	this->expression = exp;
-	this->value = exp.evaluate();
+	this->expression = *exp;
+	this->value = exp->evaluate();
 
 	// Set the corresponding C++ variable to the proper value.
 	switch (this->value.type) {

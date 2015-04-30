@@ -18,7 +18,7 @@ class linked_var {
 		//   which depend on that memory address.
         static unordered_map<void *, vector<linked_var *>> references;
 
-        linked_var(int *var, ExpressionNode exp); // Ctor
+        linked_var(int *var, ExpressionNode *exp); // Ctor
         struct link_val get_value();
         void update(struct link_val new_value); // Assignment
         void update(); // For testing only
