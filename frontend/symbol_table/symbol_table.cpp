@@ -76,6 +76,10 @@ void SymbolTable::classify(string word, e_symbol_type s) {
     get(word)->classify(s);
 }
 
+void SymbolTable::add_args(string word, list<e_type> *l) {
+    get(word)->add_args(l);
+}
+
 bool SymbolTable::contains(string word) {
     SymbolTableNode *n = current;
     while(n) {
@@ -97,4 +101,3 @@ Entry *SymbolTable::get(string word) {
 SymbolTable::~SymbolTable() {
     delete start;
 }
-

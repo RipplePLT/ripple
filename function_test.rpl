@@ -1,0 +1,7 @@
+int hello(int x, float y) {
+    print(x, y);
+}
+
+void main() {
+    hello("yes", "no");
+}

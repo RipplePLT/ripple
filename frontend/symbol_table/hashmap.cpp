@@ -93,6 +93,10 @@ void Entry::classify(e_symbol_type s) {
     symbol_type = s;
 }
 
+void Entry::add_args(list<e_type> *a) {
+    args = a;
+}
+
 
 bool Entry::operator==(string n) {
     return name.compare(n) == 0;

@@ -24,6 +24,7 @@ void d(string m) {
 
 
 %union {
+    ProgramNode *prog;
     FunctionNode *func;
 
     StatementListNode *stmt_list;    
@@ -99,6 +100,7 @@ void d(string m) {
 %token tR_BRACKET
 %token tL_CURLY
 %token tR_CURLY
+%type <prog> ripple program
 %type <idn> id
 %type <string> dtype
 %type <lit> literal
@@ -146,7 +148,19 @@ void d(string m) {
 
 %%
 
-function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $4, $6); d("function"); delete $1; delete $4; if(!error) write_to_file(filename_cpp, $$->code); }
+ripple : ripple program                                         { $$ = $2 ;   }
+       |
+       ;
+
+program : function { $$ = new ProgramNode($1); }
+
+function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $4, $6);
+                                                                  d("function");
+                                                                  sym_table.classify($2->get_name(), tFUNC);
+                                                                  sym_table.add_args($2->get_name(), $4->to_enum_list());
+                                                                  delete $1; 
+                                                                  delete $4; }
+         ;
 
 statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{\n" + $2->code + "}\n"; d("statement_block - curly_statement_block"); }
                 ;
@@ -247,8 +261,8 @@ args : args tCOMMA expression   { $1->add_arg($3); d("arg added - 1"); }
      |                          { $$ = new ArgsNode(); }
      ;
 
-decl_args : decl_args tCOMMA dtype id   { $1->add_arg($4); d("arg added - 1"); }
-          | dtype id                    { $$ = new DeclArgsNode(); $$->add_arg($2); d("arg added"); }
+decl_args : decl_args tCOMMA dtype id   { $1->add_arg($4); d("decl arg added - 1"); }
+          | dtype id                    { $$ = new DeclArgsNode(); $$->add_arg($2); d("decl arg added"); }
           |                             { $$ = new DeclArgsNode(); }
           ;
 

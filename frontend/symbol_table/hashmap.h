@@ -19,12 +19,12 @@ class Entry {
     int line_no;
     union literal val;
     enum e_symbol_type symbol_type;
-    list<e_type> args;
+    list<e_type> *args;
 
     Entry(string n, e_type v, int line, e_symbol_type s);
 
     void classify (e_symbol_type s);
-    void add_arg (e_type t);
+    void add_args (list<e_type> *l);
 
     bool operator==(string n);
     

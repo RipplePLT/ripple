@@ -34,6 +34,7 @@ class SymbolTable{
     bool contains(string word);
     bool contains_in_scope(string word);
 
+    void add_args(string word, list<e_type> *l);
     void classify(string word, e_symbol_type s);
 
     Entry *get(string word);
