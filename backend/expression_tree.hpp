@@ -4,6 +4,7 @@
 #include <string>
 #include <string.h>
 #include <iostream>
+#include <vector>
 #include "../structures/enum.h"
 
 /*
@@ -52,6 +53,8 @@ struct link_val {
 class LiteralNode {
 public:
 	struct link_val val;
+	vector<void*> *refs;
+
 	LiteralNode (int i);
 	struct link_val evaluate();
 };
@@ -68,6 +71,8 @@ class VariableNode {
 public:
 	struct link_val val;
 	int *var;
+	vector<void*> *refs;
+
 	VariableNode (int *var);
 	struct link_val evaluate();
 };
@@ -80,6 +85,7 @@ public:
 	bool is_literal;
 	LiteralNode *lit_node;
 	VariableNode *var_node;
+	vector<void*> *refs;
 
 	ValueNode (LiteralNode *l);
 	ValueNode (VariableNode *v);
@@ -90,6 +96,7 @@ class UnaryExpressionNode {
 public:
     enum e_op op;
     union operand right_operand;
+	vector<void*> *refs;
 
     UnaryExpressionNode(UnaryExpressionNode *u, string _op);
     UnaryExpressionNode(ValueNode *v);
@@ -104,6 +111,7 @@ public:
     enum e_op op;
     bool left_is_binary;
     bool right_is_binary;
+	vector<void*> *refs;
 
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br);
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
@@ -124,11 +132,13 @@ class ExpressionNode {
 public:
     BinaryExpressionNode *bin_exp;
     ValueNode *value;
+	vector<void*> *refs;
 
 	ExpressionNode();
 	~ExpressionNode();
     ExpressionNode(BinaryExpressionNode *b);
 	struct link_val evaluate();
+	static vector<void*> *ref_union(vector<void*> *r1, vector<void*> *r2);
 };
 
 #endif

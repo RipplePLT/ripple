@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <algorithm>
 #include "expression_tree.hpp"
 
 enum e_op str_to_op(const std::string op_string) {
@@ -45,11 +46,13 @@ UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op)
 {
     op = str_to_op(_op);
     right_operand.u_exp = u;
+	refs = u->refs;
 }
 UnaryExpressionNode::UnaryExpressionNode(ValueNode *v)
 {
     op = NONE;
     right_operand.v_node = v;
+	refs = v->refs;
 }
 struct link_val UnaryExpressionNode::evaluate() {
 	struct link_val result = (op == NONE) ? this->right_operand.v_node->evaluate() :
@@ -63,6 +66,7 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     right_operand.b_exp = br;
     op = str_to_op(_op);
     left_is_binary = right_is_binary = true;
+	refs = ExpressionNode::ref_union(bl->refs, br->refs);
 }
 BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur) {
     left_operand.b_exp = bl;
@@ -70,10 +74,19 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     op = str_to_op(_op);
     left_is_binary = true;
     right_is_binary = false;
+	if (bl->refs == NULL && ur->refs == NULL)
+		refs = NULL;
+	else if (bl->refs == NULL)
+		refs = ur->refs;
+	else if (ur->refs == NULL)
+		refs = bl->refs;
+	else
+		refs = ExpressionNode::ref_union(bl->refs, ur->refs);
 }
 BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
     left_operand.u_exp = ul;
     op = NONE;
+	refs = ul->refs;
 }
 
 int BinaryExpressionNode::get_int_val(struct link_val l) {
@@ -188,19 +201,40 @@ ExpressionNode::~ExpressionNode() { }
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     bin_exp = b;
     value = NULL;
+	refs = b->refs;
 }
 struct link_val ExpressionNode::evaluate() {
 	return this->bin_exp->evaluate();
+}
+vector<void*> *ExpressionNode::ref_union(vector<void*> *r1, vector<void*> *r2) {
+	int i;
+	if (r1 == NULL && r2 == NULL)
+		return NULL;
+	else if (r1 == NULL)
+		return r2;
+	else if (r2 == NULL)
+		return r1;
+
+	for (i = 0; i < r2->size(); i++)
+		if (std::find(r1->begin(), r1->end(), (*r2)[i]) != r1->end())
+			r1->push_back( (*r2)[i] );
+
+	free(r2);
+	return r1;
 }
 
 /* ValueNode */
 ValueNode::ValueNode(LiteralNode *l) {
 	this->is_literal = true;
 	this->lit_node = l;
+	
+	this->refs = NULL;
 }
 ValueNode::ValueNode(VariableNode *v) {
 	this->is_literal = false;
 	this->var_node = v;
+
+	this->refs = v->refs;
 }
 struct link_val ValueNode::evaluate() {
 	return is_literal ? lit_node->evaluate() : var_node->evaluate();
@@ -210,6 +244,7 @@ struct link_val ValueNode::evaluate() {
 LiteralNode::LiteralNode(int i) {
 	this->val.type = ltINT;
 	this->val.value.intval = i;
+	this->refs = NULL;
 }
 struct link_val LiteralNode::evaluate() {
 	return this->val;
@@ -220,6 +255,9 @@ VariableNode::VariableNode(int *var) {
 	this->var = var;
 	this->val.type = ltINT_PTR;
 	this->val.value.ptr = (void *)var;
+
+	this->refs = new vector<void*>();
+	this->refs->push_back(this->val.value.ptr);
 }
 struct link_val VariableNode::evaluate() {
 	return this->val;

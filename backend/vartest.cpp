@@ -26,17 +26,12 @@ int main()
 	 */
 	cout << "link (x <- root);" << endl;
 	VariableNode *l = new VariableNode (&root);
+	linked_var::references[&root] = new vector<linked_var*>();
     ValueNode *v = new ValueNode (l);
     UnaryExpressionNode *u = new UnaryExpressionNode (v);
     BinaryExpressionNode *b_x = new BinaryExpressionNode (u);
     ExpressionNode *e_x = new ExpressionNode (b_x);
     linked_var *var_x = new linked_var (&x, e_x);
-
-	// Assign references
-	// @TODO these must be detected and assigned dynamically
-    vector<linked_var *> root_refs;
-    root_refs.push_back(var_x);
-    linked_var::references[&root] = root_refs;
 	/* === End of code for link (x <- root) === */
 
     /* === Link Statement ===
@@ -44,6 +39,7 @@ int main()
 	 */
 	cout << "link (y <- x + 2);" << endl;
     VariableNode *l1 = new VariableNode (&x);
+	linked_var::references[&x] = new vector<linked_var*>();
     ValueNode *v1 = new ValueNode (l1);
     LiteralNode *l2 = new LiteralNode (2);
     ValueNode *v2 = new ValueNode (l2);
@@ -54,11 +50,6 @@ int main()
     BinaryExpressionNode *b_y = new BinaryExpressionNode (b1, "+", b2);
     ExpressionNode *e_y = new ExpressionNode (b_y);
     linked_var *var_y = new linked_var (&y, e_y);
-
-	// Assign references
-    vector<linked_var *> x_refs;
-    x_refs.push_back(var_y);
-    linked_var::references[&x] = x_refs;
 	/* === End of code for "link (y <- x + 2)" === */
 
     cout << "\tx == " << *(int *)var_x->get_value().value.ptr << endl;

@@ -8,7 +8,7 @@
  * Global hash map from memory address to list of linked_vars
  * which reference that memory address.
  */
-unordered_map<void *, vector<linked_var *>> linked_var::references;
+unordered_map<void *, vector<linked_var *>*> linked_var::references;
 
 /*
  * Creates a linked_var object, which represents a linked variable.
@@ -16,10 +16,17 @@ unordered_map<void *, vector<linked_var *>> linked_var::references;
  * link expression represented as an ExpressionNode.
  */
 linked_var::linked_var(int *var, ExpressionNode *exp) {
+	int i;
+
 	// Assign member values
 	this->address = var;
 	this->expression = *exp;
 	this->value = exp->evaluate();
+
+	// Put references into dependency tree
+	if (exp->refs != NULL)
+		for (i = 0; i < exp->refs->size(); i++)
+			references[(*exp->refs)[i]]->push_back(this);
 
 	// Set the corresponding C++ variable to the proper value.
 	switch (this->value.type) {
@@ -54,8 +61,10 @@ void linked_var::update() {
 		BinaryExpressionNode::get_int_val(this->value);
 
 	// Recursively update children
-	for (i = 0; i < references[this->address].size(); i++)
-		references[this->address][i]->update();
+	if (references[this->address] != NULL)
+		for (i = 0; i < references[this->address]->size(); i++)
+			if (references[this->address] != NULL)
+				(*references[this->address])[i]->update();
 }
 
 /*
@@ -69,6 +78,6 @@ void linked_var::update(struct link_val new_value) {
 		BinaryExpressionNode::get_int_val(this->value);
 
 	// Recursively update children
-	for (i = 0; i < references[this->address].size(); i++)
-		references[this->address][i]->update();
+	for (i = 0; i < references[this->address]->size(); i++)
+		(*references[this->address])[i]->update();
 }
