@@ -1,6 +1,7 @@
 #include <iostream>
-#include "expression_tree.hpp"
 #include <string>
+#include <cmath>
+#include "expression_tree.hpp"
 
 enum e_op str_to_op(const std::string op_string) {
     if(op_string.compare("+") == 0)
@@ -74,11 +75,13 @@ BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
     left_operand.u_exp = ul;
     op = NONE;
 }
+
 int BinaryExpressionNode::get_int_val(struct link_val l) {
 	return (l.type == ltINT) ? l.value.intval :
 		(l.type == ltINT_PTR) ? *(int *)l.value.ptr :
 		-1000000; // should never happen
 }
+
 struct link_val BinaryExpressionNode::add(struct link_val a,
 		struct link_val b) {
 	int a_int, b_int;
@@ -90,8 +93,22 @@ struct link_val BinaryExpressionNode::add(struct link_val a,
 	result.type = ltINT;
 	result.value.intval = a_int + b_int;
 	return result;
+}
+
+struct link_val BinaryExpressionNode::subtract(struct link_val a,
+		struct link_val b) {
+	int a_int, b_int;
+	struct link_val result;
+
+	a_int = get_int_val(a);
+	b_int = get_int_val(b);
+
+	result.type = ltINT;
+	result.value.intval = a_int - b_int;
+	return result;
 
 }
+
 struct link_val BinaryExpressionNode::multiply (struct link_val a,
 		struct link_val b) {
 	int a_int, b_int;
@@ -104,6 +121,33 @@ struct link_val BinaryExpressionNode::multiply (struct link_val a,
 	result.value.intval = a_int * b_int;
 	return result;
 }
+
+struct link_val BinaryExpressionNode::divide (struct link_val a,
+		struct link_val b) {
+	int a_int, b_int;
+	struct link_val result;
+
+	a_int = get_int_val(a);
+	b_int = get_int_val(b);
+
+	result.type = ltINT;
+	result.value.intval = a_int / b_int;
+	return result;
+}
+
+struct link_val BinaryExpressionNode::exp (struct link_val a,
+		struct link_val b) {
+	int a_int, b_int;
+	struct link_val result;
+
+	a_int = get_int_val(a);
+	b_int = get_int_val(b);
+
+	result.type = ltINT;
+	result.value.intval = pow(a_int, b_int);
+	return result;
+}
+
 struct link_val BinaryExpressionNode::evaluate() {
 	struct link_val result, left_value, right_value;
 
@@ -121,6 +165,15 @@ struct link_val BinaryExpressionNode::evaluate() {
 		break;
 	case (TIMES):
 		return multiply(left_value, right_value);
+		break;
+	case (MINUS):
+		return subtract(left_value, right_value);
+		break;
+	case (DIV):
+		return divide(left_value, right_value);
+		break;
+	case (EXP):
+		return exp(left_value, right_value);
 		break;
 	default:
 		result.type = ltNONE;

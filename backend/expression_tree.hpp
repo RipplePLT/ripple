@@ -111,8 +111,12 @@ public:
 	struct link_val evaluate();
 	static int get_int_val(struct link_val l);
 	static struct link_val add(struct link_val a, struct link_val b);
+	static struct link_val subtract(struct link_val a, struct link_val b);
 	static struct link_val multiply(struct link_val a,
 		struct link_val b);
+	static struct link_val divide(struct link_val a,
+		struct link_val b);
+	static struct link_val exp(struct link_val a, struct link_val b);
 };
 
 
