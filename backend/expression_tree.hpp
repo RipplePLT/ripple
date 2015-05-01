@@ -99,14 +99,6 @@ public:
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
     BinaryExpressionNode(UnaryExpressionNode *ul);
 	link_val evaluate();
-	static int get_int_val(link_val l);
-	static link_val add(link_val a, link_val b);
-	static link_val subtract(link_val a, link_val b);
-	static link_val multiply(link_val a,
-		link_val b);
-	static link_val divide(link_val a,
-		link_val b);
-	static link_val exp(link_val a, link_val b);
 };
 
 

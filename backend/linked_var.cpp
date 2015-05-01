@@ -58,8 +58,7 @@ link_val linked_var::get_value() {
 void linked_var::update() {
 	int i;
 	this->value = this->expression.evaluate();
-	*(int *)(this->address) =
-		BinaryExpressionNode::get_int_val(this->value);
+	*(int *)(this->address) = this->value.get_int_val();
 
 	// Recursively update children
 	if (references[this->address] != NULL)
@@ -75,8 +74,7 @@ void linked_var::update() {
 void linked_var::update(link_val new_value) {
 	int i;
 	this->value = new_value;
-	*(int *)(this->address) =
-		BinaryExpressionNode::get_int_val(this->value);
+	*(int *)(this->address) = this->value.get_int_val();
 
 	// Recursively update children
 	for (i = 0; i < references[this->address]->size(); i++)

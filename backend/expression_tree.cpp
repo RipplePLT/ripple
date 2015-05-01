@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <cmath>
 #include <algorithm>
 #include "expression_tree.hpp"
 #include "link_val.hpp"
@@ -90,78 +89,6 @@ BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
 	refs = ul->refs;
 }
 
-int BinaryExpressionNode::get_int_val(link_val l) {
-	return (l.type == ltINT) ? l.value.intval :
-		(l.type == ltINT_PTR) ? *(int *)l.value.ptr :
-		-1000000; // should never happen
-}
-
-link_val BinaryExpressionNode::add(link_val a,
-		link_val b) {
-	int a_int, b_int;
-	link_val result;
-
-	a_int = get_int_val(a);
-	b_int = get_int_val(b);
-
-	result.type = ltINT;
-	result.value.intval = a_int + b_int;
-	return result;
-}
-
-link_val BinaryExpressionNode::subtract(link_val a,
-		link_val b) {
-	int a_int, b_int;
-	link_val result;
-
-	a_int = get_int_val(a);
-	b_int = get_int_val(b);
-
-	result.type = ltINT;
-	result.value.intval = a_int - b_int;
-	return result;
-
-}
-
-link_val BinaryExpressionNode::multiply (link_val a,
-		link_val b) {
-	int a_int, b_int;
-	link_val result;
-
-	a_int = get_int_val(a);
-	b_int = get_int_val(b);
-
-	result.type = ltINT;
-	result.value.intval = a_int * b_int;
-	return result;
-}
-
-link_val BinaryExpressionNode::divide (link_val a,
-		link_val b) {
-	int a_int, b_int;
-	link_val result;
-
-	a_int = get_int_val(a);
-	b_int = get_int_val(b);
-
-	result.type = ltINT;
-	result.value.intval = a_int / b_int;
-	return result;
-}
-
-link_val BinaryExpressionNode::exp (link_val a,
-		link_val b) {
-	int a_int, b_int;
-	link_val result;
-
-	a_int = get_int_val(a);
-	b_int = get_int_val(b);
-
-	result.type = ltINT;
-	result.value.intval = pow(a_int, b_int);
-	return result;
-}
-
 link_val BinaryExpressionNode::evaluate() {
 	link_val result, left_value, right_value;
 
@@ -175,19 +102,19 @@ link_val BinaryExpressionNode::evaluate() {
 
 	switch(op) {
 	case (PLUS):
-		return add(left_value, right_value);
+		return left_value + right_value;
 		break;
 	case (TIMES):
-		return multiply(left_value, right_value);
+		return left_value - right_value;
 		break;
 	case (MINUS):
-		return subtract(left_value, right_value);
+		return left_value * right_value;
 		break;
 	case (DIV):
-		return divide(left_value, right_value);
+		return left_value / right_value;
 		break;
 	case (EXP):
-		return exp(left_value, right_value);
+		return left_value ^ right_value;
 		break;
 	default:
 		result.type = ltNONE;
