@@ -30,6 +30,14 @@ linked_var::linked_var(int *var, ExpressionNode *exp) {
 			references[(*exp->refs)[i]]->push_back(this);
 
 	// Set the corresponding C++ variable to the proper value.
+	this->update_cpp_var();
+}
+
+link_val linked_var::get_value() {
+    return this->value;
+}
+
+void linked_var::update_cpp_var() {
 	switch (this->value.type) {
 	case (ltINT):
 		*(int *)(this->address) = this->value.value.intval;
@@ -37,13 +45,14 @@ linked_var::linked_var(int *var, ExpressionNode *exp) {
 	case (ltINT_PTR): 
 		*(int *)(this->address) = *(int *)this->value.value.ptr;
 		break;
+	case (ltFLOAT):
+		*(float *)(this->address) = this->value.value.floatval;
+		break;
+	case (ltFLOAT_PTR):
+		*(float *)(this->address) = *(float *)this->value.value.ptr;
 	default:
 		break;
 	}
-}
-
-link_val linked_var::get_value() {
-    return this->value;
 }
 
 /*
@@ -58,7 +67,7 @@ link_val linked_var::get_value() {
 void linked_var::update() {
 	int i;
 	this->value = this->expression.evaluate();
-	*(int *)(this->address) = this->value.get_int_val();
+	this->update_cpp_var();
 
 	// Recursively update children
 	if (references[this->address] != NULL)
@@ -74,7 +83,7 @@ void linked_var::update() {
 void linked_var::update(link_val new_value) {
 	int i;
 	this->value = new_value;
-	*(int *)(this->address) = this->value.get_int_val();
+	this->update_cpp_var();
 
 	// Recursively update children
 	for (i = 0; i < references[this->address]->size(); i++)

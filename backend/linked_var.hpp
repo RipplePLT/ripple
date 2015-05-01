@@ -14,6 +14,8 @@ private:
 	link_val value; // Current value
 	void *address; // Address of corresponding C++ variable
 	ExpressionNode expression; // Linked expression
+
+	void update_cpp_var();
 public:
 	// Hash map from a memory address to a list of linked_vars
 	//   which depend on that memory address.

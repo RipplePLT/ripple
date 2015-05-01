@@ -24,7 +24,9 @@ public:
 	} value;
 
 	static link_val integer_op(link_val a, link_val b, const char *op);
+	static link_val float_op(link_val a, link_val b, const char *op);
 	int get_int_val() const;
+	float get_float_val() const;
 	link_val operator+(const link_val &other) const;
 	link_val operator-(const link_val &other) const;
 	link_val operator*(const link_val &other) const;

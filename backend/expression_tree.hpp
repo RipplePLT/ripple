@@ -38,6 +38,7 @@ public:
 	vector<void*> *refs;
 
 	LiteralNode (int i);
+	LiteralNode (float f);
 	link_val evaluate();
 };
 
@@ -52,10 +53,11 @@ public:
 class VariableNode {
 public:
 	link_val val;
-	int *var;
+	void *var;
 	vector<void*> *refs;
 
 	VariableNode (int *var);
+	VariableNode (float *var);
 	link_val evaluate();
 };
 

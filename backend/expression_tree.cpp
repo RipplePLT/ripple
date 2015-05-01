@@ -174,6 +174,11 @@ LiteralNode::LiteralNode(int i) {
 	this->val.value.intval = i;
 	this->refs = NULL;
 }
+LiteralNode::LiteralNode(float f) {
+	this->val.type = ltFLOAT;
+	this->val.value.floatval = f;
+	this->refs = NULL;
+}
 link_val LiteralNode::evaluate() {
 	return this->val;
 }
@@ -182,6 +187,14 @@ link_val LiteralNode::evaluate() {
 VariableNode::VariableNode(int *var) {
 	this->var = var;
 	this->val.type = ltINT_PTR;
+	this->val.value.ptr = (void *)var;
+
+	this->refs = new vector<void*>();
+	this->refs->push_back(this->val.value.ptr);
+}
+VariableNode::VariableNode(float *var) {
+	this->var = var;
+	this->val.type = ltFLOAT_PTR;
 	this->val.value.ptr = (void *)var;
 
 	this->refs = new vector<void*>();
