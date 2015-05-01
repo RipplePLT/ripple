@@ -4,12 +4,13 @@
 #include <queue>
 
 #include "expression_tree.hpp"
+#include "link_val.hpp"
 
 using namespace std;
 
 struct update {
     void *address;
-    struct link_val new_value;
+    link_val new_value;
 };
 
 

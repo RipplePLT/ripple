@@ -3,6 +3,7 @@
 
 #include "sync_queue.hpp"
 #include "sync_test.hpp"
+#include "link_val.hpp"
 
 int main() {
 
@@ -94,8 +95,8 @@ static struct update create_test_info() {
     return test_info;
 }
 
-static struct link_val create_test_link_val() {
-    struct link_val test_val;
+static link_val create_test_link_val() {
+    link_val test_val;
     test_val.type = ltINT;
     test_val.value.intval = 5;
 

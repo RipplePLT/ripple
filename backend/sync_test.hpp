@@ -2,6 +2,7 @@
 #define SYNC_TEST_HPP
 
 #include "expression_tree.hpp"
+#include "link_val.hpp"
 
 void test_sync_queue_creation();
 void test_empty_queue_creation(sync_queue& test);
@@ -13,6 +14,6 @@ void test_push_pop_mix(sync_queue& test);
 void test_queue_is_empty(sync_queue& test);
 
 static struct update create_test_info();
-static struct link_val create_test_link_val();
+static link_val create_test_link_val();
 
 #endif

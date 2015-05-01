@@ -3,6 +3,7 @@
 #include <cmath>
 #include <algorithm>
 #include "expression_tree.hpp"
+#include "link_val.hpp"
 
 enum e_op str_to_op(const std::string op_string) {
     if(op_string.compare("+") == 0)
@@ -54,8 +55,8 @@ UnaryExpressionNode::UnaryExpressionNode(ValueNode *v)
     right_operand.v_node = v;
 	refs = v->refs;
 }
-struct link_val UnaryExpressionNode::evaluate() {
-	struct link_val result = (op == NONE) ? this->right_operand.v_node->evaluate() :
+link_val UnaryExpressionNode::evaluate() {
+	link_val result = (op == NONE) ? this->right_operand.v_node->evaluate() :
 		this->right_operand.u_exp->evaluate();
 	return result;
 }
@@ -89,16 +90,16 @@ BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
 	refs = ul->refs;
 }
 
-int BinaryExpressionNode::get_int_val(struct link_val l) {
+int BinaryExpressionNode::get_int_val(link_val l) {
 	return (l.type == ltINT) ? l.value.intval :
 		(l.type == ltINT_PTR) ? *(int *)l.value.ptr :
 		-1000000; // should never happen
 }
 
-struct link_val BinaryExpressionNode::add(struct link_val a,
-		struct link_val b) {
+link_val BinaryExpressionNode::add(link_val a,
+		link_val b) {
 	int a_int, b_int;
-	struct link_val result;
+	link_val result;
 
 	a_int = get_int_val(a);
 	b_int = get_int_val(b);
@@ -108,10 +109,10 @@ struct link_val BinaryExpressionNode::add(struct link_val a,
 	return result;
 }
 
-struct link_val BinaryExpressionNode::subtract(struct link_val a,
-		struct link_val b) {
+link_val BinaryExpressionNode::subtract(link_val a,
+		link_val b) {
 	int a_int, b_int;
-	struct link_val result;
+	link_val result;
 
 	a_int = get_int_val(a);
 	b_int = get_int_val(b);
@@ -122,10 +123,10 @@ struct link_val BinaryExpressionNode::subtract(struct link_val a,
 
 }
 
-struct link_val BinaryExpressionNode::multiply (struct link_val a,
-		struct link_val b) {
+link_val BinaryExpressionNode::multiply (link_val a,
+		link_val b) {
 	int a_int, b_int;
-	struct link_val result;
+	link_val result;
 
 	a_int = get_int_val(a);
 	b_int = get_int_val(b);
@@ -135,10 +136,10 @@ struct link_val BinaryExpressionNode::multiply (struct link_val a,
 	return result;
 }
 
-struct link_val BinaryExpressionNode::divide (struct link_val a,
-		struct link_val b) {
+link_val BinaryExpressionNode::divide (link_val a,
+		link_val b) {
 	int a_int, b_int;
-	struct link_val result;
+	link_val result;
 
 	a_int = get_int_val(a);
 	b_int = get_int_val(b);
@@ -148,10 +149,10 @@ struct link_val BinaryExpressionNode::divide (struct link_val a,
 	return result;
 }
 
-struct link_val BinaryExpressionNode::exp (struct link_val a,
-		struct link_val b) {
+link_val BinaryExpressionNode::exp (link_val a,
+		link_val b) {
 	int a_int, b_int;
-	struct link_val result;
+	link_val result;
 
 	a_int = get_int_val(a);
 	b_int = get_int_val(b);
@@ -161,8 +162,8 @@ struct link_val BinaryExpressionNode::exp (struct link_val a,
 	return result;
 }
 
-struct link_val BinaryExpressionNode::evaluate() {
-	struct link_val result, left_value, right_value;
+link_val BinaryExpressionNode::evaluate() {
+	link_val result, left_value, right_value;
 
 	if (this->op == NONE)
 		return this->left_operand.u_exp->evaluate();
@@ -203,7 +204,7 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     value = NULL;
 	refs = b->refs;
 }
-struct link_val ExpressionNode::evaluate() {
+link_val ExpressionNode::evaluate() {
 	return this->bin_exp->evaluate();
 }
 vector<void*> *ExpressionNode::ref_union(vector<void*> *r1, vector<void*> *r2) {
@@ -236,7 +237,7 @@ ValueNode::ValueNode(VariableNode *v) {
 
 	this->refs = v->refs;
 }
-struct link_val ValueNode::evaluate() {
+link_val ValueNode::evaluate() {
 	return is_literal ? lit_node->evaluate() : var_node->evaluate();
 }
 
@@ -246,7 +247,7 @@ LiteralNode::LiteralNode(int i) {
 	this->val.value.intval = i;
 	this->refs = NULL;
 }
-struct link_val LiteralNode::evaluate() {
+link_val LiteralNode::evaluate() {
 	return this->val;
 }
 
@@ -259,6 +260,6 @@ VariableNode::VariableNode(int *var) {
 	this->refs = new vector<void*>();
 	this->refs->push_back(this->val.value.ptr);
 }
-struct link_val VariableNode::evaluate() {
+link_val VariableNode::evaluate() {
 	return this->val;
 }

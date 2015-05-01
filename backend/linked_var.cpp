@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "expression_tree.hpp"
 #include "linked_var.hpp"
+#include "link_val.hpp"
 
 /*
  * Global hash map from memory address to list of linked_vars
@@ -41,7 +42,7 @@ linked_var::linked_var(int *var, ExpressionNode *exp) {
 	}
 }
 
-struct link_val linked_var::get_value() {
+link_val linked_var::get_value() {
     return this->value;
 }
 
@@ -71,7 +72,7 @@ void linked_var::update() {
  * Set the present linked_var to the given value, then accordingly
  * update all linked_vars which depend on this one.
  */
-void linked_var::update(struct link_val new_value) {
+void linked_var::update(link_val new_value) {
 	int i;
 	this->value = new_value;
 	*(int *)(this->address) =

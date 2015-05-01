@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include "../structures/enum.h"
+#include "link_val.hpp"
 
 /*
  * The nodes defined in this file are used at runtime to construct
@@ -30,33 +31,14 @@ union operand {
     ValueNode *v_node;
 };
 
-/*
- * The struct link_val represents a linked variable's value and its
- * type, so that we can deal with dynamic types.
- */
-enum link_val_type {
-	ltINT,
-	ltINT_PTR,
-	ltNONE
-};
-
-struct link_val {
-	enum link_val_type type;
-	union {
-		int intval;
-		void *ptr;
-	} value;
-};
-
-
 // @TODO Implement non-integer literals
 class LiteralNode {
 public:
-	struct link_val val;
+	link_val val;
 	vector<void*> *refs;
 
 	LiteralNode (int i);
-	struct link_val evaluate();
+	link_val evaluate();
 };
 
 /*
@@ -69,12 +51,12 @@ public:
  */
 class VariableNode {
 public:
-	struct link_val val;
+	link_val val;
 	int *var;
 	vector<void*> *refs;
 
 	VariableNode (int *var);
-	struct link_val evaluate();
+	link_val evaluate();
 };
 
 /*
@@ -89,7 +71,7 @@ public:
 
 	ValueNode (LiteralNode *l);
 	ValueNode (VariableNode *v);
-	struct link_val evaluate();
+	link_val evaluate();
 };
 
 class UnaryExpressionNode {
@@ -100,7 +82,7 @@ public:
 
     UnaryExpressionNode(UnaryExpressionNode *u, string _op);
     UnaryExpressionNode(ValueNode *v);
-	struct link_val evaluate();
+	link_val evaluate();
 };
 
 
@@ -116,15 +98,15 @@ public:
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br);
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
     BinaryExpressionNode(UnaryExpressionNode *ul);
-	struct link_val evaluate();
-	static int get_int_val(struct link_val l);
-	static struct link_val add(struct link_val a, struct link_val b);
-	static struct link_val subtract(struct link_val a, struct link_val b);
-	static struct link_val multiply(struct link_val a,
-		struct link_val b);
-	static struct link_val divide(struct link_val a,
-		struct link_val b);
-	static struct link_val exp(struct link_val a, struct link_val b);
+	link_val evaluate();
+	static int get_int_val(link_val l);
+	static link_val add(link_val a, link_val b);
+	static link_val subtract(link_val a, link_val b);
+	static link_val multiply(link_val a,
+		link_val b);
+	static link_val divide(link_val a,
+		link_val b);
+	static link_val exp(link_val a, link_val b);
 };
 
 
@@ -137,7 +119,7 @@ public:
 	ExpressionNode();
 	~ExpressionNode();
     ExpressionNode(BinaryExpressionNode *b);
-	struct link_val evaluate();
+	link_val evaluate();
 	static vector<void*> *ref_union(vector<void*> *r1, vector<void*> *r2);
 };
 
