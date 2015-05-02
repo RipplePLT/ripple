@@ -137,7 +137,6 @@ int main(int argc, char **argv) {
         filename_cpp = filename + ".cpp";
 	}
 
-    sym_table.scope_in(0);
     sym_table.put("print", tVOID, 0, tFUNC);
     yyin = fopen(argv[1], "r");
     yyout = fopen(filename_cpp.c_str(), "w");

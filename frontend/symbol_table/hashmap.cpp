@@ -47,6 +47,7 @@ HashMap::HashMap() {
     for (int i = 0; i < TABLE_SIZE; i++) {
         t[i] = new list<Entry *>; 
     }
+    put("print", tVOID, -1, tFUNC);
 }
 
 HashMap::~HashMap() {
@@ -62,8 +63,9 @@ bool HashMap::contains(string word) {
 
 bool HashMap::put(string word, e_type v, int line_no, e_symbol_type s = tNOSTYPE){
     int pos = hashCode(word) % TABLE_SIZE;
-    if(list_contains(*t[pos], word))
-        return false;
+    if(list_contains(*t[pos], word)) {
+        return false;   
+    }
 
     Entry *new_entry = new Entry(word, v, line_no, s);
     t[pos]->push_back(new_entry);

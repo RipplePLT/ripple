@@ -34,8 +34,6 @@ SymbolTable::SymbolTable(){
     start = main; 
     current = main;
     insert_reserved_words();
-    bool contain = contains("for");
-    cout << contain << endl;
 }
 
 void SymbolTable::scope_in(int line_no) {
