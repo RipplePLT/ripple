@@ -12,11 +12,11 @@ static void empty_stack() {
 }
 
 bool html_lib::contains_tag(string line, string tag) {
-    return line.find(tag) > 0 ? true : false;
+    return line.find(tag) != string::npos ? true : false;
 }
 
 bool html_lib::contains_word(string line, string word) {
-    return line.find(word) > 0 ? true: false;
+    return line.find(word) != string::npos ? true: false;
 }
 
 string html_lib::get_body(string line) {

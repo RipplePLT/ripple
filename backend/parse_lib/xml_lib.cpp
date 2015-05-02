@@ -12,11 +12,11 @@ static void empty_stack() {
 }
 
 bool xml_lib::contains_tag(string line, string tag) {
-    return line.find(tag) > 0 ? true : false;
+    return line.find(tag) != string::npos ? true : false;
 }
 
 bool xml_lib::contains_word(string line, string word) {
-    return line.find(word) > 0 ? true : false;
+    return line.find(word) != string::npos ? true : false;
 }
 
 vector<string> xml_lib::get_collection(string line, string tag) {
@@ -47,7 +47,5 @@ string xml_lib::get_root(string line, string tag) {
 }
 
 int xml_lib::size(string line) {
-    empty_stack();
-    int count = 0;
-    return count;
+    return line.size();
 }
