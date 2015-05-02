@@ -660,3 +660,7 @@ FunctionNode::FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_arg
 
     code = _type + " " + id_node->code + "(" + decl_args_list->code + ")" + stmt_list_n->code; 
 }
+
+void FunctionNode::seppuku(){
+    delete this;
+}

@@ -316,6 +316,7 @@ public:
     StatementListNode *stmt_list;
 
     FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n);
+    void seppuku();
 };
 
 #endif
