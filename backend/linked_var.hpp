@@ -6,6 +6,8 @@
 #include "expression_tree.hpp"
 #include "link_val.hpp"
 
+using namespace std;
+
 /*
  * The linked_var class represents a single linked variable.
  */
