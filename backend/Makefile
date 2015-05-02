@@ -18,9 +18,20 @@ link_val.o: link_val.cpp link_val.hpp
 sync_queue.o: sync_queue.cpp sync_queue.hpp
 	$(CXX) -c sync_queue.cpp $(CCFLAGS)
 
+.PHONY: clean-subdirs
+clean-subdirs:
+	cd ./parse_lib; make clean; cd ../tests; make clean;
+
 .PHONY: clean
 clean:
 	rm -rf $(OBJS)
 
+.PHONY: clean-all
+clean-all: clean clean-subdirs
+
+.PHONY: subdirs
+subdirs:
+	cd ./parse_lib; make all; cd ../tests; make all;
+
 .PHONY: all
-all: clean objects
+all: clean objects subdirs
