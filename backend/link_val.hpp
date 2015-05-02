@@ -30,9 +30,11 @@ public:
 	static link_val integer_op(link_val a, link_val b, const char *op);
 	static link_val double_op(link_val a, link_val b, const char *op);
 	static link_val bool_op(link_val a, link_val b, const char *op);
+	static link_val bool_op(link_val a, const char *op);
 	int get_int_val() const;
 	double get_double_val() const;
 	bool get_bool_val() const;
+	link_val size_node();
 	link_val operator+(const link_val &other) const;
 	link_val operator-(const link_val &other) const;
 	link_val operator*(const link_val &other) const;
@@ -46,12 +48,15 @@ public:
 	link_val operator!=(const link_val &other) const;
 	link_val operator&&(const link_val &other) const;
 	link_val operator||(const link_val &other) const;
+	link_val operator!() const;
 
 private:
 	// static int integer_op(int a, int b, const char *op);
 	template <typename T>
 		static T generic_op(T a, T b, const char *op);
+	template <typename T> static T generic_op(T a, const char *op);
 	static link_val link_val_op(link_val a, link_val b, const char *op);
+	static link_val link_val_op(link_val a, const char *op);
 };
 
 #endif
