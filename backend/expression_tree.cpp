@@ -134,6 +134,12 @@ link_val BinaryExpressionNode::evaluate() {
 	case (NE):
 		return left_value != right_value;
 		break;
+	case (bAND):
+		return left_value && right_value;
+		break;
+	case (bOR):
+		return left_value || right_value;
+		break;
 	default:
 		result.type = ltNONE;
 		result.value.ptr = NULL;
@@ -199,7 +205,7 @@ LiteralNode::LiteralNode(double d) {
 }
 LiteralNode::LiteralNode(bool b) {
 	this->val.type = ltBOOL;
-	this->val.value.doubleval = b;
+	this->val.value.boolval = b;
 	this->dependencies = NULL;
 }
 link_val LiteralNode::evaluate() {

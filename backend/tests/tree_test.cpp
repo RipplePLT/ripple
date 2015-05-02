@@ -5,6 +5,8 @@
 #include "../link_val.hpp"
 #include "../linked_var.hpp"
 
+/* Spaghetti */
+
 class TreeTest {
 public:
 	static VariableNode *create_var_node(int *i);
@@ -13,6 +15,8 @@ public:
 	static LiteralNode *create_literal_node(double d);
 	static linked_var *link_int_var(int *i);
 	static linked_var *link_double_var(double *d);
+	static linked_var *link_bool_lit_op_bool_var
+		(void *linked, bool b, bool *d, const char *op);
 	static linked_var *link_int_lit_op_double_var
 		(void *linked, int i, double *d, const char *op);
 	static void run_all_unit_tests();
@@ -260,6 +264,45 @@ linked_var *TreeTest::link_int_lit_op_double_var(void *linked, int i,
 	return var;
 }
 
+/* Link to bool literal (op) bool var */
+linked_var *TreeTest::link_bool_lit_op_bool_var(void *linked, bool i,
+		bool *d, const char *op) {
+	// Determine target value
+	bool target;
+	if (!strcmp(op, "and"))
+		target = i && *d;
+	else if (!strcmp(op, "or"))
+		target = i || *d;
+	else
+		target = false;
+
+	// Left operand
+	LiteralNode *l1 = new LiteralNode(i);
+	ValueNode *v1 = new ValueNode(l1);
+	UnaryExpressionNode *u1 = new UnaryExpressionNode(v1);
+	BinaryExpressionNode *b1 = new BinaryExpressionNode(u1);
+	assert(b1->evaluate().value.boolval == i);
+	assert(b1->evaluate().type == ltBOOL);
+
+	// Right operand
+	VariableNode *l2 = new VariableNode(d);
+	ValueNode *v2 = new ValueNode (l2);
+	UnaryExpressionNode *u2 = new UnaryExpressionNode(v2);
+	BinaryExpressionNode *b2 = new BinaryExpressionNode(u2);
+	assert(b2->evaluate().value.ptr == d);
+	assert(b2->evaluate().type == ltBOOL_PTR);
+
+	// Operation
+	BinaryExpressionNode *bin = new BinaryExpressionNode (b1, op, b2);
+	assert(bin->evaluate().type == ltBOOL);
+	assert(bin->evaluate().value.boolval == target);
+
+	ExpressionNode *exp = new ExpressionNode(bin);
+	linked_var *var = new linked_var(linked, exp);
+
+	return var;
+}
+
 void TreeTest::run_all_integration_tests() {
 	int a = 5;
 	link_int_var(&a);
@@ -306,6 +349,19 @@ void TreeTest::run_all_integration_tests() {
 	a = 5, b = 2;
 	z_link = link_int_lit_op_double_var(&z, a, &b, "^");
 	assert(z_link->get_value().value.doubleval == 25);
+
+	bool r = true;
+	linked_var *r_link;
+	linked_var::references[&r] = new vector<linked_var*>();
+	r_link = link_bool_lit_op_bool_var(&r, (3 > 2), &r, "and");
+	assert(r_link->get_value().value.boolval == true);
+	r_link = link_bool_lit_op_bool_var(&r, (2 > 2), &r, "and");
+	assert(r_link->get_value().value.boolval == false);
+	r = false;
+	r_link = link_bool_lit_op_bool_var(&r, (3 > 2), &r, "or");
+	assert(r_link->get_value().value.boolval == true);
+	r_link = link_bool_lit_op_bool_var(&r, (2 > 2), &r, "or");
+	assert(r_link->get_value().value.boolval == false);
 }
 
 int main() {

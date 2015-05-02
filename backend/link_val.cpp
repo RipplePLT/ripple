@@ -27,6 +27,16 @@ double link_val::get_double_val() const {
 		0;
 }
 
+bool link_val::get_bool_val() const {
+	return (type == ltDOUBLE) ? !!value.doubleval :
+		(type == ltINT) ? !!value.intval :
+		(type == ltBOOL) ? value.boolval :
+		(type == ltINT_PTR) ? !!*(int *)value.ptr :
+		(type == ltDOUBLE_PTR) ? !!*(double *)value.ptr :
+		(type == ltBOOL_PTR) ? *(bool *)value.ptr:
+		0;
+}
+
 template <typename T>
 T link_val::generic_op(T a, T b, const char *op) {
 	if (!strcmp(op, "+"))
@@ -37,8 +47,10 @@ T link_val::generic_op(T a, T b, const char *op) {
 		return a * b;
 	else if (!strcmp(op, "/"))
 		return a / b;
+	else if (!strcmp(op, "//"))
+		return a / b; // @TODO
 	else if (!strcmp(op, "^"))
-		return pow(a, b);
+		return (T)pow(a, b);
 	else if (!strcmp(op, ">"))
 		return a > b;
 	else if (!strcmp(op, "<"))
@@ -51,11 +63,20 @@ T link_val::generic_op(T a, T b, const char *op) {
 		return a == b;
 	else if (!strcmp(op, "!="))
 		return a != b;
+	else if (!strcmp(op, "&&"))
+		return a && b;
+	else if (!strcmp(op, "||"))
+		return a || b;
 	else
 		return 0;
+
+	// @TODO not, size (unary ops)
 }
 
 link_val link_val::link_val_op(link_val a, link_val b, const char *op) {
+	if (a.type == ltBOOL || b.type == ltBOOL ||
+			a.type == ltBOOL_PTR || b.type == ltBOOL_PTR)
+		return bool_op(a, b, op);
 	if (a.type == ltDOUBLE || b.type == ltDOUBLE ||
 			a.type == ltDOUBLE_PTR || b.type == ltDOUBLE_PTR)
 		return double_op(a, b, op);
@@ -95,6 +116,19 @@ link_val link_val::double_op(link_val a, link_val b, const char *op) {
 		result->type = ltDOUBLE;
 		result->value.doubleval = generic_op<double>(a_double, b_double, op);
 	}
+
+	return *result;
+}
+
+link_val link_val::bool_op(link_val a, link_val b, const char *op) {
+	bool a_bool, b_bool;
+	link_val *result = new link_val();
+
+	a_bool = a.get_bool_val();
+	b_bool = b.get_bool_val();
+
+	result->type = ltBOOL;
+	result->value.boolval = generic_op<bool>(a_bool, b_bool, op);
 
 	return *result;
 }
@@ -141,4 +175,12 @@ link_val link_val::operator==(const link_val &other) const {
 
 link_val link_val::operator!=(const link_val &other) const {
 	return link_val_op(*this, other, "!=");
+}
+
+link_val link_val::operator&&(const link_val &other) const {
+	return link_val_op(*this, other, "&&");
+}
+
+link_val link_val::operator||(const link_val &other) const {
+	return link_val_op(*this, other, "||");
 }
