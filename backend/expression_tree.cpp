@@ -56,6 +56,8 @@ UnaryExpressionNode::UnaryExpressionNode(ValueNode *v)
 }
 link_val UnaryExpressionNode::evaluate() {
 	link_val result = (op == NONE) ? this->right_operand.v_node->evaluate() :
+		(op == bNOT) ? !this->right_operand.u_exp->evaluate() :
+		(op == SIZE) ? this->right_operand.u_exp->evaluate().size_node() :
 		this->right_operand.u_exp->evaluate();
 	return result;
 }

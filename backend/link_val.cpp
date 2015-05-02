@@ -37,6 +37,29 @@ bool link_val::get_bool_val() const {
 		0;
 }
 
+link_val link_val::size_node() {
+	link_val *result = new link_val();
+	result->type = ltINT;
+	result->value.intval = 
+		(type == ltINT) ? sizeof(int) :
+		(type == ltDOUBLE) ? sizeof(double) :
+		(type == ltBOOL) ? sizeof(bool) :
+		(type == ltINT_PTR) ? sizeof(void *) :
+		(type == ltDOUBLE_PTR) ? sizeof(void *) :
+		(type == ltBOOL_PTR) ? sizeof(void *) :
+		0;
+
+	return *result;
+}
+
+template <typename T>
+T link_val::generic_op(T a, const char *op) {
+	if (!strcmp(op, "!"))
+		return !a;
+	else
+		return 0;
+}
+
 template <typename T>
 T link_val::generic_op(T a, T b, const char *op) {
 	if (!strcmp(op, "+"))
@@ -69,8 +92,6 @@ T link_val::generic_op(T a, T b, const char *op) {
 		return a || b;
 	else
 		return 0;
-
-	// @TODO not, size (unary ops)
 }
 
 link_val link_val::link_val_op(link_val a, link_val b, const char *op) {
@@ -82,6 +103,10 @@ link_val link_val::link_val_op(link_val a, link_val b, const char *op) {
 		return double_op(a, b, op);
 	else
 		return integer_op(a, b, op);
+}
+
+link_val link_val::link_val_op(link_val a, const char *op) {
+	return bool_op(a, op);
 }
 
 link_val link_val::integer_op(link_val a, link_val b, const char *op) {
@@ -129,6 +154,18 @@ link_val link_val::bool_op(link_val a, link_val b, const char *op) {
 
 	result->type = ltBOOL;
 	result->value.boolval = generic_op<bool>(a_bool, b_bool, op);
+
+	return *result;
+}
+
+link_val link_val::bool_op(link_val a, const char *op) {
+	bool a_bool;
+	link_val *result = new link_val();
+
+	a_bool = a.get_bool_val();
+
+	result->type = ltBOOL;
+	result->value.boolval = generic_op<bool>(a_bool, op);
 
 	return *result;
 }
@@ -183,4 +220,8 @@ link_val link_val::operator&&(const link_val &other) const {
 
 link_val link_val::operator||(const link_val &other) const {
 	return link_val_op(*this, other, "||");
+}
+
+link_val link_val::operator!() const {
+	return link_val_op(*this, "!");
 }

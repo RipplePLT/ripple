@@ -19,9 +19,42 @@ public:
 		(void *linked, bool b, bool *d, const char *op);
 	static linked_var *link_int_lit_op_double_var
 		(void *linked, int i, double *d, const char *op);
+	static void test_unary_ops();
 	static void run_all_unit_tests();
 	static void run_all_integration_tests();
 };
+
+void TreeTest::test_unary_ops() {
+	bool root;
+	LiteralNode *bLit = new LiteralNode(true);
+
+	assert(bLit->evaluate().size_node().value.intval == sizeof(bool));
+
+	ValueNode *v = new ValueNode(bLit);
+	UnaryExpressionNode *u = new UnaryExpressionNode(v);
+	UnaryExpressionNode *u2 = new UnaryExpressionNode(u, "not");
+	BinaryExpressionNode *b = new BinaryExpressionNode(u2);
+	ExpressionNode *e = new ExpressionNode(b);
+	linked_var *root_var = new linked_var(&root, e);
+
+	bool root2 = false;
+	VariableNode *bVar = new VariableNode(&root2);
+	linked_var::references[&root2] = new vector<linked_var*>();
+
+	assert(bVar->evaluate().size_node().value.intval == sizeof(bool *));
+	
+	ValueNode *v2 = new ValueNode(bVar);
+	UnaryExpressionNode *u3 = new UnaryExpressionNode(v2);
+	UnaryExpressionNode *u4 = new UnaryExpressionNode(u3, "not");
+	BinaryExpressionNode *b2 = new BinaryExpressionNode(u4);
+	ExpressionNode *e2 = new ExpressionNode(b2);
+	linked_var *root2_var = new linked_var(&root2, e2);
+
+	assert(root_var->get_value().type == ltBOOL);
+	assert(root_var->get_value().value.boolval == false);
+	assert(root2_var->get_value().type == ltBOOL);
+	assert(root2_var->get_value().value.boolval == true);
+}
 
 VariableNode *TreeTest::create_var_node(int *i) {
 	// Code
@@ -362,6 +395,8 @@ void TreeTest::run_all_integration_tests() {
 	assert(r_link->get_value().value.boolval == true);
 	r_link = link_bool_lit_op_bool_var(&r, (2 > 2), &r, "or");
 	assert(r_link->get_value().value.boolval == false);
+
+	test_unary_ops();
 }
 
 int main() {
