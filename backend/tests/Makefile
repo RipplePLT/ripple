@@ -8,12 +8,6 @@ EXES        = vartest sync_test tree_test
 .PHONY: tests
 tests: $(EXES)
 
-vartest: vartest.o $(PARENT_OBJS)
-	$(CXX) vartest.o $(PARENT_OBJS) -o vartest $(CCFLAGS)
-
-vartest.o: vartest.cpp ../linked_var.o
-	$(CXX) -c vartest.cpp $(CCFLAGS)
-
 sync_test: sync_test.o ../sync_queue.o
 	$(CXX) sync_test.o ../sync_queue.o -o sync_test $(CCFLAGS)
 
@@ -25,6 +19,13 @@ tree_test: tree_test.o $(PARENT_OBJS)
 
 tree_test.o: tree_test.cpp
 	$(CXX) -c tree_test.cpp $(CCFLAGS)
+
+
+vartest: vartest.o $(PARENT_OBJS)
+	$(CXX) vartest.o $(PARENT_OBJS) -o vartest $(CCFLAGS)
+
+vartest.o: vartest.cpp ../linked_var.o
+	$(CXX) -c vartest.cpp $(CCFLAGS)
 
 .PHONY: clean
 clean:
