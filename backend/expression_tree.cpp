@@ -46,13 +46,13 @@ UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op)
 {
     op = str_to_op(_op);
     right_operand.u_exp = u;
-	refs = u->refs;
+	dependencies = u->dependencies;
 }
 UnaryExpressionNode::UnaryExpressionNode(ValueNode *v)
 {
     op = NONE;
     right_operand.v_node = v;
-	refs = v->refs;
+	dependencies = v->dependencies;
 }
 link_val UnaryExpressionNode::evaluate() {
 	link_val result = (op == NONE) ? this->right_operand.v_node->evaluate() :
@@ -66,7 +66,7 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     right_operand.b_exp = br;
     op = str_to_op(_op);
     left_is_binary = right_is_binary = true;
-	refs = ExpressionNode::ref_union(bl->refs, br->refs);
+	dependencies = ExpressionNode::dep_union(bl->dependencies, br->dependencies);
 }
 BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur) {
     left_operand.b_exp = bl;
@@ -74,19 +74,19 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     op = str_to_op(_op);
     left_is_binary = true;
     right_is_binary = false;
-	if (bl->refs == NULL && ur->refs == NULL)
-		refs = NULL;
-	else if (bl->refs == NULL)
-		refs = ur->refs;
-	else if (ur->refs == NULL)
-		refs = bl->refs;
+	if (bl->dependencies == NULL && ur->dependencies == NULL)
+		dependencies = NULL;
+	else if (bl->dependencies == NULL)
+		dependencies = ur->dependencies;
+	else if (ur->dependencies == NULL)
+		dependencies = bl->dependencies;
 	else
-		refs = ExpressionNode::ref_union(bl->refs, ur->refs);
+		dependencies = ExpressionNode::dep_union(bl->dependencies, ur->dependencies);
 }
 BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
     left_operand.u_exp = ul;
     op = NONE;
-	refs = ul->refs;
+	dependencies = ul->dependencies;
 }
 
 link_val BinaryExpressionNode::evaluate() {
@@ -105,10 +105,10 @@ link_val BinaryExpressionNode::evaluate() {
 		return left_value + right_value;
 		break;
 	case (TIMES):
-		return left_value - right_value;
+		return left_value * right_value;
 		break;
 	case (MINUS):
-		return left_value * right_value;
+		return left_value - right_value;
 		break;
 	case (DIV):
 		return left_value / right_value;
@@ -129,12 +129,12 @@ ExpressionNode::~ExpressionNode() { }
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     bin_exp = b;
     value = NULL;
-	refs = b->refs;
+	dependencies = b->dependencies;
 }
 link_val ExpressionNode::evaluate() {
 	return this->bin_exp->evaluate();
 }
-vector<void*> *ExpressionNode::ref_union(vector<void*> *r1, vector<void*> *r2) {
+vector<void*> *ExpressionNode::dep_union(vector<void*> *r1, vector<void*> *r2) {
 	int i;
 	if (r1 == NULL && r2 == NULL)
 		return NULL;
@@ -156,13 +156,13 @@ ValueNode::ValueNode(LiteralNode *l) {
 	this->is_literal = true;
 	this->lit_node = l;
 	
-	this->refs = NULL;
+	this->dependencies = NULL;
 }
 ValueNode::ValueNode(VariableNode *v) {
 	this->is_literal = false;
 	this->var_node = v;
 
-	this->refs = v->refs;
+	this->dependencies = v->dependencies;
 }
 link_val ValueNode::evaluate() {
 	return is_literal ? lit_node->evaluate() : var_node->evaluate();
@@ -172,12 +172,12 @@ link_val ValueNode::evaluate() {
 LiteralNode::LiteralNode(int i) {
 	this->val.type = ltINT;
 	this->val.value.intval = i;
-	this->refs = NULL;
+	this->dependencies = NULL;
 }
-LiteralNode::LiteralNode(float f) {
-	this->val.type = ltFLOAT;
-	this->val.value.floatval = f;
-	this->refs = NULL;
+LiteralNode::LiteralNode(double d) {
+	this->val.type = ltDOUBLE;
+	this->val.value.doubleval = d;
+	this->dependencies = NULL;
 }
 link_val LiteralNode::evaluate() {
 	return this->val;
@@ -189,16 +189,16 @@ VariableNode::VariableNode(int *var) {
 	this->val.type = ltINT_PTR;
 	this->val.value.ptr = (void *)var;
 
-	this->refs = new vector<void*>();
-	this->refs->push_back(this->val.value.ptr);
+	this->dependencies = new vector<void*>();
+	this->dependencies->push_back(this->val.value.ptr);
 }
-VariableNode::VariableNode(float *var) {
+VariableNode::VariableNode(double *var) {
 	this->var = var;
-	this->val.type = ltFLOAT_PTR;
+	this->val.type = ltDOUBLE_PTR;
 	this->val.value.ptr = (void *)var;
 
-	this->refs = new vector<void*>();
-	this->refs->push_back(this->val.value.ptr);
+	this->dependencies = new vector<void*>();
+	this->dependencies->push_back(this->val.value.ptr);
 }
 link_val VariableNode::evaluate() {
 	return this->val;

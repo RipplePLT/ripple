@@ -3,7 +3,7 @@ CXX = clang++
 CCFLAGS = -pthread -std=c++11
 
 .PHONY: tests
-tests: vartest sync_test
+tests: vartest sync_test tree_test
 
 main: main.o 
 	$(CXX) main.o -o main $(CCFLAGS)
@@ -35,9 +35,15 @@ sync_test.o: sync_test.cpp sync_test.hpp
 sync_queue.o: sync_queue.cpp sync_queue.hpp
 	$(CXX) -c sync_queue.cpp $(CCFLAGS)
 
+tree_test: tree_test.o expression_tree.o link_val.o linked_var.o
+	$(CXX) tree_test.o expression_tree.o link_val.o linked_var.o -o tree_test $(CCFLAGS)
+
+tree_test.o: tests/tree_test.cpp
+	$(CXX) -c tests/tree_test.cpp $(CCFLAGS)
+
 .PHONY: clean
 clean:
-	rm -rf main *.o test vartest sync_test
+	rm -rf main *.o test vartest sync_test tree_test
 
 .PHONY: all
 all: clean sync_test vartest main test

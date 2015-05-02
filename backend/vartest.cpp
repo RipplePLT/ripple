@@ -41,7 +41,7 @@ int main()
     VariableNode *l1 = new VariableNode (&x);
 	linked_var::references[&x] = new vector<linked_var*>();
     ValueNode *v1 = new ValueNode (l1);
-    LiteralNode *l2 = new LiteralNode (2);
+    LiteralNode *l2 = new LiteralNode (2.5);
     ValueNode *v2 = new ValueNode (l2);
     UnaryExpressionNode *u1 = new UnaryExpressionNode (v1);
     UnaryExpressionNode *u2 = new UnaryExpressionNode (v2);
@@ -53,7 +53,7 @@ int main()
 	/* === End of code for "link (y <- x + 2)" === */
 
     cout << "\tx == " << *(int *)var_x->get_value().value.ptr << endl;
-    cout << "\ty == " << var_y->get_value().value.intval << endl;
+    cout << "\ty == " << var_y->get_value().value.doubleval << endl;
 
 	/*
 	 * === Assignment ===
@@ -66,7 +66,7 @@ int main()
 	/* === End of code for "root = 6" === */
 
     cout << "\tx == " << *(int *)var_x->get_value().value.ptr << endl;
-    cout << "\ty == " << var_y->get_value().value.intval << endl;
+    cout << "\ty == " << var_y->get_value().value.doubleval << endl;
 
     return 0;
 }

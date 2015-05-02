@@ -35,10 +35,10 @@ union operand {
 class LiteralNode {
 public:
 	link_val val;
-	vector<void*> *refs;
+	vector<void*> *dependencies;
 
 	LiteralNode (int i);
-	LiteralNode (float f);
+	LiteralNode (double f);
 	link_val evaluate();
 };
 
@@ -54,10 +54,10 @@ class VariableNode {
 public:
 	link_val val;
 	void *var;
-	vector<void*> *refs;
+	vector<void*> *dependencies;
 
 	VariableNode (int *var);
-	VariableNode (float *var);
+	VariableNode (double *var);
 	link_val evaluate();
 };
 
@@ -69,7 +69,7 @@ public:
 	bool is_literal;
 	LiteralNode *lit_node;
 	VariableNode *var_node;
-	vector<void*> *refs;
+	vector<void*> *dependencies;
 
 	ValueNode (LiteralNode *l);
 	ValueNode (VariableNode *v);
@@ -80,7 +80,7 @@ class UnaryExpressionNode {
 public:
     enum e_op op;
     union operand right_operand;
-	vector<void*> *refs;
+	vector<void*> *dependencies;
 
     UnaryExpressionNode(UnaryExpressionNode *u, string _op);
     UnaryExpressionNode(ValueNode *v);
@@ -95,7 +95,7 @@ public:
     enum e_op op;
     bool left_is_binary;
     bool right_is_binary;
-	vector<void*> *refs;
+	vector<void*> *dependencies;
 
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br);
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
@@ -108,13 +108,13 @@ class ExpressionNode {
 public:
     BinaryExpressionNode *bin_exp;
     ValueNode *value;
-	vector<void*> *refs;
+	vector<void*> *dependencies;
 
 	ExpressionNode();
 	~ExpressionNode();
     ExpressionNode(BinaryExpressionNode *b);
 	link_val evaluate();
-	static vector<void*> *ref_union(vector<void*> *r1, vector<void*> *r2);
+	static vector<void*> *dep_union(vector<void*> *r1, vector<void*> *r2);
 };
 
 #endif

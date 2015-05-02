@@ -21,7 +21,7 @@ public:
 	//   which depend on that memory address.
 	static unordered_map<void *, vector<linked_var *>*> references;
 
-	linked_var(int *var, ExpressionNode *exp); // Ctor
+	linked_var(void *var, ExpressionNode *exp); // Ctor
 	link_val get_value();
 	void update(link_val new_value); // Assignment
 	void update(); // For testing only

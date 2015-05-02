@@ -16,7 +16,7 @@ unordered_map<void *, vector<linked_var *>*> linked_var::references;
  * It takes a pointer to the corresponding C++ variable, and the
  * link expression represented as an ExpressionNode.
  */
-linked_var::linked_var(int *var, ExpressionNode *exp) {
+linked_var::linked_var(void *var, ExpressionNode *exp) {
 	int i;
 
 	// Assign member values
@@ -25,9 +25,9 @@ linked_var::linked_var(int *var, ExpressionNode *exp) {
 	this->value = exp->evaluate();
 
 	// Put references into dependency tree
-	if (exp->refs != NULL)
-		for (i = 0; i < exp->refs->size(); i++)
-			references[(*exp->refs)[i]]->push_back(this);
+	if (exp->dependencies != NULL)
+		for (i = 0; i < exp->dependencies->size(); i++)
+			references[(*exp->dependencies)[i]]->push_back(this);
 
 	// Set the corresponding C++ variable to the proper value.
 	this->update_cpp_var();
@@ -45,11 +45,11 @@ void linked_var::update_cpp_var() {
 	case (ltINT_PTR): 
 		*(int *)(this->address) = *(int *)this->value.value.ptr;
 		break;
-	case (ltFLOAT):
-		*(float *)(this->address) = this->value.value.floatval;
+	case (ltDOUBLE):
+		*(double *)(this->address) = this->value.value.doubleval;
 		break;
-	case (ltFLOAT_PTR):
-		*(float *)(this->address) = *(float *)this->value.value.ptr;
+	case (ltDOUBLE_PTR):
+		*(double *)(this->address) = *(double *)this->value.value.ptr;
 	default:
 		break;
 	}
