@@ -1,9 +1,4 @@
-#include <assert.h>
-#include <iostream>
-
-#include "../sync_queue.hpp"
 #include "sync_test.hpp"
-#include "../link_val.hpp"
 
 int main() {
 

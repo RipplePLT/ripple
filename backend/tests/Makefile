@@ -1,12 +1,19 @@
 CC          = g++-4.9
 CXX         = clang++
-CCFLAGS     = -pthread -std=c++11
+CCFLAGS     = -I ../parse_lib -pthread -std=c++11
 PARENT_OBJS = ../expression_tree.o ../link_val.o ../linked_var.o
-CUR_OBJS    = tree_test.o sync_test.o vartest.o
-EXES        = vartest sync_test tree_test
+CUR_OBJS    = html_parse_test.o sync_test.o tree_test.o vartest.o \
+	      xml_parse_test.o
+EXES        = html_parse_test sync_test tree_test vartest xml_parse_test
 
 .PHONY: tests
 tests: $(EXES)
+
+html_parse_test: html_parse_test.o
+	$(CXX) html_parse_test.o -L ../lib -lhtml -o html_parse_test
+
+html_parse_test.o: html_parse_test.cpp html_parse_test.hpp
+	$(CXX) -c -static html_parse_test.cpp $(CCFLAGS)
 
 sync_test: sync_test.o ../sync_queue.o
 	$(CXX) sync_test.o ../sync_queue.o -o sync_test $(CCFLAGS)
@@ -20,12 +27,17 @@ tree_test: tree_test.o $(PARENT_OBJS)
 tree_test.o: tree_test.cpp
 	$(CXX) -c tree_test.cpp $(CCFLAGS)
 
-
 vartest: vartest.o $(PARENT_OBJS)
 	$(CXX) vartest.o $(PARENT_OBJS) -o vartest $(CCFLAGS)
 
 vartest.o: vartest.cpp ../linked_var.o
 	$(CXX) -c vartest.cpp $(CCFLAGS)
+
+xml_parse_test: xml_parse_test.o
+	$(CXX) xml_parse_test.o -L ../lib -lxml -o xml_parse_test
+
+xml_parse_test.o: xml_parse_test.cpp xml_parse_test.hpp
+	$(CXX) -c -static xml_parse_test.cpp $(CCFLAGS)
 
 .PHONY: clean
 clean:
