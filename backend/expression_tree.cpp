@@ -116,6 +116,30 @@ link_val BinaryExpressionNode::evaluate() {
 	case (EXP):
 		return left_value ^ right_value;
 		break;
+	case (GT):
+		return left_value > right_value;
+		break;
+	case (LT):
+		return left_value < right_value;
+		break;
+	case (GE):
+		return left_value >= right_value;
+		break;
+	case (LE):
+		return left_value <= right_value;
+		break;
+	case (EQ):
+		return left_value == right_value;
+		break;
+	case (NE):
+		return left_value != right_value;
+		break;
+	case (bAND):
+		return left_value && right_value;
+		break;
+	case (bOR):
+		return left_value || right_value;
+		break;
 	default:
 		result.type = ltNONE;
 		result.value.ptr = NULL;
@@ -179,6 +203,11 @@ LiteralNode::LiteralNode(double d) {
 	this->val.value.doubleval = d;
 	this->dependencies = NULL;
 }
+LiteralNode::LiteralNode(bool b) {
+	this->val.type = ltBOOL;
+	this->val.value.boolval = b;
+	this->dependencies = NULL;
+}
 link_val LiteralNode::evaluate() {
 	return this->val;
 }
@@ -195,6 +224,14 @@ VariableNode::VariableNode(int *var) {
 VariableNode::VariableNode(double *var) {
 	this->var = var;
 	this->val.type = ltDOUBLE_PTR;
+	this->val.value.ptr = (void *)var;
+
+	this->dependencies = new vector<void*>();
+	this->dependencies->push_back(this->val.value.ptr);
+}
+VariableNode::VariableNode(bool *var) {
+	this->var = var;
+	this->val.type = ltBOOL_PTR;
 	this->val.value.ptr = (void *)var;
 
 	this->dependencies = new vector<void*>();
