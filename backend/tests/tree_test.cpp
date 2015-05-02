@@ -14,7 +14,7 @@ public:
 	static linked_var *link_int_var(int *i);
 	static linked_var *link_double_var(double *d);
 	static linked_var *link_int_lit_op_double_var
-		(double *linked, int i, double *d, const char *op);
+		(void *linked, int i, double *d, const char *op);
 	static void run_all_unit_tests();
 	static void run_all_integration_tests();
 };
@@ -212,7 +212,7 @@ linked_var *TreeTest::link_double_var(double *d) {
 /* @TODO Link to double (op) double */
 
 /* Link to int literal (op) double var */
-linked_var *TreeTest::link_int_lit_op_double_var(double *linked, int i,
+linked_var *TreeTest::link_int_lit_op_double_var(void *linked, int i,
 		double *d, const char *op) {
 	// Determine target value
 	double target;
@@ -247,8 +247,12 @@ linked_var *TreeTest::link_int_lit_op_double_var(double *linked, int i,
 
 	// Operation
 	BinaryExpressionNode *bin = new BinaryExpressionNode (b1, op, b2);
-	assert(bin->evaluate().type == ltDOUBLE);
-	assert(bin->evaluate().value.doubleval == target);
+	if (link_val::is_bool_op(op)) {
+		assert(bin->evaluate().type == ltBOOL);
+	} else {
+		assert(bin->evaluate().type == ltDOUBLE);
+		assert(bin->evaluate().value.doubleval == target);
+	}
 
 	ExpressionNode *exp = new ExpressionNode(bin);
 	linked_var *var = new linked_var(linked, exp);
@@ -278,7 +282,28 @@ void TreeTest::run_all_integration_tests() {
 	z_link = link_int_lit_op_double_var(&z, a, &b, "/");
 	assert(z_link->get_value().value.doubleval == 2);
 
-	b = 2;
+	bool q;
+	z_link = link_int_lit_op_double_var(&q, a, &b, ">");
+	assert(z_link->get_value().value.boolval == true);
+	z_link = link_int_lit_op_double_var(&q, a, &b, ">=");
+	assert(z_link->get_value().value.boolval == true);
+
+	z_link = link_int_lit_op_double_var(&q, a, &b, "<");
+	assert(z_link->get_value().value.boolval == false);
+	z_link = link_int_lit_op_double_var(&q, a, &b, "<=");
+	assert(z_link->get_value().value.boolval == false);
+
+	b = 5;
+	z_link = link_int_lit_op_double_var(&q, a, &b, ">=");
+	assert(z_link->get_value().value.boolval == true);
+	z_link = link_int_lit_op_double_var(&q, a, &b, "<=");
+	assert(z_link->get_value().value.boolval == true);
+	z_link = link_int_lit_op_double_var(&q, a, &b, "==");
+	assert(z_link->get_value().value.boolval == true);
+	z_link = link_int_lit_op_double_var(&q, a, &b, "!=");
+	assert(z_link->get_value().value.boolval == false);
+
+	a = 5, b = 2;
 	z_link = link_int_lit_op_double_var(&z, a, &b, "^");
 	assert(z_link->get_value().value.doubleval == 25);
 }

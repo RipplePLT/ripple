@@ -1,7 +1,17 @@
 #include <cmath>
 #include <string.h>
 #include <stdio.h>
+#include <iostream>
 #include "link_val.hpp"
+
+bool link_val::is_bool_op(const char *op) {
+	return (!strcmp(op, ">") ||
+		!strcmp(op, "<") ||
+		!strcmp(op, ">=") ||
+		!strcmp(op, "<=") ||
+		!strcmp(op, "==") ||
+		!strcmp(op, "!="));
+}
 
 int link_val::get_int_val() const {
 	return (type == ltINT) ? value.intval :
@@ -29,6 +39,18 @@ T link_val::generic_op(T a, T b, const char *op) {
 		return a / b;
 	else if (!strcmp(op, "^"))
 		return pow(a, b);
+	else if (!strcmp(op, ">"))
+		return a > b;
+	else if (!strcmp(op, "<"))
+		return a < b;
+	else if (!strcmp(op, ">="))
+		return a >= b;
+	else if (!strcmp(op, "<="))
+		return a <= b;
+	else if (!strcmp(op, "=="))
+		return a == b;
+	else if (!strcmp(op, "!="))
+		return a != b;
 	else
 		return 0;
 }
@@ -48,8 +70,14 @@ link_val link_val::integer_op(link_val a, link_val b, const char *op) {
 	a_int = a.get_int_val();
 	b_int = b.get_int_val();
 
-	result->type = ltINT;
-	result->value.intval = generic_op<int>(a_int, b_int, op);
+	if (is_bool_op(op)) {
+		result->type = ltBOOL;
+		result->value.boolval = generic_op<int>(a_int, b_int, op);
+	} else {
+		result->type = ltINT;
+		result->value.intval = generic_op<int>(a_int, b_int, op);
+	}
+
 	return *result;
 }
 
@@ -60,8 +88,14 @@ link_val link_val::double_op(link_val a, link_val b, const char *op) {
 	a_double = a.get_double_val();
 	b_double = b.get_double_val();
 
-	result->type = ltDOUBLE;
-	result->value.doubleval = generic_op<double>(a_double, b_double, op);
+	if (is_bool_op(op)) {
+		result->type = ltBOOL;
+		result->value.boolval = generic_op<double>(a_double, b_double, op);
+	} else {
+		result->type = ltDOUBLE;
+		result->value.doubleval = generic_op<double>(a_double, b_double, op);
+	}
+
 	return *result;
 }
 
@@ -83,4 +117,28 @@ link_val link_val::operator/(const link_val &other) const {
 
 link_val link_val::operator^(const link_val &other) const {
 	return link_val_op(*this, other, "^");
+}
+
+link_val link_val::operator>(const link_val &other) const {
+	return link_val_op(*this, other, ">");
+}
+
+link_val link_val::operator<(const link_val &other) const {
+	return link_val_op(*this, other, "<");
+}
+
+link_val link_val::operator>=(const link_val &other) const {
+	return link_val_op(*this, other, ">=");
+}
+
+link_val link_val::operator<=(const link_val &other) const {
+	return link_val_op(*this, other, "<=");
+}
+
+link_val link_val::operator==(const link_val &other) const {
+	return link_val_op(*this, other, "==");
+}
+
+link_val link_val::operator!=(const link_val &other) const {
+	return link_val_op(*this, other, "!=");
 }

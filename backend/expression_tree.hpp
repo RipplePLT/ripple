@@ -39,6 +39,7 @@ public:
 
 	LiteralNode (int i);
 	LiteralNode (double f);
+	LiteralNode (bool b);
 	link_val evaluate();
 };
 
@@ -58,6 +59,7 @@ public:
 
 	VariableNode (int *var);
 	VariableNode (double *var);
+	VariableNode (bool *var);
 	link_val evaluate();
 };
 
