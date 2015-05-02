@@ -2,25 +2,21 @@
 #define STREAM_READER_HPP
 
 #include <thread>
-#include <string>
-#include <iostream>
+#include <functional>
 
 using namespace std;
 
-class StreamReader {
-    private:
-//        ifstream istream;
-        thread *stream_thread;
-        int* to_update;
-        bool stop_thread;
+virtual class StreamReader {
 
     public:
-
-        StreamReader(int* update);
+        StreamReader(void *func());
         ~StreamReader();
-        void run_stream_thread();
 
-
+    protected:
+        thread *stream_thread;
+        bool stop_stream;
+        void* func;
+        virtual void run_stream_thread();
 };
 
 #endif
