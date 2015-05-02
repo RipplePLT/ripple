@@ -1,8 +1,12 @@
 #ifndef SYNC_TEST_HPP
 #define SYNC_TEST_HPP
 
-#include "expression_tree.hpp"
-#include "link_val.hpp"
+#include <assert.h>
+#include <iostream>
+
+#include "../expression_tree.hpp"
+#include "../link_val.hpp"
+#include "../sync_queue.hpp"
 
 void test_sync_queue_creation();
 void test_empty_queue_creation(sync_queue& test);

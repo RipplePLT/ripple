@@ -1,21 +1,10 @@
-CC = g++-4.9
-CXX = clang++
+CC      = g++-4.9
+CXX     = clang++
 CCFLAGS = -pthread -std=c++11
+OBJS    = linked_var.o link_val.o sync_queue.o expression_tree.o
 
-.PHONY: tests
-tests: vartest sync_test tree_test
-
-main: main.o 
-	$(CXX) main.o -o main $(CCFLAGS)
-
-main.o: main.cpp
-	$(CXX) -c main.cpp $(CCFLAGS)
-
-vartest: vartest.o expression_tree.o link_val.o
-	$(CXX) vartest.o linked_var.o expression_tree.o link_val.o -o vartest $(CCFLAGS)
-
-vartest.o: vartest.cpp linked_var.o
-	$(CXX) -c vartest.cpp $(CCFLAGS)
+.PHONY: objects
+objects: $(OBJS)
 
 linked_var.o: linked_var.cpp linked_var.hpp
 	$(CXX) -c linked_var.cpp $(CCFLAGS)
@@ -26,24 +15,23 @@ expression_tree.o: expression_tree.cpp expression_tree.hpp
 link_val.o: link_val.cpp link_val.hpp
 	$(CXX) -c link_val.cpp $(CCFLAGS)
 
-sync_test: sync_test.o sync_queue.o
-	$(CXX) sync_test.o sync_queue.o -o sync_test $(CCFLAGS)
-
-sync_test.o: sync_test.cpp sync_test.hpp
-	$(CXX) -c sync_test.cpp $(CCFLAGS)
-
 sync_queue.o: sync_queue.cpp sync_queue.hpp
 	$(CXX) -c sync_queue.cpp $(CCFLAGS)
 
-tree_test: tree_test.o expression_tree.o link_val.o linked_var.o
-	$(CXX) tree_test.o expression_tree.o link_val.o linked_var.o -o tree_test $(CCFLAGS)
-
-tree_test.o: tests/tree_test.cpp
-	$(CXX) -c tests/tree_test.cpp $(CCFLAGS)
+.PHONY: clean-subdirs
+clean-subdirs:
+	cd ./parse_lib; make clean; cd ../tests; make clean;
 
 .PHONY: clean
 clean:
-	rm -rf main *.o test vartest sync_test tree_test
+	rm -rf $(OBJS)
+
+.PHONY: clean-all
+clean-all: clean clean-subdirs
+
+.PHONY: subdirs
+subdirs:
+	cd ./parse_lib; make all; cd ../tests; make all;
 
 .PHONY: all
-all: clean sync_test vartest main test
+all: clean objects subdirs
