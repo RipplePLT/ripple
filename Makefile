@@ -1,7 +1,7 @@
 .PHONY: default
 default: rpl
 
-VPATH=.:frontend
+VPATH=.:frontend:misc
 
 debug: MODE=-DDEBUG
 debug: rpl
@@ -17,14 +17,17 @@ YFLAGS= -Wnone
 LFLAGS= 
 MISCFLAGS= 
 
-rpl: ast.o ripple.tab.o lex.yy.o libsym.a
-	$(CXX) -o rpl ast.o ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o frontend/symbol_table/hashmap.o $(LDLIBS) -lfl
+rpl: ast.o ripple.tab.o lex.yy.o debug_tools.o libsym.a
+	$(CXX) -o rpl ast.o ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o frontend/symbol_table/hashmap.o debug_tools.o $(LDLIBS) -lfl
 	rm -f *.o *.hpp *.cpp *.c *.cc
 
 ast.o: ast.cpp ast.h
 	$(CXX) -c frontend/ast.cpp $(CXXFLAGS)
 
-lex.yy.o: lex.yy.c ripple.tab.hpp ast.h
+debug_tools.o: debug_tools.cpp debug_tools.h
+	$(CXX) -c misc/debug_tools.cpp $(CXXFLAGS)
+
+lex.yy.o: lex.yy.c ripple.tab.hpp ast.h debug_tools.h
 	$(CXX) -c lex.yy.c $(CXXFLAGS)
 
 lex.yy.c: ripple.l ripple.tab.hpp ast.h

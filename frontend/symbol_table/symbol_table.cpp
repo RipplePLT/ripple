@@ -61,14 +61,21 @@ void SymbolTable::scope_out(int line_no) {
 }
 
 void SymbolTable::insert_reserved_words(){
-    
     for(std::vector<string>::iterator it = reserved.begin(); it != reserved.end(); ++it) {
-        put(*it, tVOID, -1);
+        put(*it, tVOID, -1, tNOSTYPE);
     }
 }
 
-bool SymbolTable::put(string word, e_type v, int line_no) {
-    return current->hashmap->put(word, v, line_no);
+bool SymbolTable::put(string word, e_type v, int line_no, e_symbol_type s = tNOSTYPE) {
+    return current->hashmap->put(word, v, line_no, s);
+}
+
+void SymbolTable::classify(string word, e_symbol_type s) {
+    get(word)->classify(s);
+}
+
+void SymbolTable::add_args(string word, list<e_type> *l) {
+    get(word)->add_args(l);
 }
 
 bool SymbolTable::contains(string word) {
@@ -99,4 +106,3 @@ Entry *SymbolTable::get(string word) {
 SymbolTable::~SymbolTable() {
     delete start;
 }
-

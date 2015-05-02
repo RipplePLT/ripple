@@ -33,6 +33,7 @@
 #define INVAL_BINARY_LE_ERR "\tbinary le error"
 #define INVAL_BINARY_AND_ERR "\tbinary and error"
 #define INVAL_BINARY_OR_ERR "\tbinary or error"
+#define INVAL_FUNC_CALL_ERR "\tfunction call error"
 #define LOOP_CONDITION_ERR "\tloop condition error"
 #define ERROR "error"
 #define COMPILE_ERR "compilation halted because of error in code"
@@ -106,18 +107,16 @@ union statements {
     LoopStatementNode *loop;
 };
 
-
 class Node {
 public:
     string code;
-    e_type type = tNONE;
+    e_type type = tNOTYPE;
     e_type get_type();
     bool is_number();
     bool is_bool();
     bool is_string();
     bool is_byte();
 };
-
 
 class ValueNode: public Node {
 public:
@@ -136,27 +135,31 @@ class IDNode: public Node {
 Entry *entry;
 public:
     IDNode(Entry *ent);
+    string get_name();
+    e_type get_type();
     ~IDNode();
 };
 
 
 class FunctionCallNode: public Node {
 ArgsNode *args_list;
-IDNode *func_name;
+IDNode *func_id;
 
 public:
     FunctionCallNode(IDNode *f, ArgsNode *a);
     FunctionCallNode(IDNode *f);
-    string generate_std_rpl_function(string function_name, ArgsNode *args);
+    void typecheck(list<e_type> *l);
+    string generate_std_rpl_function();
 };
 
 
 class ArgsNode: public Node {
 public:
-    std::vector<ExpressionNode*> args_list;
+    std::vector<ExpressionNode*> *args_list;
 
     ArgsNode();
     ArgsNode(ExpressionNode *arg);
+    list<e_type> *to_enum_list();
     void add_arg(ExpressionNode *arg);
 };
 
@@ -168,6 +171,7 @@ public:
     DeclArgsNode();
     DeclArgsNode(IDNode* arg);
     void add_arg(IDNode* arg);
+    list<e_type> *to_enum_list();
 };
 
 
@@ -319,4 +323,8 @@ public:
     void seppuku();
 };
 
+class ProgramNode: public Node {
+    public:
+    ProgramNode(FunctionNode *f);
+};
 #endif

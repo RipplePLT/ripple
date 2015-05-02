@@ -149,64 +149,70 @@ IDNode::~IDNode() { }
 
 /* FunctionCallNode */
 FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a) {
-    func_name = f;
+    func_id = f;
     args_list = a;
     type = f->type;
 
-    if(IS_STD_RPL_FUNCTION(func_name->code)){
-        code = generate_std_rpl_function(func_name->code, a);
+    if(IS_STD_RPL_FUNCTION(func_id->code)){
+        code = generate_std_rpl_function();
     } else {
         code = f->code + "( " + a->code + " )";
     }   
 }
 
 FunctionCallNode::FunctionCallNode(IDNode *f) {
-    func_name = f;
+    func_id = f;
+    args_list = new ArgsNode();
     type = f->type;
-    if(IS_STD_RPL_FUNCTION(func_name->code)){
-        code = generate_std_rpl_function(func_name->code, nullptr);
+    
+    if(IS_STD_RPL_FUNCTION(func_id->code)){
+        code = generate_std_rpl_function();
     } else {
         code = f->code + "()";
-    }  
-    
+    }   
 }
 
-string FunctionCallNode::generate_std_rpl_function(string function_name, ArgsNode *a){
-    
+void FunctionCallNode::typecheck(list<e_type> *l) {
+    if (*l != *args_list->to_enum_list()) {
+        error = true;
+        cout << INVAL_FUNC_CALL_ERR << endl;
+    }
+}
+
+string FunctionCallNode::generate_std_rpl_function(){
+    string func_name = func_id->code;
     string code;
-    if (function_name.compare(RPL_STD_OUTPUT_FUNCTION) == 0){
+    if (func_name.compare(RPL_STD_OUTPUT_FUNCTION) == 0){
         code = "std::cout << ";
-        if(a){
-            for(std::vector<ExpressionNode *>::iterator it = a->args_list.begin(); it != a->args_list.end(); ++it) {
-                code += (*it)->code + " << \" \" << ";
-            }
+        for(std::vector<ExpressionNode *>::iterator it = args_list->args_list->begin(); it != args_list->args_list->end(); ++it) {
+            code += (*it)->code + " << \" \" << ";
         }
         code += "std::endl";
-    } else if (function_name.compare(RPL_STD_INPUT_FUNCTION) == 0){
+    } else if (func_name.compare(RPL_STD_INPUT_FUNCTION) == 0){
 
-    } else if (function_name.compare(RPL_STD_OPEN_FUNCTION) == 0){
+    } else if (func_name.compare(RPL_STD_OPEN_FUNCTION) == 0){
 
-    } else if (function_name.compare(RPL_STD_CLOSE_FUNCTION) == 0){
+    } else if (func_name.compare(RPL_STD_CLOSE_FUNCTION) == 0){
 
-    } else if (function_name.compare(RPL_STD_READ_FUNCTION) == 0){
+    } else if (func_name.compare(RPL_STD_READ_FUNCTION) == 0){
 
     }
-
     return code;
 }
 
 /* ArgsNode */
 ArgsNode::ArgsNode() {
+    args_list = new vector<ExpressionNode *>(); 
     code = "";
 }
 
 ArgsNode::ArgsNode(ExpressionNode *arg) {
-    args_list.push_back(arg);
+    args_list->push_back(arg);
     code = arg->code;
 }
 
 void ArgsNode::add_arg(ExpressionNode *arg) {
-    args_list.push_back(arg);
+    args_list->push_back(arg);
 
     if(code.compare("") == 0)
         code += arg->code;
@@ -214,6 +220,13 @@ void ArgsNode::add_arg(ExpressionNode *arg) {
         code += ", " + arg->code;
 }
 
+list<e_type> *ArgsNode::to_enum_list() {
+    list<e_type> *ret = new list<e_type>();
+    for (vector<ExpressionNode *>::iterator i = args_list->begin(); i != args_list->end(); i++) {
+        ret->push_back((*i)->type);
+    }
+    return ret;
+}
 
 /* DeclArgsNode */
 DeclArgsNode::DeclArgsNode() {
@@ -654,7 +667,6 @@ FunctionNode::FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_arg
     id = id_node;
     decl_args = decl_args_list;
     stmt_list = stmt_list_n;
-    //TODO typing and symbol_table interactions
     
     transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
 
@@ -663,4 +675,25 @@ FunctionNode::FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_arg
 
 void FunctionNode::seppuku(){
     delete this;
+}
+
+e_type IDNode::get_type() {
+    return entry->type;
+}
+
+string IDNode::get_name() {
+    return entry->name;
+}
+
+list<e_type> *DeclArgsNode::to_enum_list() {
+    list<e_type> *ret = new list<e_type>();
+    for (vector<IDNode *>::iterator i = decl_args_list.begin(); i != decl_args_list.end(); i++) {
+        ret->push_back((*i)->get_type());
+    }
+    return ret;
+}
+
+/* ProgramNode */
+ProgramNode::ProgramNode(FunctionNode *f) {
+    code = f->code;
 }

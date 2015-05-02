@@ -5,6 +5,7 @@
 #include <iostream>
 #include "frontend/symbol_table/symbol_table.h"
 #include "frontend/ast.h"
+#include "misc/debug_tools.h"
 using namespace std;
 
 extern int yylex();
@@ -14,16 +15,11 @@ void yyerror(const char *s) { printf("%s\n", s); }
 extern SymbolTable sym_table;
 
 extern int line_no;
-
-void d(string m) {
-#ifdef DEBUG
-    cout << m << endl;
-#endif
-}
 %}
 
 
 %union {
+    ProgramNode *prog;
     FunctionNode *func;
 
     StatementListNode *stmt_list;    
@@ -99,6 +95,7 @@ void d(string m) {
 %token tR_BRACKET
 %token tL_CURLY
 %token tR_CURLY
+%type <prog> program program_section
 %type <idn> id
 %type <string> dtype
 %type <lit> literal
@@ -146,9 +143,20 @@ void d(string m) {
 
 %%
 
-function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $4, $6); d("function"); delete $1; delete $4; if(!error) write_to_file(filename_cpp, $$->code); $$->seppuku();}
+program : program program_section                                         { $$ = $2; write_to_file(filename_cpp, $$->code); d("program");  }
+       |
+       ;
 
-statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{\n" + $2->code + "}\n"; d("statement_block - curly_statement_block"); }
+program_section : function { $$ = new ProgramNode($1); d("program section"); }
+
+function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $4, $6);
+                                                                  d("function");
+                                                                  sym_table.classify($2->get_name(), tFUNC);
+                                                                  sym_table.add_args($2->get_name(), $4->to_enum_list());
+                                                                }
+         ;
+
+statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{\n" + $2->code + "}\n"; d("statement_block"); }
                 ;
 
 statement_list : statement_list statement       { $1->push_statement($2); d("statement_list - stmt-list"); }
@@ -168,8 +176,9 @@ jump_statement : RETURN expression tSEMI        { $$ = new JumpStatementNode("RE
                ;
 
 
-conditional_statement : IF tL_PAREN expression tR_PAREN statement_block else_statement  { $$ = new ConditionalStatementNode($3, $5, $6); d("conditional statement"); }
-                        ;
+conditional_statement : IF tL_PAREN expression tR_PAREN statement_block else_statement  { $$ = new ConditionalStatementNode($3, $5, $6);
+                                                                                          d("conditional statement"); }
+                      ;
 
 else_statement : ELSE statement_block   { $$ = $2; d("else statement"); }
                 |                       { $$ = NULL; }
@@ -182,8 +191,8 @@ declarative_statement : dtype expression tSEMI   { $$ = new DeclarativeStatement
                       | expression tSEMI         { $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
                       ;
 
-opt_expression : expression tL_PAREN           { $$ = $1; }
-               |                               { $$ = NULL; }
+opt_expression : expression tL_PAREN           { $$ = $1; d("opt_expression"); }
+               |                               { $$ = NULL; d("no opt_expression");}
                ;
 
 expression : or_expression               { $$ = new ExpressionNode($1);  d("expression"); }
@@ -243,12 +252,12 @@ value : literal            { $$ = new ValueNode($1); d("value - literal"); }
 
 args : args tCOMMA expression   { $1->add_arg($3); d("arg added - 1"); }
      | expression               { $$ = new ArgsNode(); $$->add_arg($1); d("arg added"); }
-     |                          { $$ = new ArgsNode(); }
+     |                          { $$ = new ArgsNode(); d("empty arg");}
      ;
 
-decl_args : decl_args tCOMMA dtype id   { $1->add_arg($4); d("arg added - 1"); }
-          | dtype id                    { $$ = new DeclArgsNode(); $$->add_arg($2); d("arg added"); }
-          |                             { $$ = new DeclArgsNode(); }
+decl_args : decl_args tCOMMA dtype id   { $1->add_arg($4); d("decl arg added - 1"); }
+          | dtype id                    { $$ = new DeclArgsNode(); $$->add_arg($2); d("decl arg added"); }
+          |                             { $$ = new DeclArgsNode(); d("empty decl arg"); }
           ;
 
 function_call : id tL_PAREN args tR_PAREN { $$ = new FunctionCallNode($1, $3); d("function call"); }
@@ -260,7 +269,7 @@ array_access : value tL_BRACKET expression tR_BRACKET { $$ = new ArrayAccessNode
 dataset_access : value tACCESS id { $$ = new DatasetAccessNode($1, $3); d("Dataset access");}
                ;
 
-id : VAR { $$ = new IDNode(sym_table.get(*yylval.string)); }
+id : VAR { $$ = new IDNode(sym_table.get(*yylval.string)); d("id");}
 
 dtype : TYPE { $$ = yylval.string; d("type: " + *yylval.string); }
 
