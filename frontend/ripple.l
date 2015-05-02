@@ -13,6 +13,7 @@ int line_no = 1;
 bool error = false;
 string filename_cpp;
 string filename;
+string cpp_code;
 
 bool saw_type;
 e_type last_type;
@@ -145,7 +146,7 @@ int main(int argc, char **argv) {
     	cout << COMPILE_ERR << endl;
     	return 1;
     }
-
+    write_to_file(filename_cpp, cpp_code);
     string compile_cpp = "clang++ " + filename_cpp + " -o " + filename;
     system(compile_cpp.c_str());
    

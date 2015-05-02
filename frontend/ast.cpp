@@ -1,5 +1,6 @@
 #include "ast.h"
 #include <string>
+#include "../misc/debug_tools.h"
 
 enum e_op str_to_op(const std::string op_string) {
     if(op_string.compare("+") == 0)
@@ -52,11 +53,11 @@ enum e_type str_to_type(const std::string type){
 }
 
 enum e_jump str_to_jump(const std::string type){
-    if (type.compare("RETURN") == 0)
+    if (type.compare("return") == 0)
         return tRETURN;
-    else if (type.compare("BREAK") == 0)
+    else if (type.compare("break") == 0)
         return tBREAK;
-    else if (type.compare("CONTINUE") == 0)
+    else if (type.compare("continue") == 0)
         return tCONTINUE;
 }
 
@@ -148,10 +149,12 @@ IDNode::~IDNode() { }
 
 
 /* FunctionCallNode */
-FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a) {
+FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a, Entry *entry) {
     func_id = f;
     args_list = a;
     type = f->type;
+
+    typecheck(entry);
 
     if(IS_STD_RPL_FUNCTION(func_id->code)){
         code = generate_std_rpl_function();
@@ -164,7 +167,7 @@ FunctionCallNode::FunctionCallNode(IDNode *f) {
     func_id = f;
     args_list = new ArgsNode();
     type = f->type;
-    
+   
     if(IS_STD_RPL_FUNCTION(func_id->code)){
         code = generate_std_rpl_function();
     } else {
@@ -172,8 +175,10 @@ FunctionCallNode::FunctionCallNode(IDNode *f) {
     }   
 }
 
-void FunctionCallNode::typecheck(list<e_type> *l) {
-    if (*l != *args_list->to_enum_list()) {
+void FunctionCallNode::typecheck(Entry *entry) {
+    cout << &entry << endl;
+    cout << &entry->args << endl;
+    if (entry->args != *args_list->to_enum_list()) {
         error = true;
         cout << INVAL_FUNC_CALL_ERR << endl;
     }
@@ -235,14 +240,22 @@ DeclArgsNode::DeclArgsNode() {
 
 DeclArgsNode::DeclArgsNode(IDNode* arg) {
     decl_args_list.push_back(arg);
-    code = arg->code;
+
+    code = type_to_str(arg->type) + " " + arg->code;
 }
 
 void DeclArgsNode::add_arg(IDNode* arg) {
     decl_args_list.push_back(arg);
-    code += arg->code;
+    code += ", " + type_to_str(arg->type) + " " + arg->code;
 }
 
+vector<IDNode *>::iterator DeclArgsNode::begin() {
+    return decl_args_list.begin();
+}
+
+vector<IDNode *>::iterator DeclArgsNode::end() {
+    return decl_args_list.end();
+}
 
 /* LiteralNode */
 LiteralNode::LiteralNode(int i) {
@@ -656,8 +669,18 @@ StatementNode::StatementNode(LoopStatementNode *l) {
 }
 
 /* StatementListNode */
+StatementListNode::StatementListNode() {
+    stmt_list = new vector<StatementNode *>();
+    st_node = nullptr;
+}
+
+StatementListNode::StatementListNode(SymbolTableNode *s) {
+    stmt_list = new vector<StatementNode *>();
+    st_node = s;
+}
+
 void StatementListNode::push_statement(StatementNode *s) {
-    stmt_list.push_back(s);
+    stmt_list->push_back(s);
     code = code + s->code;
 }
 
@@ -670,7 +693,11 @@ FunctionNode::FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_arg
     
     transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
 
-    code = _type + " " + id_node->code + "(" + decl_args_list->code + ")" + stmt_list_n->code; 
+    if (id_node->code.compare("main") == 0) {
+        code = "int " + id_node->code + "(" + decl_args_list->code + ")" + stmt_list_n->code; 
+    } else {
+        code = _type + " " + id_node->code + "(" + decl_args_list->code + ")" + stmt_list_n->code;
+    }
 }
 
 void FunctionNode::seppuku(){
@@ -693,7 +720,17 @@ list<e_type> *DeclArgsNode::to_enum_list() {
     return ret;
 }
 
-/* ProgramNode */
-ProgramNode::ProgramNode(FunctionNode *f) {
+/* ProgramSectionNode */
+ProgramSectionNode::ProgramSectionNode(FunctionNode *f) {
+    contents.function = f;
     code = f->code;
+}
+
+/* ProgramNode */
+ProgramNode::ProgramNode() {
+    code = "";
+}
+
+void ProgramNode::add_section(ProgramSectionNode *p) {
+    code += p->code;
 }

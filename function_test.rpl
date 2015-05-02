@@ -1,4 +1,4 @@
-int hello(int x, float y) {
+void hello(int x, float y) {
     print(x, y);
 }
 
