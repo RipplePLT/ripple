@@ -47,7 +47,6 @@ HashMap::HashMap() {
     for (int i = 0; i < TABLE_SIZE; i++) {
         t[i] = new list<Entry *>; 
     }
-    put("print", tVOID, -1, tFUNC);
 }
 
 HashMap::~HashMap() {

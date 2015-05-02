@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "hashmap.h"
+#include "../ast.h"
 #include "../../structures/enum.h"
 
 #define NUMBER_RESERVED_WORDS 10
@@ -26,7 +27,7 @@ class SymbolTable{
     SymbolTableNode *start;
     SymbolTableNode *current;
 
-    std::vector<string> reserved {"if", "else", "for", "while", "link", "byte", "bool", "int", "float", "string", "print"};
+    std::vector<string> reserved {"if", "else", "for", "while", "link", "return", "import", "final", "continue", "break", "void", "byte", "bool", "int", "float", "string", "dataset", "true", "false", "not", "or", "and", RPL_STD_OUTPUT_FUNCTION, RPL_STD_INPUT_FUNCTION, RPL_STD_OPEN_FUNCTION, RPL_STD_CLOSE_FUNCTION, RPL_STD_READ_FUNCTION};
 
     void insert_reserved_words();
 
