@@ -3,20 +3,21 @@
 
 #include <thread>
 #include <functional>
+#include <iostream>    
 
 using namespace std;
 
-virtual class StreamReader {
+class StreamReader {
 
     public:
-        StreamReader(void *func());
+        StreamReader();
         ~StreamReader();
 
+        virtual void start_thread()=0;
     protected:
         thread *stream_thread;
         bool stop_stream;
-        void* func;
-        virtual void run_stream_thread();
+        virtual void run_stream_thread()=0;
 };
 
 #endif

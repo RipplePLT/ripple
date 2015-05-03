@@ -1,32 +1,51 @@
 #include "web_stream_reader.hpp"
 
-WebStreamReader::WebStreamReader(string URL, int port){
+WebStreamReader::WebStreamReader(string URL){
+    this->URL = URL;
+}
+
+
+WebStreamReader::~WebStreamReader(){}
+
+void WebStreamReader::start_thread(){
     //Instantiate function and have it run function run_stream_thread
-    this->stream_thread = new thread(&WebStreamReader::run_stream_thread, this);
-    //Create HTTP request
-    
+    stream_thread = new thread(&WebStreamReader::run_stream_thread, this);
 }
 
-WebStreamReader::~WebStreamReader(){
-
+size_t WebStreamReader::WriteCallback(void *contents, size_t size, size_t nmemb, void *userp){
+    ((string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
 }
 
-WebStreamReader::run_stream_thread(){
-    
-    //Continuously connect to webpage
-    while(1){
-
-        char responsep[51201] = "";
-        ssize_t n;
-        while((n = recv(socket, response, 51200, 0)) > 0){
-            if(n == -1){
-                perror("Error receiving data from webpage");
-                exit(1);
-            }
-
-        }
+//Works
+void WebStreamReader::run_curl(){
+    string readBuffer;
+    curl = curl_easy_init();
+    if(curl){
+        curl_easy_setopt(curl, CURLOPT_URL, "https://www.google.com");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &WebStreamReader::WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        res = curl_easy_perform(curl);
+        cout<<readBuffer<<endl;
 
     }
+    curl_easy_cleanup(curl);
+
+
 }
 
+//Does not work because threads
+void WebStreamReader::run_stream_thread(){
+    string readBuffer;
+    curl = curl_easy_init();
+    if(curl){
+        curl_easy_setopt(curl, CURLOPT_URL, "https://www.google.com");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &WebStreamReader::WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        res = curl_easy_perform(curl);
+        cout<<readBuffer<<endl;
+
+    }
+    curl_easy_cleanup(curl);
+}
 

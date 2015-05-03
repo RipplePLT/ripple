@@ -5,7 +5,7 @@ StreamReader::StreamReader(){
 }
 
 StreamReader::~StreamReader(){
-    this->stop_thread = true;
+    this->stop_stream = true;
     this->stream_thread->join();
 }
 

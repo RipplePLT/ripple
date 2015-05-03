@@ -7,6 +7,9 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <stdio.h>
+#include <cstring>
+
+using namespace std;
 
 class Socket{
 
@@ -15,10 +18,14 @@ class Socket{
         ~Socket();
 
     private:
-        char[256] http_request;
+        int port;
+        string URL;
+        struct sockaddr_in sockAddr;
         int sock;
-        struct sockaddr_in sock;
-        bool connect(string URL);
+
+        bool tcp_handshake();
+        string make_http_request(string URL);
+        void create_socket();
         string receive();
 };
 
