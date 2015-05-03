@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <fstream>
 #include "symbol_table/hashmap.h"
+#include "symbol_table/symbol_table.h"
 #include "../structures/enum.h"
 #include "../structures/union.h"
 
@@ -34,6 +35,7 @@
 #define INVAL_BINARY_AND_ERR "\tbinary and error"
 #define INVAL_BINARY_OR_ERR "\tbinary or error"
 #define INVAL_FUNC_CALL_ERR "\tfunction call error"
+#define NOT_A_FUNC_ERR "\tattempt to call a non-function variable"
 #define LOOP_CONDITION_ERR "\tloop condition error"
 #define ERROR "error"
 #define COMPILE_ERR "compilation halted because of error in code"
@@ -107,6 +109,10 @@ union statements {
     LoopStatementNode *loop;
 };
 
+union program_section {
+    FunctionNode *function;
+};
+
 class Node {
 public:
     string code;
@@ -146,9 +152,9 @@ ArgsNode *args_list;
 IDNode *func_id;
 
 public:
-    FunctionCallNode(IDNode *f, ArgsNode *a);
+    FunctionCallNode(IDNode *f, ArgsNode *a, Entry *entry);
     FunctionCallNode(IDNode *f);
-    void typecheck(list<e_type> *l);
+    void typecheck(Entry *entry);
     string generate_std_rpl_function();
 };
 
@@ -172,6 +178,8 @@ public:
     DeclArgsNode(IDNode* arg);
     void add_arg(IDNode* arg);
     list<e_type> *to_enum_list();
+    vector<IDNode*>::iterator begin();
+    vector<IDNode*>::iterator end();
 };
 
 
@@ -306,8 +314,11 @@ public:
 
 class StatementListNode: public Node {
 public:
-    std::vector<StatementNode *> stmt_list;
+    vector<StatementNode *> *stmt_list;
+    SymbolTableNode *st_node;
 
+    StatementListNode();
+    StatementListNode(SymbolTableNode *s);
     void push_statement(StatementNode *s);
 };
 
@@ -323,8 +334,16 @@ public:
     void seppuku();
 };
 
+class ProgramSectionNode: public Node {
+    union program_section contents;
+
+    public:
+    ProgramSectionNode(FunctionNode *f);
+};
+
 class ProgramNode: public Node {
     public:
-    ProgramNode(FunctionNode *f);
+    ProgramNode();
+    void add_section(ProgramSectionNode *);
 };
 #endif

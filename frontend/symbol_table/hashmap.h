@@ -22,6 +22,7 @@ class Entry {
     list<e_type> *args;
 
     Entry(string n, e_type v, int line, e_symbol_type s);
+    Entry(string n, int line);
 
     void classify (e_symbol_type s);
     void add_args (list<e_type> *l);
