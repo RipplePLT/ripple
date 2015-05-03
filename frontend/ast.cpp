@@ -142,8 +142,11 @@ ValueNode::ValueNode(ExpressionNode *e) {
 /* IDNode */
 IDNode::IDNode(Entry *ent) {
     entry = ent;
-    type = ent->type;
-    code = ent->name;
+    if (ent) { // is there a better way to deal with
+        // undeclared identifiers?
+        type = ent->type;
+        code = ent->name;
+    }
 }
 IDNode::~IDNode() { }
 
@@ -167,7 +170,7 @@ FunctionCallNode::FunctionCallNode(IDNode *f) {
     func_id = f;
     args_list = new ArgsNode();
     type = f->type;
-   
+
     if(IS_STD_RPL_FUNCTION(func_id->code)){
         code = generate_std_rpl_function();
     } else {
@@ -176,11 +179,16 @@ FunctionCallNode::FunctionCallNode(IDNode *f) {
 }
 
 void FunctionCallNode::typecheck(Entry *entry) {
-    cout << &entry << endl;
-    cout << &entry->args << endl;
-    if (entry->args != *args_list->to_enum_list()) {
-        error = true;
-        cout << INVAL_FUNC_CALL_ERR << endl;
+    if (entry) {
+        if (entry->symbol_type != tFUNC) {
+            error = true;
+            cout << NOT_A_FUNC_ERR << endl;
+        } else if (entry->args) {
+            if (*entry->args != *args_list->to_enum_list()) {
+                error = true;
+                cout << INVAL_FUNC_CALL_ERR << endl;
+            }
+        }
     }
 }
 
@@ -423,7 +431,7 @@ void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
                     cout << ERROR << endl;
                     error = true;
             }
-        
+
     } else if (op == FLDIV) {
 
         if (left->is_number() && right->is_number())
@@ -434,7 +442,7 @@ void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
         }
 
     } else if (op == EQ || op == NE || op == GT ||
-               op == LT || op == GE || op == LE) {
+            op == LT || op == GE || op == LE) {
 
         if (left->is_number() && right->is_number())
             type = tBOOL;
@@ -630,7 +638,7 @@ LoopStatementNode::LoopStatementNode(ExpressionNode *init, ExpressionNode *cond,
         cout << LOOP_CONDITION_ERR << endl;
         error = true;
     }
-    
+
     string init_code, cond_code, n_code;
     if(init != nullptr)
         init_code = init->code;
@@ -690,7 +698,7 @@ FunctionNode::FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_arg
     id = id_node;
     decl_args = decl_args_list;
     stmt_list = stmt_list_n;
-    
+
     transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
 
     if (id_node->code.compare("main") == 0) {

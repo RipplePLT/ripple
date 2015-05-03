@@ -35,6 +35,7 @@
 #define INVAL_BINARY_AND_ERR "\tbinary and error"
 #define INVAL_BINARY_OR_ERR "\tbinary or error"
 #define INVAL_FUNC_CALL_ERR "\tfunction call error"
+#define NOT_A_FUNC_ERR "\tattempt to call a non-function variable"
 #define LOOP_CONDITION_ERR "\tloop condition error"
 #define ERROR "error"
 #define COMPILE_ERR "compilation halted because of error in code"

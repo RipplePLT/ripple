@@ -276,7 +276,14 @@ array_access : value tL_BRACKET expression tR_BRACKET { $$ = new ArrayAccessNode
 dataset_access : value tACCESS id { $$ = new DatasetAccessNode($1, $3); d("Dataset access");}
                ;
 
-id : VAR { $$ = new IDNode(sym_table.get(*yylval.string)); d("id");}
+id : VAR { Entry *entry = sym_table.get(*yylval.string);
+           if (entry) {
+                $$ = new IDNode(entry); d("id");
+            } else {
+                Entry *fake_entry = new Entry(*yylval.string, line_no);
+                $$ = new IDNode(fake_entry); d("undeclared id");
+            }
+          }
 
 dtype : TYPE { $$ = yylval.string; d("type: " + *yylval.string); }
 

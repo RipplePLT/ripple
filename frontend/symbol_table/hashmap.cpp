@@ -91,6 +91,13 @@ Entry::Entry(string n, e_type v, int line, e_symbol_type s = tNOSTYPE) {
     symbol_type = s;
 }
 
+Entry::Entry(string n, int line) {
+    name = n;
+    type = tNOTYPE;
+    line_no = line;
+    symbol_type = tNOSTYPE;
+}
+
 void Entry::classify(e_symbol_type s) {
     symbol_type = s;
 }

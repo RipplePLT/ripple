@@ -3,5 +3,5 @@ void hello(int x, float y) {
 }
 
 void main() {
-    hello("yes", "no");
+    banana("yes", "no");
 }
