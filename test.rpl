@@ -1,17 +1,52 @@
 int main(){
-    int x = 4;
-    float y = 5;
-    string z = "hello";
-    bool w = true;
-
-    x + w;
-    x + y;
-    x + z;
-    x - z;
     
-    float a = 1;
-    int b = 1.2;
-    string q = 1;
-    bool c = 1.5;
+    bool b_decl;
+    int i_decl;
+    float f_decl;
+    string s_decl;
 
+    print("passed blank variable declarations");
+
+    bool[10] b_arr_decl;
+    int[10] i_arr_decl;
+    float[10] f_arr_decl;
+    string[10] s_arr_decl;
+
+    print("passed blank varaible array declarations");
+
+    b_decl = true;
+    b_decl = false;
+    i_decl = 0;
+    f_decl = 0;
+    f_decl = 1.0;
+    s_decl = "hello world";
+
+    print("passed variable assignment");
+
+    bool b_decl2 = true;
+    int i_decl2 = 0;
+    float f_decl2 = 0;
+    string s_decl2 = "hello world";
+
+    print("passed blank variable declarations");
+
+    bool[10] b_arr_decl2 = {true};
+    print(@b_arr_decl2);
+    int[10] i_arr_decl2 = {1};
+    print(@i_arr_decl2);
+    float[10] f_arr_decl2 = {1};
+    print(@f_arr_decl2);
+    string[10] s_arr_decl2 = {"hello", "world"};
+    print(@s_arr_decl2);
+
+    print("passed blank varaible array declarations");
+
+    b_decl2 = true;
+    b_decl2 = false;
+    i_decl2 = 0;
+    f_decl2 = 0;
+    f_decl2 = 1.0;
+    s_decl2 = "hello world";
+
+    print("passed variable assignment");
 }

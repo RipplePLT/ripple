@@ -15,6 +15,8 @@ void yyerror(const char *s) { printf("%s\n", s); }
 extern SymbolTable sym_table;
 
 extern int line_no;
+
+extern bool saw_type;
 %}
 
 
@@ -39,6 +41,7 @@ extern int line_no;
     LiteralNode *lit;
     ValueNode *val;
     ArgsNode *args;
+    ArrayInitNode *ainit;
     DeclArgsNode *decl_args;
     IDNode *idn;
     
@@ -101,12 +104,13 @@ extern int line_no;
 %type <lit> literal
 %type <un_expr> unary_expression
 %type <bin_expr> exp_expression mult_expression add_expression rel_expression eq_expression and_expression or_expression
-%type <expr> expression opt_expression
+%type <expr> expression opt_expression array_opt
 %type <arr_acc> array_access
 %type <fn_call> function_call
 %type <ds_acc> dataset_access
 %type <val> value
 %type <args> args;
+%type <ainit> array_initialization
 %type <dec_stmt> declarative_statement
 %type <jump_stmt> jump_statement
 %type <cond_stmt> conditional_statement
@@ -143,20 +147,21 @@ extern int line_no;
 
 %%
 
-program : program program_section                                         { $$ = $2; write_to_file(filename_cpp, $$->code); d("program");  }
+program : program program_section { $$ = $2; write_to_file(filename_cpp, $$->code); d("program"); }
        |
        ;
 
 program_section : function { $$ = new ProgramNode($1); d("program section"); }
 
-function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $4, $6);
+function : dtype array_opt id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $3, $5, $7);
                                                                   d("function");
-                                                                  sym_table.classify($2->get_name(), tFUNC);
-                                                                  sym_table.add_args($2->get_name(), $4->to_enum_list());
+                                                                  sym_table.classify($3->get_name(), tFUNC);
+                                                                  sym_table.add_args($3->get_name(), $5->to_enum_list());
                                                                 }
          ;
 
 statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{\n" + $2->code + "}\n"; d("statement_block"); }
+                | tL_CURLY tR_CURLY { $$ = new StatementListNode(); $$->code = "{}\n"; d("empty statement_block");}
                 ;
 
 statement_list : statement_list statement       { $1->push_statement($2); d("statement_list - stmt-list"); }
@@ -187,12 +192,12 @@ else_statement : ELSE statement_block   { $$ = $2; d("else statement"); }
 loop_statement : FOR tL_PAREN opt_expression tSEMI opt_expression tSEMI opt_expression tR_PAREN statement_block { $$ = new LoopStatementNode($3, $5, $7, $9); d("loop - for"); }
                 | WHILE tL_PAREN expression tR_PAREN statement_block { $$ = new LoopStatementNode(NULL ,$3, NULL, $5); d("loop - while"); }
 
-declarative_statement : dtype expression tSEMI   { $$ = new DeclarativeStatementNode(*($1), $2); d("declarative statement -  type expr"); delete $1; }
+declarative_statement : dtype array_opt expression tSEMI   { $$ = new DeclarativeStatementNode(*($1), $2, $3); d("declarative statement -  type expr"); delete $1; }
                       | expression tSEMI         { $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
                       ;
 
 opt_expression : expression tL_PAREN           { $$ = $1; d("opt_expression"); }
-               |                               { $$ = NULL; d("no opt_expression");}
+               |                               { $$ = nullptr; d("no opt_expression");}
                ;
 
 expression : or_expression               { $$ = new ExpressionNode($1);  d("expression"); }
@@ -238,7 +243,7 @@ exp_expression : unary_expression                        { $$ = new BinaryExpres
 unary_expression : value                       { $$ = new UnaryExpressionNode($1); d("unary_expression");};	
                  | tMINUS unary_expression     { $$ = new UnaryExpressionNode($2, "-");  d("unary_expression -"); }
                  | tSIZE unary_expression      { $$ = new UnaryExpressionNode($2, "@");  d("unary_expression @"); }
-                 | tL_PAREN dtype tR_PAREN unary_expression { delete $2; }
+                 | tL_PAREN dtype array_opt tR_PAREN unary_expression { /*TODO FIX */}
                  | NOT unary_expression        { $$ = new UnaryExpressionNode($2, "not");  d("unary_expression not"); }
                  ;
 
@@ -248,16 +253,26 @@ value : literal            { $$ = new ValueNode($1); d("value - literal"); }
       | dataset_access     { $$ = new ValueNode($1); d("value - dataset_access"); }
       | id                 { $$ = new ValueNode($1); d("value - id");}
       | tL_PAREN expression tR_PAREN { $$ = new ValueNode($2); d("value - expression"); }
+      | tL_CURLY array_initialization tR_CURLY  { $$ = new ValueNode($2); d("value - array_initialization"); }
       ;
+
+array_initialization : array_initialization tCOMMA expression   { $1->add_arg($3); d("array_initialization added - 1"); }
+                     | expression                               { $$ = new ArrayInitNode(); $$->add_arg($1); d("arg added"); }
+                     |                                          { $$ = new ArrayInitNode(); d("empty arg");}
+                     ;
 
 args : args tCOMMA expression   { $1->add_arg($3); d("arg added - 1"); }
      | expression               { $$ = new ArgsNode(); $$->add_arg($1); d("arg added"); }
      |                          { $$ = new ArgsNode(); d("empty arg");}
      ;
 
-decl_args : decl_args tCOMMA dtype id   { $1->add_arg($4); d("decl arg added - 1"); }
-          | dtype id                    { $$ = new DeclArgsNode(); $$->add_arg($2); d("decl arg added"); }
-          |                             { $$ = new DeclArgsNode(); d("empty decl arg"); }
+decl_args : decl_args tCOMMA dtype array_opt id   { $1->add_arg($5); d("decl arg added - 1"); }
+          | dtype array_opt id                    { $$ = new DeclArgsNode(); $$->add_arg($3); d("decl arg added"); }
+          |                                       { $$ = new DeclArgsNode(); d("empty decl arg"); }
+          ;
+
+array_opt : tL_BRACKET expression tR_BRACKET { $$ = $2; saw_type = true; d("array_opt"); }
+          |                                  { $$ = nullptr; }
           ;
 
 function_call : id tL_PAREN args tR_PAREN { $$ = new FunctionCallNode($1, $3); d("function call"); }
@@ -271,7 +286,8 @@ dataset_access : value tACCESS id { $$ = new DatasetAccessNode($1, $3); d("Datas
 
 id : VAR { $$ = new IDNode(sym_table.get(*yylval.string)); d("id");}
 
-dtype : TYPE { $$ = yylval.string; d("type: " + *yylval.string); }
+dtype : TYPE { $$ = new string(*yylval.string); d("type: " + *$$); }
+      ;
 
 literal : INTEGER                 { $$ = new LiteralNode($1); $$->code = to_string(yylval.integer); d("literal - INT");}	
         | FLOAT_LIT               { $$ = new LiteralNode($1); $$->code = to_string(yylval.decimal); d("literal - FLOAT");}

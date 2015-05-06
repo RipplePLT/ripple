@@ -41,6 +41,7 @@
 using namespace std;
 
 class Node;
+class ArrayInitNode;
 class ValueNode;
 class ExpressionNode;
 class BinaryExpressionNode;
@@ -97,6 +98,7 @@ union value {
     ArrayAccessNode *array_access_val;
     DatasetAccessNode *dataset_access_val;
     ExpressionNode *expression_val;
+    ArrayInitNode *a_init;
 };
 
 
@@ -111,11 +113,21 @@ class Node {
 public:
     string code;
     e_type type = tNOTYPE;
+    e_symbol_type sym;
     e_type get_type();
     bool is_number();
     bool is_bool();
     bool is_string();
     bool is_byte();
+};
+
+class ArrayInitNode: public Node{
+public:
+    std::vector<ExpressionNode*> *args_list;
+
+    ArrayInitNode();
+    ArrayInitNode(ExpressionNode *arg);
+    void add_arg(ExpressionNode *arg);
 };
 
 class ValueNode: public Node {
@@ -128,16 +140,19 @@ public:
     ValueNode(ArrayAccessNode *a);
     ValueNode(DatasetAccessNode *d);
     ValueNode(ExpressionNode *e);
+    ValueNode(ArrayInitNode *a);
+    void seppuku();
 };
 
 
 class IDNode: public Node {
-Entry *entry;
 public:
+    Entry *entry;
     IDNode(Entry *ent);
     string get_name();
     e_type get_type();
     ~IDNode();
+    void seppuku();
 };
 
 
@@ -150,6 +165,7 @@ public:
     FunctionCallNode(IDNode *f);
     void typecheck(list<e_type> *l);
     string generate_std_rpl_function();
+    void seppuku();
 };
 
 
@@ -161,6 +177,7 @@ public:
     ArgsNode(ExpressionNode *arg);
     list<e_type> *to_enum_list();
     void add_arg(ExpressionNode *arg);
+    void seppuku();
 };
 
 
@@ -172,6 +189,7 @@ public:
     DeclArgsNode(IDNode* arg);
     void add_arg(IDNode* arg);
     list<e_type> *to_enum_list();
+    void seppuku();
 };
 
 
@@ -186,6 +204,7 @@ public:
     LiteralNode(string *s);
     LiteralNode(bool b);
     LiteralNode(char b);
+    void seppuku();
 };
 
 
@@ -195,6 +214,7 @@ public:
     ExpressionNode *en;
 
     ArrayAccessNode(ValueNode *v, ExpressionNode *e);
+    void seppuku();
 };
 
 
@@ -204,6 +224,7 @@ public:
     IDNode *idn;
 
     DatasetAccessNode(ValueNode *valueNode, IDNode *idNode);
+    void seppuku();
 };
 
 
@@ -214,6 +235,7 @@ public:
 
     UnaryExpressionNode(UnaryExpressionNode *u, string _op);
     UnaryExpressionNode(ValueNode *v);
+    void seppuku();
 
 private:
     void typecheck(e_op op);
@@ -231,6 +253,8 @@ public:
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br);
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
     BinaryExpressionNode(UnaryExpressionNode *ul);
+    void seppuku();
+
 private:
     void typecheck(Node *left, Node *right, e_op op);
     string gen_binary_code(string l_code, enum e_op op, string r_code);
@@ -245,6 +269,7 @@ public:
     ExpressionNode(BinaryExpressionNode *b);
     ExpressionNode(BinaryExpressionNode *b, ValueNode *v);
     ~ExpressionNode();
+    void seppuku();
 
 private:
     void typecheck(BinaryExpressionNode *expression, ValueNode *value);
@@ -256,9 +281,12 @@ class DeclarativeStatementNode: public Node {
 public:
     e_type type;
     ExpressionNode *en;
+    ExpressionNode *a_size;
 
-    DeclarativeStatementNode(string _type, ExpressionNode *expression_node);
+    DeclarativeStatementNode(string _type, ExpressionNode *arr_size, ExpressionNode *expression_node);
     DeclarativeStatementNode(ExpressionNode *expression_node);
+
+    void seppuku();
 };
 
 
@@ -269,6 +297,7 @@ public:
     StatementListNode *alternative;
 
     ConditionalStatementNode(ExpressionNode *e, StatementListNode *s, StatementListNode *a);
+    void seppuku();
 };
 
 
@@ -279,6 +308,7 @@ public:
 
     JumpStatementNode(string _type, ExpressionNode *expression_node);
     JumpStatementNode(string _type);
+    void seppuku();
 };
 
 
@@ -290,6 +320,7 @@ public:
     StatementListNode *statements;
 
     LoopStatementNode(ExpressionNode *init, ExpressionNode *cond, ExpressionNode *n, StatementListNode *stmts);
+    void seppuku();
 };
 
 
@@ -301,6 +332,7 @@ public:
     StatementNode(ConditionalStatementNode *c);
     StatementNode(JumpStatementNode *j);
     StatementNode(LoopStatementNode *l);
+    void seppuku();
 };
 
 
@@ -309,6 +341,7 @@ public:
     std::vector<StatementNode *> stmt_list;
 
     void push_statement(StatementNode *s);
+    void seppuku();
 };
 
 
@@ -324,7 +357,9 @@ public:
 };
 
 class ProgramNode: public Node {
-    public:
+public:
+    FunctionNode *func;
     ProgramNode(FunctionNode *f);
+    void seppuku();
 };
 #endif

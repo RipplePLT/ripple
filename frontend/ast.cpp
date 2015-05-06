@@ -104,37 +104,48 @@ bool Node::is_string() {
     return (type == tSTRING);
 }
 
-
 /* ValueNode */
 ValueNode::ValueNode(IDNode *i) {
     val.id_val = i;
     type = i->type;
+    sym = i->sym;
     code = i->code;
 }
 ValueNode::ValueNode(LiteralNode *l) {
     val.lit_val = l;
     type = l->type;
+    sym = l->sym;
     code = l->code;
 }
 ValueNode::ValueNode(FunctionCallNode *f) {
     val.function_call_val = f;
     type = f->type;
+    sym = f->sym;
     code = f->code;
 } 
 ValueNode::ValueNode(ArrayAccessNode *a) {
     val.array_access_val = a;
     type = a->type;
+    sym = a->sym;
     code = a->code;
 }
 ValueNode::ValueNode(DatasetAccessNode *d) {
     val.dataset_access_val = d;
     type = d->type;
+    sym = d->sym;
     code = d->code;
 }
 ValueNode::ValueNode(ExpressionNode *e) {
     val.expression_val = e;
     type = e->type;
+    sym = e->sym;
     code = "( " + e->code + " )";
+}
+ValueNode::ValueNode(ArrayInitNode *a) {
+    val.a_init = a;
+    type = a->type;
+    sym = tARR;
+    code = "{ " + a->code + " }";
 }
 
 
@@ -142,6 +153,7 @@ ValueNode::ValueNode(ExpressionNode *e) {
 IDNode::IDNode(Entry *ent) {
     entry = ent;
     type = ent->type;
+    sym = ent->symbol_type;
     code = ent->name;
 }
 IDNode::~IDNode() { }
@@ -152,6 +164,7 @@ FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a) {
     func_id = f;
     args_list = a;
     type = f->type;
+    sym = f->sym;
 
     if(IS_STD_RPL_FUNCTION(func_id->code)){
         code = generate_std_rpl_function();
@@ -164,6 +177,7 @@ FunctionCallNode::FunctionCallNode(IDNode *f) {
     func_id = f;
     args_list = new ArgsNode();
     type = f->type;
+    sym = f->sym;
     
     if(IS_STD_RPL_FUNCTION(func_id->code)){
         code = generate_std_rpl_function();
@@ -198,6 +212,38 @@ string FunctionCallNode::generate_std_rpl_function(){
 
     }
     return code;
+}
+
+/* ArrayInitNode */
+ArrayInitNode::ArrayInitNode() {
+    args_list = new vector<ExpressionNode *>(); 
+    sym = tARR;
+    code = "";
+}
+
+ArrayInitNode::ArrayInitNode(ExpressionNode *arg) {
+    type = arg->type;
+    sym = tARR;
+
+    args_list->push_back(arg);
+    code = arg->code;
+}
+
+void ArrayInitNode::add_arg(ExpressionNode *arg) {
+    args_list->push_back(arg);
+    sym = tARR;
+
+    if(type == 0){
+        type = arg->type;
+    }
+    else if(arg->type != type){
+        error = true;
+        cout << "All elements in an array initialization must have the same type" << endl;
+    }
+    if(code.compare("") == 0)
+        code += arg->code;
+    else
+        code += ", " + arg->code;
 }
 
 /* ArgsNode */
@@ -246,26 +292,31 @@ void DeclArgsNode::add_arg(IDNode* arg) {
 
 /* LiteralNode */
 LiteralNode::LiteralNode(int i) {
+    sym = tVAR;
     val.int_lit = i;
     type = tINT;
 }
 
 LiteralNode::LiteralNode(double d) {
+    sym = tVAR;
     val.float_lit = d;
     type = tFLOAT;
 }
 
 LiteralNode::LiteralNode(string *s) {
+    sym = tVAR;
     val.string_lit = s;
     type = tSTRING;
 }
 
 LiteralNode::LiteralNode(bool b) {
+    sym = tVAR;
     val.bool_lit = b;
     type = tBOOL;
 }
 
 LiteralNode::LiteralNode(char b) {
+    sym = tVAR;
     val.byte_lit = b;
     type = tBYTE;
 }
@@ -276,6 +327,7 @@ ArrayAccessNode::ArrayAccessNode(ValueNode *val, ExpressionNode *exp) {
     vn = val;
     en = exp;
     type = val->type;
+    sym = val->sym;
 }
 
 
@@ -284,6 +336,7 @@ DatasetAccessNode::DatasetAccessNode(ValueNode *val, IDNode *i) {
     vn = val;
     idn = i;
     type = val->type;
+    sym = i->sym;
 }
 
 
@@ -292,13 +345,18 @@ UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op) {
 
     right_operand.u_exp = u;
     op = str_to_op(_op);
+    sym = u->sym;
     typecheck(op);
     switch(op) {
         case MINUS:
             code = "-" + u->code;
             break;
         case SIZE:
-            code = "sizeof( " + u->code + " )";
+            if(sym == tARR){
+                code = "sizeof( " + u->code + " ) / sizeof( " + type_to_str(u->type) + " )";
+            } else {
+                code = "sizeof( " + u->code + " )";
+            }
             break;
         case bNOT:
             code = "!" + u->code;
@@ -312,12 +370,19 @@ UnaryExpressionNode::UnaryExpressionNode(ValueNode *v){
     op = NONE;
     right_operand.v_node = v;
     type = v->type;
+    sym = v->sym;
     code = v->code;
 }
 
 void UnaryExpressionNode::typecheck(e_op op){
 
     e_type child_type = right_operand.u_exp->type;
+
+    if(sym == tARR && op != SIZE){
+        error = true;
+        cout << "Cannot perform unary minus or unary not on arrays" << endl;
+        return;
+    }
 
     switch(op){
         case bNOT:
@@ -563,14 +628,37 @@ void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *valu
 }
 
 /* DeclarativeStatementNode */
-DeclarativeStatementNode::DeclarativeStatementNode(string _type, ExpressionNode *expression_node){
+DeclarativeStatementNode::DeclarativeStatementNode(string _type, ExpressionNode *arr_size, ExpressionNode *expression_node){
     type = str_to_type(_type);
+    a_size = arr_size;
     en = expression_node;
-
     transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
-    // TODO TYPE CHECK
+    //TODO TYPE CHECK
     //TODO TYPE CONVERSIONS
-    code = _type + " " + expression_node->code + ";\n"; 
+
+    code = _type + " ";
+    if(a_size == nullptr){
+        code += expression_node->code + ";\n"; 
+    } else {
+        if(a_size->type != tINT){
+            error = true;
+            cout << "Size of an array must be an int" << endl;
+        }
+
+        if(expression_node->value)
+            code += expression_node->value->code + "[" + arr_size->code + "] = " + expression_node->bin_exp->code + ";\n";
+        else 
+            code += expression_node->bin_exp->code + "[" + arr_size->code + "];\n";
+        
+    }
+
+    if(arr_size){
+        if(expression_node->value)
+            expression_node->value->val.id_val->entry->symbol_type = tARR;
+            //code += expression_node->value->code + "[" + arr_size->code + "] = " + expression_node->bin_exp->code + ";\n";
+        else
+            expression_node->bin_exp->left_operand.u_exp->right_operand.v_node->val.id_val->entry->symbol_type = tARR;
+    }
 }
 
 DeclarativeStatementNode::DeclarativeStatementNode(ExpressionNode *expression_node){
@@ -673,10 +761,6 @@ FunctionNode::FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_arg
     code = _type + " " + id_node->code + "(" + decl_args_list->code + ")" + stmt_list_n->code; 
 }
 
-void FunctionNode::seppuku(){
-    delete this;
-}
-
 e_type IDNode::get_type() {
     return entry->type;
 }
@@ -696,4 +780,5 @@ list<e_type> *DeclArgsNode::to_enum_list() {
 /* ProgramNode */
 ProgramNode::ProgramNode(FunctionNode *f) {
     code = f->code;
+    func = f;
 }
