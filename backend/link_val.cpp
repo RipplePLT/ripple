@@ -106,7 +106,11 @@ link_val link_val::link_val_op(link_val a, link_val b, const char *op) {
 }
 
 link_val link_val::link_val_op(link_val a, const char *op) {
-	return bool_op(a, op);
+	if (a.type == ltINT || a.type == ltINT_PTR)
+		return integer_op(a, op);
+	else if (a.type == ltDOUBLE || a.type == ltDOUBLE_PTR)
+		return double_op(a, op);
+	return bool_op(a, op); // logical not
 }
 
 link_val link_val::integer_op(link_val a, link_val b, const char *op) {
@@ -127,6 +131,19 @@ link_val link_val::integer_op(link_val a, link_val b, const char *op) {
 	return *result;
 }
 
+link_val link_val::integer_op(link_val a, const char *op) {
+	// Currently only includes negation
+	int a_int;
+	link_val *result = new link_val();
+
+	a_int = a.get_int_val();
+
+	result->type = ltINT;
+	result->value.intval = -a_int;
+
+	return *result;
+}
+
 link_val link_val::double_op(link_val a, link_val b, const char *op) {
 	double a_double, b_double;
 	link_val *result = new link_val();
@@ -141,6 +158,19 @@ link_val link_val::double_op(link_val a, link_val b, const char *op) {
 		result->type = ltDOUBLE;
 		result->value.doubleval = generic_op<double>(a_double, b_double, op);
 	}
+
+	return *result;
+}
+
+link_val link_val::double_op(link_val a, const char *op) {
+	// Currently only negation
+	double a_double;
+	link_val *result = new link_val();
+
+	a_double = a.get_double_val();
+
+	result->type = ltDOUBLE;
+	result->value.doubleval = -a_double;
 
 	return *result;
 }
@@ -224,4 +254,8 @@ link_val link_val::operator||(const link_val &other) const {
 
 link_val link_val::operator!() const {
 	return link_val_op(*this, "!");
+}
+
+link_val link_val::operator-() const {
+	return link_val_op(*this, "-");
 }
