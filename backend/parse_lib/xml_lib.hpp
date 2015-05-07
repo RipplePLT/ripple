@@ -1,6 +1,7 @@
 #ifndef XML_LIB_HPP
 #define XML_LIB_HPP
 
+#include <sstream>
 #include <stack>
 #include <string>
 #include <vector>
@@ -17,7 +18,6 @@ namespace xml_lib {
     string get_node(string line, string tag);
     string get_node_text(string line, string tag);
     int get_num_nodes(string line, string tag);
-    string get_root(string line, string tag);
     int size(string line);
        
 }
