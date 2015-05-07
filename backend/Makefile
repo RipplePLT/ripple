@@ -35,3 +35,7 @@ subdirs:
 
 .PHONY: all
 all: clean objects subdirs
+
+.PHONY: mrproper
+mrproper:
+	make clean; make clean-subdirs; rm -rf lib;
