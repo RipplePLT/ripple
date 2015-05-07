@@ -8,7 +8,7 @@ CXXFLAGS = -g -Wall -std=c++11 $(INCLUDES)
 LDFLAGS = -g
 LDLIBS = -lm
 
-default: symbol_table.o
+default: libsym.a
 
 libsym.a: symbol_table.o
 	ar rc libsym.a symbol_table.o

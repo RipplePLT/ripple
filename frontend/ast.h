@@ -12,12 +12,6 @@
 #include "../structures/enum.h"
 #include "../structures/union.h"
 
-#define RPL_STD_OUTPUT_FUNCTION "print"
-#define RPL_STD_INPUT_FUNCTION "input"
-#define RPL_STD_OPEN_FUNCTION "open"
-#define RPL_STD_CLOSE_FUNCTION "close"
-#define RPL_STD_READ_FUNCTION "read"
-
 #define INVAL_UNARY_NOT_ERR "\tunary not error"
 #define INVAL_UNARY_MINUS_ERR "\tunary minus error"
 #define INVAL_BINARY_PLUS_ERR "\tbinary plus error"
@@ -61,6 +55,7 @@ class DeclarativeStatementNode;
 class JumpStatementNode;
 class LoopStatementNode;
 class StatementListNode;
+class DatasetNode;
 class FunctionNode;
 
 enum e_op str_to_op(string op_string);
@@ -111,6 +106,7 @@ union statements {
 
 union program_section {
     FunctionNode *function;
+    DatasetNode *dataset;
 };
 
 class Node {
@@ -322,6 +318,13 @@ public:
     void push_statement(StatementNode *s);
 };
 
+class DatasetNode: public Node {
+public:
+    string name;
+    DeclArgsNode *decl_args;
+
+    DatasetNode(string s, DeclArgsNode *d);
+};
 
 class FunctionNode: public Node {
 public:
@@ -339,6 +342,7 @@ class ProgramSectionNode: public Node {
 
     public:
     ProgramSectionNode(FunctionNode *f);
+    ProgramSectionNode(DatasetNode *d);
 };
 
 class ProgramNode: public Node {

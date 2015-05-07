@@ -6,10 +6,27 @@
 #include "symbol_table.h"
 
 SymbolTableNode::SymbolTableNode() {
+    name = "";
     hashmap = new HashMap();
     sibling = nullptr;
     child = nullptr;
     parent = nullptr;
+}
+
+SymbolTableNode::SymbolTableNode(string n) {
+    name = n;
+    hashmap = new HashMap();
+    sibling = nullptr;
+    child = nullptr;
+    parent = nullptr;
+}
+
+e_type SymbolTableNode::get_type(string n) {
+    Entry *found;
+    if ((found = hashmap->get(n)))
+        return found->type;
+    else
+        return tNOTYPE;
 }
 
 SymbolTableNode::~SymbolTableNode() {
@@ -54,10 +71,29 @@ void SymbolTable::scope_out(int line_no) {
         return;
     }
 
-    SymbolTableNode *node = new SymbolTableNode; 
+    SymbolTableNode *node = new SymbolTableNode(); 
 
     current->sibling = node;
     current = node;
+}
+
+void SymbolTable::new_dataset(int line_no, string name) {
+    SymbolTableNode *node = new SymbolTableNode(name);
+
+    node->parent = current;
+    node->sibling = current->child;
+    current->child = node;
+    current = node;
+}
+
+SymbolTableNode *SymbolTable::get_dataset(string name) {
+    SymbolTableNode *node;
+    for(node = current; node; node = node->sibling) {
+        if (!node->name.empty() && node->name.compare(name) == 0) {
+            return node;
+        }
+    }
+    return nullptr;
 }
 
 void SymbolTable::insert_reserved_words(){

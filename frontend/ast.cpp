@@ -728,10 +728,20 @@ list<e_type> *DeclArgsNode::to_enum_list() {
     return ret;
 }
 
+DatasetNode::DatasetNode(string s, DeclArgsNode *d) {
+    name = s;
+    decl_args = d; 
+}
+
 /* ProgramSectionNode */
 ProgramSectionNode::ProgramSectionNode(FunctionNode *f) {
     contents.function = f;
     code = f->code;
+}
+
+ProgramSectionNode::ProgramSectionNode(DatasetNode *d) {
+    contents.dataset = d;
+    code = d->code;
 }
 
 /* ProgramNode */

@@ -25,6 +25,7 @@ extern string cpp_code;
     ProgramSectionNode *progsec;
     FunctionNode *func;
     SymbolTableNode *st_node;
+    DatasetNode *dataset;
 
     StatementListNode *stmt_list;    
     StatementNode *stmt;
@@ -101,6 +102,7 @@ extern string cpp_code;
 %token tR_CURLY
 %type <prog> program
 %type <progsec> program_section
+%type <dataset> dataset_declaration
 %type <idn> id
 %type <string> dtype
 %type <lit> literal
@@ -111,7 +113,7 @@ extern string cpp_code;
 %type <fn_call> function_call
 %type <ds_acc> dataset_access
 %type <val> value
-%type <args> args;
+%type <args> args
 %type <dec_stmt> declarative_statement
 %type <jump_stmt> jump_statement
 %type <cond_stmt> conditional_statement
@@ -155,6 +157,8 @@ program : program program_section                                         { $$->
        ;
 
 program_section : function { $$ = new ProgramSectionNode($1); d("program section"); }
+                | dataset_declaration { $$ = new ProgramSectionNode($1); d("program section"); }
+                ;
 
 function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode(*($1), $2, $4, $6);
                                                                   d("function");
@@ -162,6 +166,9 @@ function : dtype id tL_PAREN decl_args tR_PAREN statement_block { $$ = new Funct
                                                                   sym_table.add_args($2->get_name(), $4->to_enum_list());
                                                                 }
          ;
+
+dataset_declaration : DATASET VAR tL_CURLY decl_args tR_CURLY  { $$ = new DatasetNode(*$2, $4); }
+                    ;
 
 statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{\n" + $2->code + "}\n"; d("statement_block"); }
                 ;
@@ -286,12 +293,14 @@ id : VAR { Entry *entry = sym_table.get(*yylval.string);
           }
 
 dtype : TYPE { $$ = yylval.string; d("type: " + *yylval.string); }
+      | DATASET VAR
+      ;
 
 literal : INTEGER                 { $$ = new LiteralNode($1); $$->code = to_string(yylval.integer); d("literal - INT");}	
         | FLOAT_LIT               { $$ = new LiteralNode($1); $$->code = to_string(yylval.decimal); d("literal - FLOAT");}
         | STRING_LITERAL          { $$ = new LiteralNode($1); $$->code = *yylval.string; d("literal - STRING"); }
         | TRUE				            { $$ = new LiteralNode($1); $$->code = "true";  d("literal - true"); }
-        | FALSE				            { $$ = new LiteralNode($1); $$->code = "false"; d("literal - false"); }
+        | FALSE				            { $$ = new LiteralNode($1); $$->code = "false"; d("literal - false"); }  
         ;
 
 %%
