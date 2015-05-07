@@ -17,6 +17,7 @@ class WebStreamReader : StreamReader{
         void run_curl();
     protected:
         void run_stream_thread();
+        static void* run_thread(void * p);
         static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
         size_t curl_to_string(void *ptr, size_t size, size_t nmemb, void *data);
     private:

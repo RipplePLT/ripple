@@ -6,6 +6,7 @@ StreamReader::StreamReader(){
 
 StreamReader::~StreamReader(){
     this->stop_stream = true;
-    this->stream_thread->join();
+    pthread_join(stream_thread, NULL);
+    cout << "thread joined" << endl;
 }
 

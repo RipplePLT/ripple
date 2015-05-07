@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "stream_reader.hpp"
+#include "web_stream_reader.hpp"
 
 using namespace std;
 
@@ -12,17 +12,19 @@ int main(){
     int count = 0;
     int count2 = 0;
     int to_update = 0;
-    StreamReader *streamy = new StreamReader(&to_update);
+    WebStreamReader *streamy = new WebStreamReader("cs.columbia.edu");
+
+    streamy->start_thread();
 
     while(1){
-        if(count ==  100000000){
-            cout << count << endl;
+        if(count ==  1000000){
+ //           cout << count << endl;
             count = 0;
             count2++;
         }else{
             count++;
         }
-        if(count2 > 1)
+        if(count2 > 10000)
             break;
 
     }

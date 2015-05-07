@@ -1,7 +1,7 @@
 #ifndef STREAM_READER_HPP
 #define STREAM_READER_HPP
 
-#include <thread>
+#include <pthread.h>
 #include <functional>
 #include <iostream>    
 
@@ -15,7 +15,7 @@ class StreamReader {
 
         virtual void start_thread()=0;
     protected:
-        thread *stream_thread;
+        pthread_t stream_thread;
         bool stop_stream;
         virtual void run_stream_thread()=0;
 };
