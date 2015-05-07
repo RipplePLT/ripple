@@ -24,6 +24,7 @@ xml_lib.o: xml_lib.hpp xml_lib.cpp
 libs: $(LIBS)
 
 libfile.a: file_lib.o
+	if [ ! -d ../lib ]; then mkdir ../lib; fi;
 	ar rcs ../lib/libfile.a file_lib.o
 	ranlib ../lib/libfile.a
 
