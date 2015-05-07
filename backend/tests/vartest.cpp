@@ -9,24 +9,24 @@
  */
 int main()
 {
-    int x, y;
-    int root;
-
     /*
      * Everything is allocated on the heap, since all threads need
      * access to this data.
      */
 
-    // Assignment to a Ripple or C++ int is the same.
-    cout << "root = 5;" << endl;
-    root = 5;
+	// === Assignment ===
+	//		int root = 5;
+    cout << "int root = 5;" << endl;
+    int root = 5;
+	linked_var::register_cpp_var(&root);
 
     /* === Link Statement ===
-     * 		link (x <- root);
+     * 		link (int x <- root);
      */
-    cout << "link (x <- root);" << endl;
+    cout << "link (int x <- root);" << endl;
+	int x;
+	linked_var::register_cpp_var(&x);
     VariableNode *l = new VariableNode (&root);
-    linked_var::references[&root] = new vector<linked_var*>();
     ValueNode *v = new ValueNode (l);
     UnaryExpressionNode *u = new UnaryExpressionNode (v);
     BinaryExpressionNode *b_x = new BinaryExpressionNode (u);
@@ -35,13 +35,14 @@ int main()
     /* === End of code for link (x <- root) === */
 
     /* === Link Statement ===
-     * 		link (y <- x + 2)
+     * 		link (int y <- x + 2)
      */
-    cout << "link (y <- x + 2);" << endl;
+    cout << "link (int y <- x + 2);" << endl;
+	int y;
+	linked_var::register_cpp_var(&y);
     VariableNode *l1 = new VariableNode (&x);
-    linked_var::references[&x] = new vector<linked_var*>();
     ValueNode *v1 = new ValueNode (l1);
-    LiteralNode *l2 = new LiteralNode (2.5);
+    LiteralNode *l2 = new LiteralNode (2);
     ValueNode *v2 = new ValueNode (l2);
     UnaryExpressionNode *u1 = new UnaryExpressionNode (v1);
     UnaryExpressionNode *u2 = new UnaryExpressionNode (v2);
@@ -53,7 +54,7 @@ int main()
     /* === End of code for "link (y <- x + 2)" === */
 
     cout << "\tx == " << *(int *)var_x->get_value().value.ptr << endl;
-    cout << "\ty == " << var_y->get_value().value.doubleval << endl;
+    cout << "\ty == " << var_y->get_value().value.intval << endl;
 
     /*
      * === Assignment ===
@@ -61,12 +62,11 @@ int main()
      */
     cout << "root = 6;" << endl;
     root = 6;
-    // @TODO use the sync_queue for updates
-    var_x->update();
+	linked_var::update_nonlinked_var(&root);
     /* === End of code for "root = 6" === */
 
     cout << "\tx == " << *(int *)var_x->get_value().value.ptr << endl;
-    cout << "\ty == " << var_y->get_value().value.doubleval << endl;
+    cout << "\ty == " << var_y->get_value().value.intval << endl;
 
     return 0;
 }

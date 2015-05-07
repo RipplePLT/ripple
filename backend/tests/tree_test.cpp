@@ -20,9 +20,59 @@ public:
 	static linked_var *link_int_lit_op_double_var
 		(void *linked, int i, double *d, const char *op);
 	static void test_unary_ops();
+	static void test_string_concatenation();
 	static void run_all_unit_tests();
 	static void run_all_integration_tests();
 };
+
+void TreeTest::test_string_concatenation() {
+	// Make variable node
+	// [rpl] string predicate = "a problem.";
+	string *predicate = new string ("a problem.");
+	linked_var::register_cpp_var(&predicate);
+	VariableNode *predicate_varnode = new VariableNode(&predicate);
+	ValueNode *predicate_valnode = new ValueNode (predicate_varnode);
+	UnaryExpressionNode *predicate_unode =
+		new UnaryExpressionNode (predicate_valnode);
+	BinaryExpressionNode *predicate_bnode =
+		new BinaryExpressionNode (predicate_unode);
+	ExpressionNode *predicate_enode =
+		new ExpressionNode (predicate_bnode);
+	linked_var *predicate_var =
+		new linked_var (&predicate, predicate_enode);
+
+	assert(predicate_var->get_value().type == ltSTR_PTR);
+	assert(!strcmp((*(string **)predicate_var->get_value().value.ptr)->c_str(), "a problem."));
+
+	// [rpl] link (string sentence <- "Amar says: we have " + predicate);
+	string *sentence = new string();
+	linked_var::register_cpp_var(&sentence);
+
+	LiteralNode *prefix_litnode = new LiteralNode("Amar says: we have ");
+	ValueNode *prefix_valnode = new ValueNode(prefix_litnode);
+	UnaryExpressionNode *prefix_unode =
+		new UnaryExpressionNode (prefix_valnode);
+	BinaryExpressionNode *prefix_bnode =
+		new BinaryExpressionNode (prefix_unode);
+
+	BinaryExpressionNode *sentence_bnode =
+		new BinaryExpressionNode (prefix_bnode, "+", predicate_bnode);
+	ExpressionNode *sentence_enode =
+		new ExpressionNode (sentence_bnode);
+	linked_var *sentence_var =
+		new linked_var (&sentence, sentence_enode);
+
+	assert(sentence_var->get_value().type == ltSTR);
+	assert(!strcmp(sentence_var->get_value().value.strval->c_str(), "Amar says: we have a problem."));
+
+	// Change suffix
+	// [rpl] predicate = "no problem.";
+	predicate = new string ("no problem.");
+	linked_var::update_nonlinked_var(&predicate);
+
+	assert(!strcmp(sentence_var->get_value().value.strval->c_str(), "Amar says: we have no problem."));
+	assert(strcmp(sentence_var->get_value().value.strval->c_str(), "Amar says: we have a problem."));
+}
 
 void TreeTest::test_unary_ops() {
 	bool root;
@@ -397,11 +447,16 @@ void TreeTest::run_all_integration_tests() {
 	assert(r_link->get_value().value.boolval == false);
 
 	test_unary_ops();
+	cerr << "[TREE_TEST] All unary operation tests passed." << endl;
+
+	test_string_concatenation();
+	cerr << "[TREE_TEST] All string operation tests passed." << endl;
 }
 
 int main() {
     TreeTest::run_all_unit_tests();
+	cerr << "[TREE_TEST] All unit tests passed." << endl;
     TreeTest::run_all_integration_tests();
 
-    cerr << "All tests passed." << endl;
+    cerr << "[TREE_TEST] All tests passed." << endl;
 }

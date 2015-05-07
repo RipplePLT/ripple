@@ -60,9 +60,6 @@ void linked_var::update_cpp_var() {
  * variables that depend on it, based on the present values  of the
  * relevant C++ variables, at least one of which presumably has
  * changed.
- *
- * This implementation will not be used, because it would create a
- * race condition.
  */
 void linked_var::update() {
 	int i;
@@ -72,7 +69,7 @@ void linked_var::update() {
 	// Recursively update children
 	if (references[this->address] != NULL)
 		for (i = 0; i < references[this->address]->size(); i++)
-			if (references[this->address] != NULL)
+			if ((*references[this->address])[i] != this)
 				(*references[this->address])[i]->update();
 }
 
@@ -88,4 +85,27 @@ void linked_var::update(link_val new_value) {
 	// Recursively update children
 	for (i = 0; i < references[this->address]->size(); i++)
 		(*references[this->address])[i]->update();
+}
+
+/*
+ * This function takes a pointer to the C++ variable to be used in a
+ * linked_var. (Each linked_var must have one.) It creates an
+ * entry for that var in the dependency tree, if one doesn't already
+ * exist.
+ */
+void linked_var::register_cpp_var (void *var) {
+	if (references[var] == NULL)
+		references[var] = new vector<linked_var*>();
+}
+
+/*
+ * Call this function immediately after directly updating a nonlinked
+ * variable. It will propagate the changes to all vars linked to it,
+ * directly or indirectly.
+ */
+void linked_var::update_nonlinked_var (void *var) {
+	int i;
+	if (references[var] != NULL)
+		for (i = 0; i < references[var]->size(); i++)
+			(*references[var])[i]->update();
 }

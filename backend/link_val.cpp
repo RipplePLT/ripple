@@ -37,6 +37,34 @@ bool link_val::get_bool_val() const {
 		0;
 }
 
+string link_val::get_str_val() const {
+	switch(type) {
+	case (ltINT) :
+		return to_string(value.intval);
+		break;
+	case (ltSTR) :
+		return *value.strval;
+		break;
+	case (ltSTR_PTR) :
+		return **(string **)value.ptr;
+		break;
+	/*
+	case (ltBOOL) :
+		break;
+	case (ltDOUBLE) :
+		break;
+	case (ltINT_PTR) :
+		break;
+	case (ltDOUBLE_PTR) :
+		break;
+	case (ltBOOL_PTR) :
+		break;
+	*/
+	default:
+		return NULL;
+	}
+}
+
 link_val link_val::size_node() {
 	link_val *result = new link_val();
 	result->type = ltINT;
@@ -95,14 +123,16 @@ T link_val::generic_op(T a, T b, const char *op) {
 }
 
 link_val link_val::link_val_op(link_val a, link_val b, const char *op) {
+	if (a.type == ltSTR || b.type == ltSTR ||
+			a.type == ltSTR_PTR || b.type == ltSTR_PTR)
+		return str_op(a, b, op);
 	if (a.type == ltBOOL || b.type == ltBOOL ||
 			a.type == ltBOOL_PTR || b.type == ltBOOL_PTR)
 		return bool_op(a, b, op);
 	if (a.type == ltDOUBLE || b.type == ltDOUBLE ||
 			a.type == ltDOUBLE_PTR || b.type == ltDOUBLE_PTR)
 		return double_op(a, b, op);
-	else
-		return integer_op(a, b, op);
+	return integer_op(a, b, op);
 }
 
 link_val link_val::link_val_op(link_val a, const char *op) {
@@ -111,6 +141,23 @@ link_val link_val::link_val_op(link_val a, const char *op) {
 	else if (a.type == ltDOUBLE || a.type == ltDOUBLE_PTR)
 		return double_op(a, op);
 	return bool_op(a, op); // logical not
+}
+
+link_val link_val::str_op(link_val a, link_val b, const char *op) {
+	string a_str, b_str;
+	link_val *result = new link_val();
+
+	a_str = a.get_str_val();
+	b_str = b.get_str_val();
+
+	result->type = ltSTR;
+
+	if (!strcmp(op, "+")) {
+		string *temp = new string(a_str + b_str);
+		result->value.strval = temp;
+	}
+
+	return *result;
 }
 
 link_val link_val::integer_op(link_val a, link_val b, const char *op) {
