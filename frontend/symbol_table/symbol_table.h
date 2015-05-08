@@ -35,9 +35,7 @@ class SymbolTable{
     SymbolTableNode *start;
     SymbolTableNode *current;
 
-    std::vector<string> reserved {"if", "else", "for", "while", "link", "return", "import", "final", "continue", "break", "void", "byte", "bool", "int", "float", "string", "dataset", "true", "false", "not", "or", "and", RPL_STD_OUTPUT_FUNCTION, RPL_STD_INPUT_FUNCTION, RPL_STD_OPEN_FUNCTION, RPL_STD_CLOSE_FUNCTION, RPL_STD_READ_FUNCTION};
-
-    void insert_reserved_words();
+    void insert_standard_functions();
 
     public:
     SymbolTable();
@@ -53,6 +51,7 @@ class SymbolTable{
     bool contains(string word);
     bool contains_in_scope(string word);
 
+    bool add_function(string name, e_type type, int line_no, list<e_type> *l);
     void add_args(string word, list<e_type> *l);
     void classify(string word, e_symbol_type s);
 

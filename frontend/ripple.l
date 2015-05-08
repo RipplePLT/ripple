@@ -103,28 +103,6 @@ or          {   db(yytext); saw_id = false; return OR; }
 "\."        {  	db(yytext); saw_id = false; return tACCESS; }
 %%
 
-void install_id(){
-	if(saw_type){
-		if(sym_table.contains_in_scope(yytext)) {
-		    error = true;
-		    Entry *entry = sym_table.get(yytext);
-		    cout << "Redefinition of variable " << yytext << " previously defined on line " << entry->line_no << endl;
-		} else if (sym_table.contains(yytext)) {
-			// possible redeclaration
-			if(!sym_table.put(yytext, last_type, line_no, tNOSTYPE))
-				exit(1);
-		} else {
-			if(!sym_table.put(yytext, last_type, line_no, tNOSTYPE))
-				exit(1);
-		}
-	} else {
-		// check if id is valid
-		if(!sym_table.contains(yytext)){
-			cout << "Use of undeclared identifier " << yytext << " on line " << line_no << endl;
-			error = true;
-		}
-	}
-}
 
 int main(int argc, char **argv) {
 

@@ -158,12 +158,11 @@ IDNode::~IDNode() { }
 
 
 /* FunctionCallNode */
-FunctionCallNode::FunctionCallNode(string f, ArgsNode *a, Entry *entry) {
+FunctionCallNode::FunctionCallNode(string f, ArgsNode *a) {
     func_id = f;
     args_list = a;
-    type = sym_table.get(f)->type;
 
-    typecheck(entry);
+    typecheck();
 
     if(IS_STD_RPL_FUNCTION(func_id)){
         code = generate_std_rpl_function();
@@ -175,7 +174,8 @@ FunctionCallNode::FunctionCallNode(string f, ArgsNode *a, Entry *entry) {
 FunctionCallNode::FunctionCallNode(string f) {
     func_id = f;
     args_list = new ArgsNode();
-    type = sym_table.get(f)->type;
+
+    typecheck();
 
     if(IS_STD_RPL_FUNCTION(func_id)){
         code = generate_std_rpl_function();
@@ -184,7 +184,8 @@ FunctionCallNode::FunctionCallNode(string f) {
     }   
 }
 
-void FunctionCallNode::typecheck(Entry *entry) {
+void FunctionCallNode::typecheck() {
+    Entry *entry = sym_table.get(func_id);
     if (entry) {
         if (entry->symbol_type != tFUNC) {
             error = true;
@@ -195,6 +196,10 @@ void FunctionCallNode::typecheck(Entry *entry) {
                 cout << INVAL_FUNC_CALL_ERR << endl;
             }
         }
+        type = entry->type;
+    } else {
+        error = true;
+        cout << "use of undeclared function " << func_id << endl;
     }
 }
 
@@ -252,15 +257,20 @@ DeclArgsNode::DeclArgsNode() {
     code = "";
 }
 
-DeclArgsNode::DeclArgsNode(IDNode* arg) {
+DeclArgsNode::DeclArgsNode(string t, IDNode* arg) {
     decl_args_list.push_back(arg);
-
-    code = type_to_str(arg->type) + " " + arg->code;
+    arg->type = str_to_type(t);
+    arg->entry->type = str_to_type(t);
+    type = arg->type;
+    code = type_to_str(type) + " " + arg->code;
 }
 
-void DeclArgsNode::add_arg(IDNode* arg) {
+void DeclArgsNode::add_arg(string t, IDNode* arg) {
     decl_args_list.push_back(arg);
-    code += ", " + type_to_str(arg->type) + " " + arg->code;
+    arg->type = str_to_type(t);
+    arg->entry->type = str_to_type(t);
+    type = arg->type;
+    code += ", " + type_to_str(type) + " " + arg->code;
 }
 
 vector<IDNode *>::iterator DeclArgsNode::begin() {
@@ -568,12 +578,11 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     }
     type = b->type;
     code = b->code;
-    value = NULL;
 }
 
 ValueNode *BinaryExpressionNode::get_value_node() {
-    if (op == NONE && right_operand.u_exp->op == NONE)
-        return right_operand.u_exp->right_operand.v_node;
+    if (op == NONE && left_operand.u_exp && left_operand.u_exp->op == NONE)
+        return left_operand.u_exp->right_operand.v_node;
     return nullptr;
 }
 
@@ -729,7 +738,7 @@ void FunctionNode::seppuku(){
 }
 
 e_type IDNode::get_type() {
-    return entry->type;
+    return type;
 }
 
 string IDNode::get_name() {

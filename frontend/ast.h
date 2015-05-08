@@ -139,9 +139,9 @@ class ValueNode: public Node {
 
 
 class IDNode: public Node {
-    Entry *entry;
     public:
     IDNode(Entry *ent);
+    Entry *entry;
     string get_name();
     e_type get_type();
     ~IDNode();
@@ -153,9 +153,9 @@ class FunctionCallNode: public Node {
     string func_id;
 
     public:
-    FunctionCallNode(string f, ArgsNode *a, Entry *entry);
+    FunctionCallNode(string f, ArgsNode *a);
     FunctionCallNode(string f);
-    void typecheck(Entry *entry);
+    void typecheck();
     string generate_std_rpl_function();
 };
 
@@ -176,8 +176,8 @@ class DeclArgsNode: public Node {
 
     public:
     DeclArgsNode();
-    DeclArgsNode(IDNode* arg);
-    void add_arg(IDNode* arg);
+    DeclArgsNode(string type, IDNode* arg);
+    void add_arg(string type,IDNode* arg);
     list<e_type> *to_enum_list();
     vector<IDNode*>::iterator begin();
     vector<IDNode*>::iterator end();
