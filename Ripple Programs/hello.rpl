@@ -1,4 +1,0 @@
-#* A simple program to print hello world *#
-void main() {
-    print("hello, world", 5); # prints 'hello, world'
-}

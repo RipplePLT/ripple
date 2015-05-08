@@ -5,6 +5,9 @@
 #include "ripple.tab.hpp"
 #include "frontend/symbol_table/symbol_table.h"
 
+#define CXX "clang++ "
+#define CPP_STANDARD " -std=c++11"
+
 void install_id();
 
 extern "C" int yywrap();
@@ -28,7 +31,7 @@ SymbolTable sym_table;
 /* regular definitions */
 delim       [ \t]
 nl			\n
-comment     (#.*\n)|(#\*[^(\*\#)]*\*\#)
+comment     "#*"([^*]|\*+[^*/])*\*+"#"
 ws          ({comment}|{delim})+
 letter      [A-Za-z_]
 digit       [0-9]
@@ -40,7 +43,7 @@ float	    {digit}+\.{digit}*
 %%
 
 {nl}		{   line_no++;  }
-{ws}        {/* don't do anything for whitespace */	}
+{ws}        {   /* don't do anything for whitespace */	}
 if          {	db(yytext); saw_type = false; return IF;	}
 else        {	db(yytext); saw_type = false; return ELSE;	}
 while       {	db(yytext); saw_type = false; return WHILE;	}
@@ -112,13 +115,14 @@ void install_id(){
 			if(!sym_table.put(yytext, last_type, line_no, tNOSTYPE))
 				exit(1);
 		} else {
-			if(!sym_table.put(yytext, last_type, line_no, tNOSTYPE))
+			if(!sym_table.put(yytext, last_type, line_no, tVAR))
 				exit(1);
 		}
 	} else {
 		// check if id is valid
 		if(!sym_table.contains(yytext)){
 			cout << "Use of undeclared identifier " << yytext << " on line " << line_no << endl;
+			sym_table.put(yytext, tVOID, -1, tNOSTYPE);
 			error = true;
 		}
 	}
@@ -139,19 +143,26 @@ int main(int argc, char **argv) {
 	}
 
     yyin = fopen(argv[1], "r");
-    yyout = fopen(filename_cpp.c_str(), "w");
     yyparse();
     
+
     if(error){
-    	cout << COMPILE_ERR << endl;
+#ifdef DEBUG
+	write_to_file(filename_cpp, cpp_code);   
+#endif
+ 	cout << COMPILE_ERR << endl;
     	return 1;
     }
+    
     write_to_file(filename_cpp, cpp_code);
-    string compile_cpp = "clang++ " + filename_cpp + " -o " + filename;
+    string compile_cpp = CXX + filename_cpp + " -o " + filename + CPP_STANDARD;
     system(compile_cpp.c_str());
    
+
+
 #ifndef DEBUG
     remove(filename_cpp.c_str());
 #endif
+
     return 0;
 }

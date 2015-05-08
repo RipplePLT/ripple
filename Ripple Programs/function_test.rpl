@@ -1,7 +1,0 @@
-void hello(int x, float y) {
-    print(x, y);
-}
-
-void main() {
-    banana("yes", "no");
-}

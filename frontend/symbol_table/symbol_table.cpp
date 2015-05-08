@@ -62,7 +62,7 @@ void SymbolTable::scope_out(int line_no) {
 
 void SymbolTable::insert_reserved_words(){
     for(std::vector<string>::iterator it = reserved.begin(); it != reserved.end(); ++it) {
-        put(*it, tVOID, -1, tNOSTYPE);
+        put(*it, tVOID, -1, tFUNC);
     }
 }
 
@@ -104,5 +104,5 @@ Entry *SymbolTable::get(string word) {
 }
 
 SymbolTable::~SymbolTable() {
-    delete start;
+    //delete start;
 }
