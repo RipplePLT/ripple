@@ -108,31 +108,37 @@ bool Node::is_string() {
 
 /* ValueNode */
 ValueNode::ValueNode(IDNode *i) {
+    val_type = IDENT;
     val.id_val = i;
     type = i->type;
     code = i->code;
 }
 ValueNode::ValueNode(LiteralNode *l) {
+    val_type = LIT;
     val.lit_val = l;
     type = l->type;
     code = l->code;
 }
 ValueNode::ValueNode(FunctionCallNode *f) {
+    val_type = FUNC_CALL;
     val.function_call_val = f;
     type = f->type;
     code = f->code;
 } 
 ValueNode::ValueNode(ArrayAccessNode *a) {
+    val_type = ARR_ACC;
     val.array_access_val = a;
     type = a->type;
     code = a->code;
 }
 ValueNode::ValueNode(DatasetAccessNode *d) {
+    val_type = DS_ACC;
     val.dataset_access_val = d;
     type = d->type;
     code = d->code;
 }
 ValueNode::ValueNode(ExpressionNode *e) {
+    val_type = EXPR;
     val.expression_val = e;
     type = e->type;
     code = "( " + e->code + " )";
@@ -152,29 +158,29 @@ IDNode::~IDNode() { }
 
 
 /* FunctionCallNode */
-FunctionCallNode::FunctionCallNode(IDNode *f, ArgsNode *a, Entry *entry) {
+FunctionCallNode::FunctionCallNode(string f, ArgsNode *a, Entry *entry) {
     func_id = f;
     args_list = a;
-    type = f->type;
+    type = sym_table.get(f)->type;
 
     typecheck(entry);
 
-    if(IS_STD_RPL_FUNCTION(func_id->code)){
+    if(IS_STD_RPL_FUNCTION(func_id)){
         code = generate_std_rpl_function();
     } else {
-        code = f->code + "( " + a->code + " )";
+        code = f + "( " + a->code + " )";
     }   
 }
 
-FunctionCallNode::FunctionCallNode(IDNode *f) {
+FunctionCallNode::FunctionCallNode(string f) {
     func_id = f;
     args_list = new ArgsNode();
-    type = f->type;
+    type = sym_table.get(f)->type;
 
-    if(IS_STD_RPL_FUNCTION(func_id->code)){
+    if(IS_STD_RPL_FUNCTION(func_id)){
         code = generate_std_rpl_function();
     } else {
-        code = f->code + "()";
+        code = f + "()";
     }   
 }
 
@@ -193,7 +199,7 @@ void FunctionCallNode::typecheck(Entry *entry) {
 }
 
 string FunctionCallNode::generate_std_rpl_function(){
-    string func_name = func_id->code;
+    string func_name = func_id;
     string code;
     if (func_name.compare(RPL_STD_OUTPUT_FUNCTION) == 0){
         code = "std::cout << ";
@@ -301,12 +307,12 @@ ArrayAccessNode::ArrayAccessNode(ValueNode *val, ExpressionNode *exp) {
 
 
 /* DatasetAccessNode */
-DatasetAccessNode::DatasetAccessNode(ValueNode *val, IDNode *i) {
-    vn = val;
-    idn = i;
-    type = val->type;
-}
+DatasetAccessNode::DatasetAccessNode(ValueNode *val, string i) {
+    value_node = val;
+    id = i;
 
+    //typecheck();
+}
 
 /* UnaryExpressionNode */
 UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op) {
@@ -386,6 +392,7 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
 
 BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
     left_operand.u_exp = ul;
+    left_is_binary = false;
     type = ul->type;
     code = ul->code;
     op = NONE;
@@ -553,10 +560,21 @@ string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string
 
 /* ExpressionNode */
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
-    bin_exp = b;
+    ValueNode *v = b->get_value_node();
+    if (v) {
+        value = v;
+    } else {
+        bin_exp = b;
+    }
     type = b->type;
     code = b->code;
     value = NULL;
+}
+
+ValueNode *BinaryExpressionNode::get_value_node() {
+    if (op == NONE && right_operand.u_exp->op == NONE)
+        return right_operand.u_exp->right_operand.v_node;
+    return nullptr;
 }
 
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
@@ -589,8 +607,6 @@ DeclarativeStatementNode::DeclarativeStatementNode(string _type, ExpressionNode 
     en = expression_node;
 
     transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
-    // TODO TYPE CHECK
-    //TODO TYPE CONVERSIONS
     code = _type + " " + expression_node->code + ";\n"; 
 }
 
@@ -693,7 +709,7 @@ void StatementListNode::push_statement(StatementNode *s) {
 }
 
 /* FunctionNode */
-FunctionNode::FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n){
+FunctionNode::FunctionNode(string _type, string id_node, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n){
     type = str_to_type(_type);
     id = id_node;
     decl_args = decl_args_list;
@@ -701,10 +717,10 @@ FunctionNode::FunctionNode(string _type, IDNode *id_node, DeclArgsNode *decl_arg
 
     transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
 
-    if (id_node->code.compare("main") == 0) {
-        code = "int " + id_node->code + "(" + decl_args_list->code + ")" + stmt_list_n->code; 
+    if (id.compare("main") == 0) {
+        code = "int " + id + "(" + decl_args_list->code + ")" + stmt_list_n->code; 
     } else {
-        code = _type + " " + id_node->code + "(" + decl_args_list->code + ")" + stmt_list_n->code;
+        code = _type + " " + id + "(" + decl_args_list->code + ")" + stmt_list_n->code;
     }
 }
 
