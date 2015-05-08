@@ -258,5 +258,7 @@ link_val VariableNode::evaluate() {
 }
 
 /* FunctionCallNode */
+/*
 FunctionCallNode::FunctionCall() {
 }
+*/
