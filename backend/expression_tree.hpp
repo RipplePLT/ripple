@@ -31,7 +31,6 @@ union operand {
     ValueNode *v_node;
 };
 
-// @TODO Implement non-integer literals
 class LiteralNode {
 public:
 	link_val val;
@@ -40,6 +39,7 @@ public:
 	LiteralNode (int i);
 	LiteralNode (double f);
 	LiteralNode (bool b);
+	LiteralNode (const char *s);
 	link_val evaluate();
 };
 
@@ -49,7 +49,6 @@ public:
  * Ex: If x is a Ripple integer, then "link (y <- x)" should create a
  * VariableNode for x.
  *
- * @TODO Implement non-integer types
  */
 class VariableNode {
 public:
@@ -60,6 +59,7 @@ public:
 	VariableNode (int *var);
 	VariableNode (double *var);
 	VariableNode (bool *var);
+	VariableNode (string **var);
 	link_val evaluate();
 };
 

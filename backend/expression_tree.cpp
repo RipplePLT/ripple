@@ -211,6 +211,11 @@ LiteralNode::LiteralNode(bool b) {
 	this->val.value.boolval = b;
 	this->dependencies = NULL;
 }
+LiteralNode::LiteralNode(const char *s) {
+	this->val.type = ltSTR;
+	this->val.value.strval = new string(s);
+	this->dependencies = NULL;
+}
 link_val LiteralNode::evaluate() {
 	return this->val;
 }
@@ -236,6 +241,14 @@ VariableNode::VariableNode(bool *var) {
 	this->var = var;
 	this->val.type = ltBOOL_PTR;
 	this->val.value.ptr = (void *)var;
+
+	this->dependencies = new vector<void*>();
+	this->dependencies->push_back(this->val.value.ptr);
+}
+VariableNode::VariableNode(string **s) {
+	this->var = s;
+	this->val.type = ltSTR_PTR;
+	this->val.value.ptr = (void *)s;
 
 	this->dependencies = new vector<void*>();
 	this->dependencies->push_back(this->val.value.ptr);
