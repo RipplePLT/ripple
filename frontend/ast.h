@@ -11,34 +11,50 @@
 #include "../structures/enum.h"
 #include "../structures/union.h"
 
+#define LINE_ERR "Error on line number " + to_string(line_no) + ": " <<
+
 #define RPL_STD_OUTPUT_FUNCTION "print"
 #define RPL_STD_INPUT_FUNCTION "input"
 #define RPL_STD_OPEN_FUNCTION "open"
 #define RPL_STD_CLOSE_FUNCTION "close"
 #define RPL_STD_READ_FUNCTION "read"
 
-#define INVAL_UNARY_NOT_ERR "unary not error"
-#define INVAL_UNARY_MINUS_ERR "unary minus error"
-#define INVAL_BINARY_PLUS_ERR "binary plus error"
-#define INVAL_BINARY_MINUS_ERR "binary minus error"
-#define INVAL_BINARY_TIMES_ERR "binary times error"
-#define INVAL_BINARY_DIV_ERR "binary div error"
-#define INVAL_BINARY_EXP_ERR "binary exp error"
-#define INVAL_BINARY_FLDIV_ERR "binary fldiv error"
-#define INVAL_BINARY_EQ_ERR "binary eq error"
-#define INVAL_BINARY_NE_ERR "binary ne error"
-#define INVAL_BINARY_GT_ERR "binary gt error"
-#define INVAL_BINARY_LT_ERR "binary lt error"
-#define INVAL_BINARY_GE_ERR "binary ge error"
-#define INVAL_BINARY_LE_ERR "binary le error"
-#define INVAL_BINARY_AND_ERR "binary and error"
-#define INVAL_BINARY_OR_ERR "binary or error"
-#define INVAL_FUNC_CALL_ERR "function call error"
-#define LOOP_CONDITION_ERR "loop condition error"
+#define INVAL_UNARY_NOT_ERR LINE_ERR "unary not error"
+#define INVAL_UNARY_MINUS_ERR LINE_ERR "unary minus error"
+#define INVAL_BINARY_PLUS_ERR LINE_ERR "binary plus error"
+#define INVAL_BINARY_MINUS_ERR LINE_ERR "binary minus error"
+#define INVAL_BINARY_TIMES_ERR LINE_ERR "binary times error"
+#define INVAL_BINARY_DIV_ERR LINE_ERR "binary div error"
+#define INVAL_BINARY_EXP_ERR LINE_ERR "binary exp error"
+#define INVAL_BINARY_FLDIV_ERR LINE_ERR "binary fldiv error"
+#define INVAL_BINARY_EQ_ERR LINE_ERR "binary eq error"
+#define INVAL_BINARY_NE_ERR LINE_ERR "binary ne error"
+#define INVAL_BINARY_GT_ERR LINE_ERR "binary gt error"
+#define INVAL_BINARY_LT_ERR LINE_ERR "binary lt error"
+#define INVAL_BINARY_GE_ERR LINE_ERR "binary ge error"
+#define INVAL_BINARY_LE_ERR LINE_ERR "binary le error"
+#define INVAL_BINARY_AND_ERR LINE_ERR "binary and error"
+#define INVAL_BINARY_OR_ERR LINE_ERR "binary or error"
+#define INVAL_FUNC_CALL_ERR LINE_ERR "function call error"
+#define LOOP_CONDITION_ERR LINE_ERR "loop condition error"
+
+#define ARR_ELEMENT_TYPE_ERR LINE_ERR "all elements in an array initialization must have the same type"
+#define ARR_UNARY_MINUS_ERR LINE_ERR "cannot perform negation on arrays"
+#define ARR_UNARY_NOT_ERR LINE_ERR "cannot perform boolean not on arrays"
+#define ARR_BINEXP_ERR LINE_ERR "cannot perform binary operations on arrays"
+#define ARR_VAR_ASSIGN_ERR LINE_ERR "cannot assign array to non-array variable"
+#define ARR_INT_SIZE_ERR LINE_ERR "array size must be int"
+#define ARR_UNKNOWN_SIZE_ERR LINE_ERR "variable size array cannot be initialized"
+#define ARR_SMALL_SIZE_ERR LINE_ERR "size of array declared is too small"
+#define ARR_ASSIGN_ERR LINE_ERR "can't assign array to non-array variable"
+
+#define ASSIGN_ERR "left operand of assignment expression must be a variable"
+
 #define ERROR "error"
 #define COMPILE_ERR "compilation halted because of error in code"
 
 using namespace std;
+extern int line_no;
 
 class Node;
 class ArrayInitNode;
@@ -75,10 +91,9 @@ void write_to_file(string filename, string code);
                                     (f_name).compare(RPL_STD_READ_FUNCTION) == 0     || \
                                     (f_name).compare(RPL_STD_CLOSE_FUNCTION) == 0
 
-#define INVAL_ASSIGN_ERR(val_type, expression_type, line_no) { cout <<        \
-                        "Invalid assignment between operands of type: " <<  \
-                        val_type << " and " << expression_type << " on line " \
-                        << line_no << endl; }
+#define INVAL_ASSIGN_ERR(val_type, expression_type) { cout << LINE_ERR \
+                        "invalid assignment between operands of type " <<  \
+                        val_type << " and " << expression_type << endl; }
 
 extern int line_no;
 extern bool error;

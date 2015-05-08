@@ -241,7 +241,7 @@ void ArrayInitNode::add_arg(ExpressionNode *arg) {
     }
     else if(arg->type != type){
         error = true;
-        cout << "All elements in an array initialization must have the same type" << endl;
+        cout << ARR_ELEMENT_TYPE_ERR << endl;
     }
     if(code.compare("") == 0)
         code += arg->code;
@@ -388,7 +388,10 @@ void UnaryExpressionNode::typecheck(e_op op){
 
     if(sym == tARR && op != SIZE){
         error = true;
-        cout << "Cannot perform unary minus or unary not on arrays" << endl;
+        if(op == bNOT)
+            cout << ARR_UNARY_NOT_ERR << endl;
+        else if(op == MINUS)
+            cout << ARR_UNARY_MINUS_ERR << endl;
         return;
     }
 
@@ -449,7 +452,7 @@ void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
 
     if(left->sym == tARR || right->sym == tARR){
         error = true;
-        cout << "cannot binexp arrays" << endl;
+        cout << ARR_BINEXP_ERR << endl;
     }
 
     if((left->is_string() || right->is_string()) && op == PLUS) {
@@ -635,7 +638,7 @@ void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *valu
 
     if(value->sym != tVAR){
         error = true;
-        cout << "Left operand of assignment operator must be variable" << endl;
+        cout << ASSIGN_ERR << endl;
     }
 
     if (expression->type == value->type){
@@ -646,7 +649,7 @@ void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *valu
             type = tFLOAT;
     }
     else{
-        INVAL_ASSIGN_ERR(type_to_str(value->type), type_to_str(expression->type), line_no);
+        INVAL_ASSIGN_ERR(type_to_str(value->type), type_to_str(expression->type));
         error = true;
     }
 }
@@ -661,27 +664,34 @@ DeclarativeStatementNode::DeclarativeStatementNode(string _type, ValueNode *arr_
     code = _type + " ";
     if(a_size == nullptr){
         if(expression_node->sym == tARR){
-            cout << "Cannot assign non aray to array" << endl;
+            cout << ARR_VAR_ASSIGN_ERR << endl;
             error = true;
         } else {
             code += expression_node->code + ";\n"; 
         }
     } else {
+        
         if(a_size->type != tINT){
             error = true;
-            cout << "Size of an array must be an int" << endl;
+            cout << ARR_INT_SIZE_ERR << endl;
         }
 
         if(a_size->sym != tVAR){
             error = true;
-            cout << "Variable size array cannot be initialized" << endl;
+            cout << ARR_UNKNOWN_SIZE_ERR << endl;
         }
 
         if(arr_size->val.lit_val->val.int_lit != -1 && 
             arr_size->val.lit_val->val.int_lit < expression_node->array_length) {
             
             error = true;
-            cout << "Size of array declared is too small" << endl;
+            cout << ARR_SMALL_SIZE_ERR << endl;
+        }
+
+        if(expression_node->sym != tARR){
+            error = true;
+            cout << ARR_ASSIGN_ERR << endl;
+
         }
 
         if(expression_node->value)
