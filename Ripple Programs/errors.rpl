@@ -1,0 +1,9 @@
+int main() {
+	
+	int i = true;
+	int i2 = false;
+	int i3 = 1.0;
+	int i4 = "hello";
+	int i5 = {1,2,3};
+
+}
