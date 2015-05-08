@@ -51,16 +51,18 @@ string link_val::get_str_val() const {
 	case (ltSTR_PTR) :
 		return **(string **)value.ptr;
 		break;
-	/*
-	case (ltBOOL) :
-		break;
 	case (ltDOUBLE) :
+		return to_string(value.doubleval);
 		break;
 	case (ltDOUBLE_PTR) :
+		return to_string(*(double *)value.ptr);
+		break;
+	case (ltBOOL) :
+		return to_string(value.boolval);
 		break;
 	case (ltBOOL_PTR) :
+		return to_string(*(bool *)value.ptr);
 		break;
-	*/
 	default:
 		return NULL;
 	}

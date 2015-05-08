@@ -346,10 +346,6 @@ linked_var *TreeTest::link_double_var(double *d) {
     return var_x;
 }
 
-/* @TODO int literal, double literal */
-/* @TODO Link to int (op) int */
-/* @TODO Link to double (op) double */
-
 /* Link to int literal (op) double var */
 linked_var *TreeTest::link_int_lit_op_double_var(void *linked, int i,
         double *d, const char *op) {
@@ -508,6 +504,8 @@ void TreeTest::run_all_integration_tests() {
 }
 
 int main() {
+	bool b = true;
+	cerr << to_string(b) << endl;
     TreeTest::run_all_unit_tests();
 	cerr << "[TREE_TEST] All unit tests passed." << endl;
     TreeTest::run_all_integration_tests();
