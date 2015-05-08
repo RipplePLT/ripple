@@ -78,14 +78,14 @@ void test_contains_tag(string line) {
     assert(contains == true);
 }
 
-void test_does_not_contain_tag(string line) {
-    bool contains = xml_lib::contains_tag(line, "<Dog>");
-    assert(contains == false);
-}
-
 void test_contains_word(string line) {
     bool contains = xml_lib::contains_word(line, "Herman");
     assert(contains == true);
+}
+
+void test_does_not_contain_tag(string line) {
+    bool contains = xml_lib::contains_tag(line, "<Dog>");
+    assert(contains == false);
 }
 
 void test_does_not_contain_word(string line) {

@@ -1,6 +1,7 @@
 #ifndef XML_LIB_HPP
 #define XML_LIB_HPP
 
+#include <iostream>
 #include <sstream>
 #include <stack>
 #include <string>
@@ -14,12 +15,18 @@ namespace xml_lib {
 
     bool contains_tag(string line, string tag);
     bool contains_word(string line, string word);
-    vector<string> get_collection(string line, string tag);
+
+    int get_num_nodes(string line, string tag);
+    int locate_word(string line, string word);
+    int size(string line);
+     
     string get_node(string line, string tag);
     string get_node_text(string line, string tag);
-    int get_num_nodes(string line, string tag);
-    int size(string line);
        
+    vector<string> get_collection(string line, string tag);
+    
+    void print_line(string line);
+
 }
 
 #endif

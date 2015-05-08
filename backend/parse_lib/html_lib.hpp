@@ -1,6 +1,7 @@
 #ifndef HTML_LIB_HPP
 #define HTML_LIB_HPP
 
+#include <iostream>
 #include <sstream>
 #include <stack>
 #include <string>
@@ -16,6 +17,7 @@ namespace html_lib {
     bool contains_word(string line, string word);
 
     int get_num_tags(string line, string tag);
+    int locate_word(string line, string word);
     int size(string line);
 
     string get_body(string line);
@@ -23,6 +25,8 @@ namespace html_lib {
     string get_tag(string line, string tag);
 
     vector<string> get_collection(string line, string tag);
+
+    void print_line(string line);
 
 }
 
