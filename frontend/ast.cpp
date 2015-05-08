@@ -146,6 +146,7 @@ ValueNode::ValueNode(ArrayInitNode *a) {
     type = a->type;
     sym = tARR;
     code = "{ " + a->code + " }";
+    array_length = a->array_length;
 }
 
 
@@ -219,6 +220,7 @@ ArrayInitNode::ArrayInitNode() {
     args_list = new vector<ExpressionNode *>(); 
     sym = tARR;
     code = "";
+    array_length = 0;
 }
 
 ArrayInitNode::ArrayInitNode(ExpressionNode *arg) {
@@ -227,6 +229,7 @@ ArrayInitNode::ArrayInitNode(ExpressionNode *arg) {
 
     args_list->push_back(arg);
     code = arg->code;
+    array_length = 1;
 }
 
 void ArrayInitNode::add_arg(ExpressionNode *arg) {
@@ -244,6 +247,8 @@ void ArrayInitNode::add_arg(ExpressionNode *arg) {
         code += arg->code;
     else
         code += ", " + arg->code;
+
+    array_length++;
 }
 
 /* ArgsNode */
@@ -337,6 +342,7 @@ DatasetAccessNode::DatasetAccessNode(ValueNode *val, IDNode *i) {
     idn = i;
     type = val->type;
     sym = i->sym;
+    array_length = val->array_length;
 }
 
 
@@ -344,6 +350,7 @@ DatasetAccessNode::DatasetAccessNode(ValueNode *val, IDNode *i) {
 UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op) {
 
     right_operand.u_exp = u;
+    array_length = u->array_length;
     op = str_to_op(_op);
     sym = u->sym;
     typecheck(op);
@@ -369,6 +376,7 @@ UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op) {
 UnaryExpressionNode::UnaryExpressionNode(ValueNode *v){
     op = NONE;
     right_operand.v_node = v;
+    array_length = v->array_length;
     type = v->type;
     sym = v->sym;
     code = v->code;
@@ -431,11 +439,18 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
 BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
     left_operand.u_exp = ul;
     type = ul->type;
+    sym = ul->sym;
     code = ul->code;
+    array_length = ul->array_length;
     op = NONE;
 }
 
 void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
+
+    if(left->sym == tARR || right->sym == tARR){
+        error = true;
+        cout << "cannot binexp arrays" << endl;
+    }
 
     if((left->is_string() || right->is_string()) && op == PLUS) {
         type = tSTRING;
@@ -598,6 +613,8 @@ string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string
 /* ExpressionNode */
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     bin_exp = b;
+    array_length = b->array_length;
+    sym = b->sym;
     type = b->type;
     code = b->code;
     value = NULL;
@@ -606,6 +623,8 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
     bin_exp = b;
     typecheck(b, v);
+    sym = b->sym;
+    array_length = b->array_length;
     code = v->code + " = " + b->code;
     value = v;
 }
@@ -613,6 +632,11 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
 ExpressionNode::~ExpressionNode() {}
 
 void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *value){
+
+    if(value->sym != tVAR){
+        error = true;
+        cout << "Left operand of assignment operator must be variable" << endl;
+    }
 
     if (expression->type == value->type){
         type = value->type;
@@ -628,21 +652,36 @@ void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *valu
 }
 
 /* DeclarativeStatementNode */
-DeclarativeStatementNode::DeclarativeStatementNode(string _type, ExpressionNode *arr_size, ExpressionNode *expression_node){
+DeclarativeStatementNode::DeclarativeStatementNode(string _type, ValueNode *arr_size, ExpressionNode *expression_node){
     type = str_to_type(_type);
     a_size = arr_size;
     en = expression_node;
     transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
-    //TODO TYPE CHECK
-    //TODO TYPE CONVERSIONS
 
     code = _type + " ";
     if(a_size == nullptr){
-        code += expression_node->code + ";\n"; 
+        if(expression_node->sym == tARR){
+            cout << "Cannot assign non aray to array" << endl;
+            error = true;
+        } else {
+            code += expression_node->code + ";\n"; 
+        }
     } else {
         if(a_size->type != tINT){
             error = true;
             cout << "Size of an array must be an int" << endl;
+        }
+
+        if(a_size->sym != tVAR){
+            error = true;
+            cout << "Variable size array cannot be initialized" << endl;
+        }
+
+        if(arr_size->val.lit_val->val.int_lit != -1 && 
+            arr_size->val.lit_val->val.int_lit < expression_node->array_length) {
+            
+            error = true;
+            cout << "Size of array declared is too small" << endl;
         }
 
         if(expression_node->value)
@@ -655,7 +694,6 @@ DeclarativeStatementNode::DeclarativeStatementNode(string _type, ExpressionNode 
     if(arr_size){
         if(expression_node->value)
             expression_node->value->val.id_val->entry->symbol_type = tARR;
-            //code += expression_node->value->code + "[" + arr_size->code + "] = " + expression_node->bin_exp->code + ";\n";
         else
             expression_node->bin_exp->left_operand.u_exp->right_operand.v_node->val.id_val->entry->symbol_type = tARR;
     }

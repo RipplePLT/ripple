@@ -17,24 +17,24 @@
 #define RPL_STD_CLOSE_FUNCTION "close"
 #define RPL_STD_READ_FUNCTION "read"
 
-#define INVAL_UNARY_NOT_ERR "\tunary not error"
-#define INVAL_UNARY_MINUS_ERR "\tunary minus error"
-#define INVAL_BINARY_PLUS_ERR "\tbinary plus error"
-#define INVAL_BINARY_MINUS_ERR "\tbinary minus error"
-#define INVAL_BINARY_TIMES_ERR "\tbinary times error"
-#define INVAL_BINARY_DIV_ERR "\tbinary div error"
-#define INVAL_BINARY_EXP_ERR "\tbinary exp error"
-#define INVAL_BINARY_FLDIV_ERR "\tbinary fldiv error"
-#define INVAL_BINARY_EQ_ERR "\tbinary eq error"
-#define INVAL_BINARY_NE_ERR "\tbinary ne error"
-#define INVAL_BINARY_GT_ERR "\tbinary gt error"
-#define INVAL_BINARY_LT_ERR "\tbinary lt error"
-#define INVAL_BINARY_GE_ERR "\tbinary ge error"
-#define INVAL_BINARY_LE_ERR "\tbinary le error"
-#define INVAL_BINARY_AND_ERR "\tbinary and error"
-#define INVAL_BINARY_OR_ERR "\tbinary or error"
-#define INVAL_FUNC_CALL_ERR "\tfunction call error"
-#define LOOP_CONDITION_ERR "\tloop condition error"
+#define INVAL_UNARY_NOT_ERR "unary not error"
+#define INVAL_UNARY_MINUS_ERR "unary minus error"
+#define INVAL_BINARY_PLUS_ERR "binary plus error"
+#define INVAL_BINARY_MINUS_ERR "binary minus error"
+#define INVAL_BINARY_TIMES_ERR "binary times error"
+#define INVAL_BINARY_DIV_ERR "binary div error"
+#define INVAL_BINARY_EXP_ERR "binary exp error"
+#define INVAL_BINARY_FLDIV_ERR "binary fldiv error"
+#define INVAL_BINARY_EQ_ERR "binary eq error"
+#define INVAL_BINARY_NE_ERR "binary ne error"
+#define INVAL_BINARY_GT_ERR "binary gt error"
+#define INVAL_BINARY_LT_ERR "binary lt error"
+#define INVAL_BINARY_GE_ERR "binary ge error"
+#define INVAL_BINARY_LE_ERR "binary le error"
+#define INVAL_BINARY_AND_ERR "binary and error"
+#define INVAL_BINARY_OR_ERR "binary or error"
+#define INVAL_FUNC_CALL_ERR "function call error"
+#define LOOP_CONDITION_ERR "loop condition error"
 #define ERROR "error"
 #define COMPILE_ERR "compilation halted because of error in code"
 
@@ -76,7 +76,7 @@ void write_to_file(string filename, string code);
                                     (f_name).compare(RPL_STD_CLOSE_FUNCTION) == 0
 
 #define INVAL_ASSIGN_ERR(val_type, expression_type, line_no) { cout <<        \
-                        "\tInvalid assignment between operands of type: " <<  \
+                        "Invalid assignment between operands of type: " <<  \
                         val_type << " and " << expression_type << " on line " \
                         << line_no << endl; }
 
@@ -115,6 +115,7 @@ public:
     e_type type = tNOTYPE;
     e_symbol_type sym;
     e_type get_type();
+    int array_length;
     bool is_number();
     bool is_bool();
     bool is_string();
@@ -281,9 +282,9 @@ class DeclarativeStatementNode: public Node {
 public:
     e_type type;
     ExpressionNode *en;
-    ExpressionNode *a_size;
+    ValueNode *a_size;
 
-    DeclarativeStatementNode(string _type, ExpressionNode *arr_size, ExpressionNode *expression_node);
+    DeclarativeStatementNode(string _type, ValueNode *arr_size, ExpressionNode *expression_node);
     DeclarativeStatementNode(ExpressionNode *expression_node);
 
     void seppuku();

@@ -111,7 +111,7 @@ void install_id(){
 			if(!sym_table.put(yytext, last_type, line_no, tNOSTYPE))
 				exit(1);
 		} else {
-			if(!sym_table.put(yytext, last_type, line_no, tNOSTYPE))
+			if(!sym_table.put(yytext, last_type, line_no, tVAR))
 				exit(1);
 		}
 	} else {

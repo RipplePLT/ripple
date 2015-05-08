@@ -104,11 +104,11 @@ extern bool saw_type;
 %type <lit> literal
 %type <un_expr> unary_expression
 %type <bin_expr> exp_expression mult_expression add_expression rel_expression eq_expression and_expression or_expression
-%type <expr> expression opt_expression array_opt
+%type <expr> expression opt_expression
 %type <arr_acc> array_access
 %type <fn_call> function_call
 %type <ds_acc> dataset_access
-%type <val> value
+%type <val> value array_opt
 %type <args> args;
 %type <ainit> array_initialization
 %type <dec_stmt> declarative_statement
@@ -271,8 +271,9 @@ decl_args : decl_args tCOMMA dtype array_opt id   { $1->add_arg($5); d("decl arg
           |                                       { $$ = new DeclArgsNode(); d("empty decl arg"); }
           ;
 
-array_opt : tL_BRACKET expression tR_BRACKET { $$ = $2; saw_type = true; d("array_opt"); }
-          |                                  { $$ = nullptr; }
+array_opt : tL_BRACKET value tR_BRACKET { $$ = $2; saw_type = true; d("array_opt"); }
+          | tL_BRACKET tR_BRACKET       { $$ = new ValueNode(new LiteralNode(-1)); $$->type = tINT; $$->code = ""; $$->sym = tVAR; saw_type = true; d("empty array opt");}
+          |                             { $$ = nullptr; }
           ;
 
 function_call : id tL_PAREN args tR_PAREN { $$ = new FunctionCallNode($1, $3); d("function call"); }

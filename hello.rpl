@@ -1,4 +1,5 @@
 #* A simple program to print hello world *#
+
 int main() {
-    print("hello, world", 5); # prints 'hello, world'
+	int[1] a = {4,5,6};
 }
