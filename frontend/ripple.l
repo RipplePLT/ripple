@@ -30,8 +30,8 @@ SymbolTable sym_table;
 
 /* regular definitions */
 delim       [ \t]
-nl			\n
-comment     "#*"([^*]|\*+[^*/])*\*+"#"
+nl          \n
+comment     (#\*[^(\*\#)]*\*\#)|(#.*\n)
 ws          ({comment}|{delim})+
 letter      [A-Za-z_]
 digit       [0-9]
@@ -42,8 +42,8 @@ float	    {digit}+\.{digit}*
 
 %%
 
-{nl}		{   line_no++;  }
-{ws}        {   /* don't do anything for whitespace */	}
+{nl}	    {   line_no++;  }
+{ws}        {/* don't do anything for whitespace */	}
 if          {	db(yytext); saw_type = false; return IF;	}
 else        {	db(yytext); saw_type = false; return ELSE;	}
 while       {	db(yytext); saw_type = false; return WHILE;	}
@@ -52,7 +52,7 @@ link        {	db(yytext); saw_type = false; return LINK;	}
 dataset     {	db(yytext); saw_type = false; return DATASET;	}
 return      {	db(yytext); saw_type = false; return RETURN;	}
 continue    {   db(yytext); saw_type = false; return CONTINUE; }
-break 		{   db(yytext); saw_type = false; return BREAK; }
+break       {   db(yytext); saw_type = false; return BREAK; }
 int         {	db(yytext); saw_type = true; last_type = tINT; yylval.string = new std::string("INT"); return TYPE;	}
 float       {	db(yytext); saw_type = true; last_type = tFLOAT; yylval.string = new std::string("FLOAT"); return TYPE;	}
 void        {	db(yytext); saw_type = true; last_type = tVOID; yylval.string = new std::string("VOID"); return TYPE;	}
