@@ -1,0 +1,10 @@
+int main(){
+    
+    string a = "hello";
+    int x = 5;
+
+    string b = a + 5;
+
+    print(b);
+
+}
