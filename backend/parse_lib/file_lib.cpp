@@ -3,11 +3,17 @@
 using namespace std;
 
 bool file_lib::contains_word(string line, string word) {
-    bool contains = false;
-    return contains;
+    return line.find(word) != string::npos ? true : false;
 }
 
 int file_lib::length(string line) {
-    int count = 0;
-    return count;
+    return line.size();
+}
+
+int file_lib::locate_word(string line, string word) {
+    return line.find(word);
+}
+
+void file_lib::print_line(string line) {
+    cout << line << endl;
 }
