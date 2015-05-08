@@ -21,9 +21,61 @@ public:
 		(void *linked, int i, double *d, const char *op);
 	static void test_unary_ops();
 	static void test_string_concatenation();
+	static void test_string_int_concatenation();
 	static void run_all_unit_tests();
 	static void run_all_integration_tests();
 };
+
+void TreeTest::test_string_int_concatenation() {
+	LiteralNode *prefix_litnode = new LiteralNode("We have ");
+	LiteralNode *suffix_litnode =
+		new LiteralNode(" days left to satisfy Aho.");
+	
+	int num = 4;
+	linked_var::register_cpp_var(&num);
+	VariableNode *num_varnode = new VariableNode(&num);
+
+	ValueNode *prefix_valnode = new ValueNode(prefix_litnode);
+	ValueNode *suffix_valnode = new ValueNode(suffix_litnode);
+	ValueNode *num_valnode = new ValueNode(num_varnode);
+
+	UnaryExpressionNode *prefix_unode =
+		new UnaryExpressionNode(prefix_valnode);
+	UnaryExpressionNode *suffix_unode =
+		new UnaryExpressionNode(suffix_valnode);
+	UnaryExpressionNode *num_unode =
+		new UnaryExpressionNode(num_valnode);
+
+	BinaryExpressionNode *prefix_bnode =
+		new BinaryExpressionNode(prefix_unode);
+	BinaryExpressionNode *suffix_bnode =
+		new BinaryExpressionNode(suffix_unode);
+	BinaryExpressionNode *num_bnode = 
+		new BinaryExpressionNode(num_unode);
+	
+	ExpressionNode *num_enode =
+		new ExpressionNode(num_bnode);
+	linked_var *num_var = new linked_var (&num, num_enode);
+
+	BinaryExpressionNode *low_link =
+		new BinaryExpressionNode(prefix_bnode, "+", num_bnode);
+	BinaryExpressionNode *high_link =
+		new BinaryExpressionNode(low_link, "+", suffix_bnode);
+	
+	string *despair;
+	linked_var::register_cpp_var(&despair);
+	ExpressionNode *despair_enode =
+		new ExpressionNode(high_link);
+	linked_var *despair_var =
+		new linked_var (&despair, despair_enode);
+
+	for (num = 4; num >= 0; num--) {
+		linked_var::update_nonlinked_var(&num);
+		cerr << despair_var->get_value().value.strval->c_str() << endl;
+	}
+
+	cerr << "[TREE_TEST] String-int concatenation passed, but satisfying Aho failed." << endl;
+}
 
 void TreeTest::test_string_concatenation() {
 	// Make variable node
@@ -450,6 +502,8 @@ void TreeTest::run_all_integration_tests() {
 	cerr << "[TREE_TEST] All unary operation tests passed." << endl;
 
 	test_string_concatenation();
+	cerr << "[TREE_TEST] String-string concatenation test passed." << endl;
+	test_string_int_concatenation();
 	cerr << "[TREE_TEST] All string operation tests passed." << endl;
 }
 

@@ -42,6 +42,9 @@ string link_val::get_str_val() const {
 	case (ltINT) :
 		return to_string(value.intval);
 		break;
+	case (ltINT_PTR) :
+		return to_string(*(int *)value.ptr);
+		break;
 	case (ltSTR) :
 		return *value.strval;
 		break;
@@ -52,8 +55,6 @@ string link_val::get_str_val() const {
 	case (ltBOOL) :
 		break;
 	case (ltDOUBLE) :
-		break;
-	case (ltINT_PTR) :
 		break;
 	case (ltDOUBLE_PTR) :
 		break;
