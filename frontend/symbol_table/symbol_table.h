@@ -5,10 +5,15 @@
 #include <string>
 #include <vector>
 #include "hashmap.h"
-#include "../ast.h"
 #include "../../structures/enum.h"
 
 #define NUMBER_RESERVED_WORDS 10
+
+#define RPL_STD_OUTPUT_FUNCTION "print"
+#define RPL_STD_INPUT_FUNCTION "input"
+#define RPL_STD_OPEN_FUNCTION "open"
+#define RPL_STD_CLOSE_FUNCTION "close"
+#define RPL_STD_READ_FUNCTION "read"
 
 using namespace std;
 
