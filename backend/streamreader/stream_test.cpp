@@ -6,13 +6,23 @@
 
 using namespace std;
 
+int test_func(string msg){
+    cout << msg << endl;
+    return 1;
+}
+
+
 int main(){
     string tmp;
 
     int count = 0;
     int count2 = 0;
     int to_update = 0;
-    WebStreamReader *streamy = new WebStreamReader("cs.columbia.edu");
+
+
+    FuncPtr<int>::Type f;
+    f = &test_func;
+    WebStreamReader<int> *streamy = new WebStreamReader<int>("www.google.com", f);
 
     streamy->start_thread();
 
