@@ -5,6 +5,9 @@
 #include "ripple.tab.hpp"
 #include "frontend/symbol_table/symbol_table.h"
 
+#define CXX "clang++ "
+#define CPP_STANDARD " -std=c++11"
+
 void install_id();
 
 extern "C" int yywrap();
@@ -147,7 +150,7 @@ int main(int argc, char **argv) {
     	cout << COMPILE_ERR << endl;
     	return 1;
     }
-    string compile_cpp = "clang++ " + filename_cpp + " -o " + filename;
+    string compile_cpp = CXX + filename_cpp + " -o " + filename + CPP_STANDARD;
     system(compile_cpp.c_str());
    
 

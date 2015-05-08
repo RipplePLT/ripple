@@ -424,7 +424,7 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     right_operand.b_exp = br;
     op = str_to_op(_op);
     typecheck(bl, br, op);
-    code = gen_binary_code(bl->code, op, br->code); 
+    code = gen_binary_code(bl->code, op, br->code, bl->type, br->type); 
     left_is_binary = right_is_binary = true;
 }
 
@@ -433,7 +433,7 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     right_operand.u_exp = ur;
     op = str_to_op(_op);
     typecheck(bl, ur, op);
-    code = gen_binary_code(bl->code, op, ur->code); 
+    code = gen_binary_code(bl->code, op, ur->code, bl->type, ur->type);
     left_is_binary = true;
     right_is_binary = false;
 }
@@ -560,8 +560,14 @@ void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
 
 }
 
-string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string r_code){
+string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string r_code, e_type l_type, e_type r_type){
     string code;
+
+    if(r_type == tSTRING && l_type != tSTRING)
+        l_code = "to_string(" + l_code + ")";
+    else if(l_type == tSTRING && r_type != tSTRING)
+        r_code = "to_string(" + r_code + ")";
+
     switch(op) {
         case PLUS:
             code = l_code + " + " + r_code;
@@ -609,6 +615,7 @@ string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string
             code = "";
             break;
     }
+
     return code;
 }
 

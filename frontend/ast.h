@@ -51,7 +51,7 @@
 #define ASSIGN_ERR "left operand of assignment expression must be a variable"
 
 #define ERROR "error"
-#define COMPILE_ERR "compilation halted because of error in code"
+#define COMPILE_ERR "Unable to complete compilation due to errors in code. Get good"
 
 using namespace std;
 extern int line_no;
@@ -273,7 +273,7 @@ public:
 
 private:
     void typecheck(Node *left, Node *right, e_op op);
-    string gen_binary_code(string l_code, enum e_op op, string r_code);
+    string gen_binary_code(string l_code, enum e_op op, string r_code, e_type l_type, e_type r_type);
 };
 
 

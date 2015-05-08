@@ -147,7 +147,7 @@ extern bool saw_type;
 
 %%
 
-program : program program_section { $$ = $2; write_to_file(filename_cpp, $$->code); d("program"); }
+program : program program_section { $$ = $2; if(!error){ write_to_file(filename_cpp, $$->code); } d("program"); }
        |
        ;
 
