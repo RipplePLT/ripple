@@ -28,6 +28,7 @@
 #define INVAL_BINARY_DIV_ERR LINE_ERR "binary div error"
 #define INVAL_BINARY_EXP_ERR LINE_ERR "binary exp error"
 #define INVAL_BINARY_FLDIV_ERR LINE_ERR "binary fldiv error"
+#define INVAL_BINARY_MOD_ERR LINE_ERR "binary mod error"
 #define INVAL_BINARY_EQ_ERR LINE_ERR "binary eq error"
 #define INVAL_BINARY_NE_ERR LINE_ERR "binary ne error"
 #define INVAL_BINARY_GT_ERR LINE_ERR "binary gt error"

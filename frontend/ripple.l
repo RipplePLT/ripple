@@ -85,6 +85,7 @@ or          {   db(yytext); saw_type = false; return OR; }
 "*"         {   db(yytext); saw_type = false; return tTIMES; } 
 "/"			{	db(yytext); saw_type = false; return tDIV; }
 "//"		{	db(yytext); saw_type = false; return tFLDIV; }
+"%"			{   db(yytext); saw_type = false; return tMOD; }
 "^"			{	db(yytext); saw_type = false; return tEXP;  }
 "@"			{	db(yytext); saw_type = false; return tSIZE; }
 ">"			{	db(yytext); saw_type = false; return tGT;  }

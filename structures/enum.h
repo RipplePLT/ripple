@@ -26,6 +26,7 @@ enum e_op {
     TIMES,
     DIV,
     FLDIV,
+    MOD,
     EXP,
     bAND,
     bOR,

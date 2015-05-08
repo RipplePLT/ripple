@@ -11,6 +11,8 @@ enum e_op str_to_op(const std::string op_string) {
         return TIMES;
     else if (op_string.compare("/") == 0)
         return DIV;
+    else if (op_string.compare("%") == 0)
+        return MOD;
     else if (op_string.compare("//") == 0)
         return FLDIV;
     else if (op_string.compare("^") == 0)
@@ -524,6 +526,16 @@ void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
             error = true;
         }
 
+    } else if (op == MOD) {
+
+        if (left->is_number() && right->is_number()
+            && left->type == tINT && right->type == tINT){
+            type = tINT;
+        } else {
+            error = true;
+            cout << INVAL_BINARY_MOD_ERR << endl;
+        }
+
     } else if (op == EQ || op == NE || op == GT ||
             op == LT || op == GE || op == LE) {
 
@@ -604,6 +616,9 @@ string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string
             break;
         case FLDIV:
             code = "(double)" + l_code + "/ (double)" + r_code;
+            break;
+        case MOD:
+            code = l_code + " % " + r_code;
             break;
         case EXP:
             code = "Math.pow(" + l_code + ", " + r_code + ")";
