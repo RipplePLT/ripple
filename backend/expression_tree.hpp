@@ -22,8 +22,9 @@ using namespace std;
 class ExpressionNode;
 class BinaryExpressionNode;
 class UnaryExpressionNode;
-class ExpressionNode;
 class ValueNode;
+class LiteralNode;
+class VariableNode;
 
 union operand {
     BinaryExpressionNode *b_exp;
@@ -61,6 +62,19 @@ public:
 	VariableNode (bool *var);
 	VariableNode (string **var);
 	link_val evaluate();
+};
+
+/*
+ * Represents a call to a function in a link expression.
+ */
+class FunctionCallNode {
+public:
+	link_val val;
+	void *fn;
+	vector<void*> *dependencies;
+
+	FunctionCallNode (void *);
+	link_val evaluate ();
 };
 
 /*

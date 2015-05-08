@@ -256,3 +256,7 @@ VariableNode::VariableNode(string **s) {
 link_val VariableNode::evaluate() {
 	return this->val;
 }
+
+/* FunctionCallNode */
+FunctionCallNode::FunctionCall() {
+}
