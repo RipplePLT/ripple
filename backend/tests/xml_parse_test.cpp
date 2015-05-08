@@ -5,8 +5,10 @@ using namespace std;
 int main() {
 
     // Set up
-    string test_line = "<Book>\n\t<Title> Moby Dick </Title>\n\t<Author> \
-                        Herman Melville </Author>\n<Book>";
+    string test_line = "<Book>\n\t<Title> Moby Dick </Title>\n\t<Author>" \
+                       " Herman Melville </Author>\n<Book>";
+    string test_lines = "<Root>\n\t<Books>\n\t\t<Title> Test 1 </Title>\n" \
+                        "\t\t<Title> Test 2 </Title>\n\t</Books>\n</Root>";
 
     // Test contains_tag method
     cout << "xml_lib::contains_tag() Tests" << endl;
@@ -67,9 +69,11 @@ int main() {
     cout << "xml_lib::size() Test" << endl;
     cout << "======================================================" << endl;
     test_line_size(test_line);
+    test_line_size(test_lines);
     cout << "test_line_size passed!" << endl;
     cout << endl;
 
+    cout << test_lines << endl;
     return 0;
 }
 
