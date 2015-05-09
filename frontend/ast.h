@@ -30,9 +30,9 @@ inline string VARIABLE_NODE(string arg){ return "new VariableNode( &" + arg + " 
 inline string LITERAL_NODE(string arg){ return "new LiteralNode( " + arg + " )"; }
 inline string VALUE_NODE(string arg){ return  "new ValueNode( " + arg + " )"; }
 inline string UNARY_EXPRESSION(string arg){ return  "new UnaryExpressionNode( " + arg + " )"; }
-inline string UNARY_EXPRESSION(string arg, string op){ return  "new UnaryExpressionNode( " + arg + ", " + op + " )"; }
+inline string UNARY_EXPRESSION(string arg, string op){ return  "new UnaryExpressionNode( " + arg + ", \"" + op + "\" )"; }
 inline string BINARY_EXPRESSION(string arg1){ return  "new BinaryExpressionNode( " + arg1 + " )"; }
-inline string BINARY_EXPRESSION(string arg1, string op, string arg2){ return  "new BinaryExpressionNode( " + arg1 + ", " + op + ", " + arg2 + " )"; }
+inline string BINARY_EXPRESSION(string arg1, string op, string arg2){ return  "new BinaryExpressionNode( " + arg1 + ", \"" + op + "\", " + arg2 + " )"; }
 inline string EXPRESSION_NODE(string arg){ return  "new ExpressionNode( " + arg + " )"; }
 
 #define INVAL_UNARY_NOT_ERR LINE_ERR "unary not error"
