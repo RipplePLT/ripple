@@ -471,9 +471,9 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     code = gen_binary_code(bl->code, op, br->code, bl->type, br->type);
     link_code = BINARY_EXPRESSION(bl->link_code, _op, br->link_code);
     if(bl->linked_var != nullptr)
-        linked_var = bl->linked_var;
-    else if(br->linked_var != nullptr)
-        linked_var = br->linked_var;
+        linked_vars.push_back(bl->linked_var);
+    if(br->linked_var != nullptr)
+        linked_vars.push_back(br->linked_var);
     is_linkable = bl->is_linkable && br->is_linkable;
 }
 
@@ -489,9 +489,9 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     code = gen_binary_code(bl->code, op, ur->code, bl->type, ur->type);
     link_code = BINARY_EXPRESSION(bl->link_code, _op, ur->link_code);
     if(bl->linked_var != nullptr)
-        linked_var = bl->linked_var;
-    else if(ur->linked_var != nullptr)
-        linked_var = ur->linked_var;
+        linked_vars.push_back(bl->linked_var);
+    if(ur->linked_var != nullptr)
+        linked_vars.push_back(ur->linked_var);
     is_linkable = bl->is_linkable && ur->is_linkable;
 }
 
@@ -703,7 +703,7 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     type = b->type;
     code = b->code;
     link_code = EXPRESSION_NODE(b->link_code);
-    linked_var = b->linked_var;
+    linked_vars = b->linked_vars;
     is_linkable = b->is_linkable;
     value = NULL;
 }
@@ -872,13 +872,14 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn){
         cout << UNLINKABLE_EXPRESSION_ERR << endl;
     }
 
-    if(expression_node->linked_var == nullptr){
+    if(expression_node->linked_vars.size() == 0){
         error = true;
         cout << UNLINKABLE_EXPRESSION_ERR << endl;
     }
 
     code = "linked_var::register_cpp_var(&" + idn->code + ");\n";
-    code += "linked_var::register_cpp_var(&" + *expression_node->linked_var + ");\n";
+    for(int i = 0; i < expression_node->linked_vars.size(); i++)
+        code += "linked_var::register_cpp_var(&" + *expression_node->linked_vars[i] + ");\n";
     code += "linked_var *asd = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");\n";
     cout << code << endl;
 }

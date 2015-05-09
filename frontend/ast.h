@@ -297,6 +297,7 @@ public:
     enum e_op op;
     bool left_is_binary;
     bool right_is_binary;
+    std::vector<string *> linked_vars;
 
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br);
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
@@ -313,6 +314,7 @@ class ExpressionNode: public Node {
 public:
     BinaryExpressionNode *bin_exp;
     ValueNode *value;
+    std::vector<string *> linked_vars;
 
     ExpressionNode(BinaryExpressionNode *b);
     ExpressionNode(BinaryExpressionNode *b, ValueNode *v);
