@@ -155,6 +155,7 @@ class Node {
 public:
     string code;
     string link_code;
+    string *linked_var = nullptr;
     bool is_linkable;
     e_type type = tNOTYPE;
     e_symbol_type sym;
