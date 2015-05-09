@@ -151,10 +151,10 @@ extern bool saw_type;
 
 %%
 
-program : program program_section                                         { $$->add_section($2);
-                                                                            cpp_code = $$->code;
-                                                                            d("program");  }
-       |                                                                  { $$ = new ProgramNode(); }
+program : program program_section     { $$->add_section($2);
+                                        cpp_code = $$->code;
+                                        d("program");  }
+       |                              { $$ = new ProgramNode(); }
        ;
 
 program_section : function { $$ = new ProgramSectionNode($1); d("program section"); }

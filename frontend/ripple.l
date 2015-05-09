@@ -43,7 +43,7 @@ float	    {digit}+\.{digit}*
 %%
 
 {nl}	    {   line_no++;  }
-{ws}        {/* don't do anything for whitespace */	}
+{ws}        {   /* don't do anything for whitespace */	}
 if          {	db(yytext); saw_type = false; return IF;	}
 else        {	db(yytext); saw_type = false; return ELSE;	}
 while       {	db(yytext); saw_type = false; return WHILE;	}
