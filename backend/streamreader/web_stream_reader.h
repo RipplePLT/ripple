@@ -1,10 +1,10 @@
-#ifndef WEB_STREAM_READER_HPP
-#define WEB_STREAM_READER_HPP
+#ifndef WEB_STREAM_READER_H
+#define WEB_STREAM_READER_H
 
 #include <string>
 #include <curl/curl.h>
 #include <vector>
-#include "stream_reader.hpp"
+#include "stream_reader.h"
 
 #define ERROR_BUF_SIZE
 

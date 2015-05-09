@@ -1,10 +1,10 @@
-#ifndef FILE_STREAM_READER_HPP
-#define FILE_STREAM_READER_HPP
+#ifndef FILE_STREAM_READER_H
+#define FILE_STREAM_READER_H
 
 #include <string>
 #include <fstream> 
 #include <sstream>
-#include "stream_reader.hpp"
+#include "stream_reader.h"
 
 template <typename T>
 class FileStreamReader : StreamReader<T>{
