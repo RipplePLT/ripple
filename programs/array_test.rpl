@@ -1,0 +1,30 @@
+void main() {
+	
+	int x;
+
+	bool[] b;
+	int[] i;
+	float[] f;
+	string[] s;
+
+	bool[b] b2;
+	int[x] i2;
+	float[f] f2;
+	string[s] s2;
+
+	bool[10] b3;
+	int[10] i3;
+	float[10] f3;
+	string[10] s3;
+
+	bool[] b4 = {1,2,3};
+	int[] i4 = {true};
+	float[] f4 = {"hello"};
+	string[] s4 = {1,2,3};
+
+	bool[] b5 = {true, true, false};
+	int[] i5 = {1,2,3};
+	float[] f5 = {1,2.0,3};
+	string[] s5 = {"hello", "world"};
+
+}

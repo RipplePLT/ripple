@@ -47,12 +47,14 @@
 #define ARR_VAR_ASSIGN_ERR LINE_ERR "cannot assign array to non-array variable"
 #define ARR_INT_SIZE_ERR LINE_ERR "array size must be int"
 #define ARR_UNKNOWN_SIZE_ERR LINE_ERR "variable size array cannot be initialized"
+#define ARR_UNKNOWN_INIT_ERR LINE_ERR "cannot create an array of unknown size without initialization"
 #define ARR_SMALL_SIZE_ERR LINE_ERR "size of array declared is too small"
 #define ARR_ASSIGN_ERR LINE_ERR "can't assign array to non-array variable"
 
 #define NOT_A_FUNC_ERR LINE_ERR "attempt to call a non function identifier"
 
-#define ASSIGN_ERR "left operand of assignment expression must be a variable"
+#define ASSIGN_ERR LINE_ERR "left operand of assignment expression must be a variable"
+
 #define ERROR "error"
 #define COMPILE_ERR "Unable to complete compilation due to errors in code. Get good"
 
@@ -302,6 +304,7 @@ class ExpressionNode: public Node {
         BinaryExpressionNode *bin_exp;
         ValueNode *value;
 
+	ExpressionNode();
     ExpressionNode(BinaryExpressionNode *b);
     ExpressionNode(BinaryExpressionNode *b, ValueNode *v);
     ~ExpressionNode();

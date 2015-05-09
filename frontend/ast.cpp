@@ -261,10 +261,9 @@ ArrayInitNode::ArrayInitNode(ExpressionNode *arg) {
 void ArrayInitNode::add_arg(ExpressionNode *arg) {
     args_list->push_back(arg);
     sym = tARR;
-
-    if(type == 0){
+    if(type == 0 || (type == tINT && arg->type == tFLOAT)){
         type = arg->type;
-    }
+    } else if(type == tFLOAT && arg->type == tINT){}
     else if(arg->type != type){
         error = true;
         cout << ARR_ELEMENT_TYPE_ERR << endl;
@@ -673,6 +672,7 @@ string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string
 
 
 /* ExpressionNode */
+ExpressionNode::ExpressionNode() { }
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     ValueNode *v = b->get_value_node();
     if (v) {
@@ -692,12 +692,13 @@ ValueNode *BinaryExpressionNode::get_value_node() {
 }
 
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
+    
     bin_exp = b;
+    value = v;
     typecheck(b, v);
     sym = b->sym;
     array_length = b->array_length;
     code = v->code + " = " + b->code;
-    value = v;
 }
 
 ExpressionNode::~ExpressionNode() {}
@@ -712,9 +713,8 @@ void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *valu
     if (expression->type == value->type){
         type = value->type;
     }
-    else if (value->type == tFLOAT){
-        if(expression->type == tINT)
-            type = tFLOAT;
+    else if (value->type == tFLOAT && expression->type == tINT){
+        type = tFLOAT;
     }
     else{
         INVAL_ASSIGN_ERR(type_to_str(value->type), type_to_str(expression->type));
@@ -744,19 +744,25 @@ DeclarativeStatementNode::DeclarativeStatementNode(string _type, ValueNode *arr_
             cout << ARR_INT_SIZE_ERR << endl;
         }
 
-        if(a_size->sym != tVAR){
+        else if(a_size->sym != tVAR){
             error = true;
             cout << ARR_UNKNOWN_SIZE_ERR << endl;
         }
 
-        if(arr_size->val.lit_val->val.int_lit != -1 && 
-            arr_size->val.lit_val->val.int_lit < expression_node->array_length) {
-            
+        else if(arr_size->val.lit_val->val.int_lit != -1 && 
+            arr_size->val.lit_val->val.int_lit < expression_node->array_length){ 
             error = true;
             cout << ARR_SMALL_SIZE_ERR << endl;
         }
 
-        if(expression_node->sym != tARR){
+        else if(expression_node->value == nullptr){
+            if(arr_size->val.lit_val->val.int_lit == -1){
+                error = true;
+                cout << ARR_UNKNOWN_INIT_ERR << endl;
+            }
+        }
+
+        else if(expression_node->sym != tARR){
             error = true;
             cout << ARR_ASSIGN_ERR << endl;
 
