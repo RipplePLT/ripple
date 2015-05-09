@@ -45,6 +45,10 @@ variables that are used in a function or method should be declared at the top
 of the function/method before use. If possible, the variable should be
 initialized when declared.
 
+For all pointer variables, the asterisk should be attached from the variable name.
+If a pointer type is being used in a template, it should be separated from the
+templated type.
+
 Spacing:
 	Line length:
 	Lines should be no longer than 80 characters long. Lines that are more than
