@@ -650,7 +650,7 @@ string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string
             code = l_code + " % " + r_code;
             break;
         case EXP:
-            code = "Math.pow(" + l_code + ", " + r_code + ")";
+            code = "pow(" + l_code + ", " + r_code + ")";
             break;
         case bAND:
             code = l_code + " && " + r_code;

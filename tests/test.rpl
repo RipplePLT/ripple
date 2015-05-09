@@ -1,21 +1,65 @@
 int main(){
-    int x = 4;
-    float y = 5;
-    string z = "hello";
-    string t = "world";
-    bool w = true;
 
-    int    test_1 = x + w;
-    float  test_2 = x + y;
-    string test_3 = x + z;
-    stringx - z;
-    z + t;
+    print("[MAIN TEST]\tStart\n");
+
+    # Integer Declarations
+    print("[INT DECLARATION TEST]");
+    int var_1;
+    var_1 = 4;
+    int var_2;
+    var_2 = 7;
+    # int var_2 = 7;
+    print("\tValue for var_1:", var_1);
+    print("\tValue for var_2:", var_2);
+    print("\tInteger declarations passed!\n");
+
+    # Float Declarations
+    print("[FLOAT DECLARATION TEST]");
+    float var_3;
+    var_3 = 5.0;
+    # float var_4 = 10.0;
+    print("\tValue for var_3:", var_3);
+    print("\tFloat declarations passed!\n");
     
-    float a = 1;
-    int b = 1.2;
-    string q = 1;
-    bool c = 1.5;
+    # String Declarations
+    print("[STRING DECLARATION TEST]");
+    string var_5;
+    var_5 = "hello";
+    # string var_6 = "world";
+    print("\tValue for var_5:", var_5);
+    print("\tString declarations passed!\n");
 
-    string test = z + " " + t;
+    # Bool Declarations
+    print("[BOOL DECLARATION TEST]");
+    bool var_7;
+    var_7 = true;
+    # bool var_8 = false;
+    print("\tValue for var_7:", var_7);
+    print("\tBool declarations passed!\n");
+
+    # Integer Arithmetic
+    int result_1;
+    result_1 = var_2 - var_1;
+    # int result_2;
+    # result_2 = var_1 + var_2;
+    # int result_3 = var_1 * var_2;
+    # result_3 = var_1 / var_2;
+    # result_3 = var_1 ^ var_2;
+
+    # Float Arithmetic
+
+    # String Concatenation
+
+    # Negation Tests
+
+    # Looping Tests
+
+    # Conditional Tests
+
+    # Link Tests
+
+    # Dataset Tests
+
+    print("[MAIN TEST]\tStop");
 
 }
