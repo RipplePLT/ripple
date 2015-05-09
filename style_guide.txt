@@ -11,8 +11,8 @@ Class definitions, function prototypes and macros should be placed in the .h
 file. Functions that consist solely of assignment operations or return 
 statements can be defined in the class definition in the .h file. All .h 
 files should be surrounded with guards of the form 
-#ifndef __[filename]_HPP
-#define __[filename]_HPP
+#ifndef __[filename]_H__
+#define __[filename]_H__
 ...
 #endif
 
@@ -23,22 +23,27 @@ definitions should be placed in their own .cpp file except in the case where
 classes are directly related to one another. In this case classes should be 
 defined in some logical order to make understanding their interactions easy. 
 
-Includes statements:
+Include statements:
 Whenever possible a .cpp file should only #include its own .h file and all 
 other dependencies should be placed in the .h file. #include statements should
 appear at the top of the .h file and separated into two sections by a single 
 space. The first section should contain all C++ library #include statements 
-and the second section should contain all self written .h files.
+and the second section should contain all self-written .h files.
 
 Classes:
 Class names should be written in CamelCase with the first letter of every word 
 capitalized. The words "public", "private" and "protected" that are used to 
 declare the scope of variables and methods of a class should be aligned with 
 the class name (ie: as far left as possible). All variables and methods should 
-be indendeted four spaces.
+be indented by four spaces.
 
 Variables:
-Variable names should be writted in lowercase with words being separated by an "_". Variable name length should be kept as short as possible while still having it possible to discern the purpose of the variable. Whenever possible variables that are used in a function or method should be declared at the top of the function/method before any declarations. If possible the variable should be initialized when declared.
+Variable names should be written in lowercase with words being separated by an
+"_". Variable name length should be kept as short as possible while still
+having it possible to discern the purpose of the variable. Whenever possible
+variables that are used in a function or method should be declared at the top
+of the function/method before use. If possible, the variable should be
+initialized when declared.
 
 Spacing:
 	Line length:
@@ -46,7 +51,9 @@ Spacing:
 	80 characters should be split into multiple shorter lines. Due to the structure of lex and yacc files, lines can be upto 120 characters long.
 
 	White space:
-	Code within functions and methods should be divided into logical, easy-to-read sections using a single line of whitespace. Function and method bodies should be separated by two new lines.
+	Code within functions and methods should be divided into logical,
+	easy-to-read sections using a single line of whitespace. Function and
+	method bodies should be separated by two new lines.
 
 Structs and Enums:
 Structs and enums should only be used to store static data. Any types which are
@@ -54,7 +61,7 @@ used to build data structures, or perform complex operations should be classes.
 
 Functions:
 Functions should be as short as possible to maintain readability. All variable
-defintions should appear before declarations.
+declarations should appear prior to use.
 
 NULL vs nullptr:
 Wherever possible use nullptr. If using legacy C code use NULL or 0
@@ -65,12 +72,3 @@ For functions and methods the opening curly brace should be on the same line as 
 "for" and "while" loops should have the opening curly brace following the closing parenthesis and the closing curly brace on the line following the last line of the loop. If the loop body consists of a single line the curly braces may be omitted
 
 "if" statements should have the opening curly brace following the parenthesis and the closing curly brace on the line following the last line of the loop. "else" statements should start on the same line as the closing curly brace of the matching if statement. In the event that the body of an "if" statement consists of a single line the curly braces may be omitted only if there is no matching "else" statement.
-
-
-
-
-
-
-
-
-
