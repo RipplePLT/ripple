@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include "hashmap.h"
+#include "../../structures/enum.h"
 
 using namespace std;
 
@@ -59,12 +60,13 @@ bool HashMap::contains(string word) {
     return list_contains(*t[pos], word);
 }
 
-bool HashMap::put(string word, e_type v, int line_no) {
+bool HashMap::put(string word, e_type v, int line_no, e_symbol_type s = tNOSTYPE){
     int pos = hashCode(word) % TABLE_SIZE;
-    if(list_contains(*t[pos], word))
-        return false;
+    if(list_contains(*t[pos], word)) {
+        return false;   
+    }
 
-    Entry *new_entry = new Entry(word, v, line_no);
+    Entry *new_entry = new Entry(word, v, line_no, s);
     t[pos]->push_back(new_entry);
     return true;
 }
@@ -81,10 +83,26 @@ Entry *HashMap::get(string word) {
     return nullptr;
 }
 
-Entry::Entry(string n, e_type v, int line) {
+Entry::Entry(string n, e_type v, int line, e_symbol_type s = tNOSTYPE) {
     name = n;
     type = v;
     line_no = line;
+    symbol_type = s;
+}
+
+Entry::Entry(string n, int line) {
+    name = n;
+    type = tNOTYPE;
+    line_no = line;
+    symbol_type = tNOSTYPE;
+}
+
+void Entry::classify(e_symbol_type s) {
+    symbol_type = s;
+}
+
+void Entry::add_args(list<e_type> *a) {
+    args = a;
 }
 
 

@@ -5,10 +5,8 @@
 
 #include "symbol_table.h"
 
-
 SymbolTableNode::SymbolTableNode() {
     hashmap = new HashMap();
-    hashmap->put("print", tINT, 0);
     sibling = nullptr;
     child = nullptr;
     parent = nullptr;
@@ -31,12 +29,10 @@ SymbolTableNode::~SymbolTableNode() {
 
 
 SymbolTable::SymbolTable(){
-    SymbolTableNode *main = new SymbolTableNode;
+    SymbolTableNode *main = new SymbolTableNode();
     start = main; 
     current = main;
     insert_reserved_words();
-    bool contain = contains("for");
-    cout << contain << endl;
 }
 
 void SymbolTable::scope_in(int line_no) {
@@ -65,12 +61,21 @@ void SymbolTable::scope_out(int line_no) {
 }
 
 void SymbolTable::insert_reserved_words(){
-
-    current->hashmap->put("if", tVOID, 0);
+    for(std::vector<string>::iterator it = reserved.begin(); it != reserved.end(); ++it) {
+        put(*it, tVOID, -1, tFUNC);
+    }
 }
 
-bool SymbolTable::put(string word, e_type v, int line_no) {
-    return current->hashmap->put(word, v, line_no);
+bool SymbolTable::put(string word, e_type v, int line_no, e_symbol_type s = tNOSTYPE) {
+    return current->hashmap->put(word, v, line_no, s);
+}
+
+void SymbolTable::classify(string word, e_symbol_type s) {
+    get(word)->classify(s);
+}
+
+void SymbolTable::add_args(string word, list<e_type> *l) {
+    get(word)->add_args(l);
 }
 
 bool SymbolTable::contains(string word) {
@@ -88,10 +93,16 @@ bool SymbolTable::contains_in_scope(string word){
 }
 
 Entry *SymbolTable::get(string word) {
-    return current->hashmap->get(word);
+    
+    SymbolTableNode *n = current;
+    while(n) {
+        if (n->hashmap->contains(word))
+            return n->hashmap->get(word);
+        n = n->parent;
+    }
+    return nullptr;
 }
 
 SymbolTable::~SymbolTable() {
-    delete start;
+    //delete start;
 }
-

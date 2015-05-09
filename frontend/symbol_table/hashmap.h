@@ -18,9 +18,15 @@ class Entry {
     enum e_type type;
     int line_no;
     union literal val;
+    enum e_symbol_type symbol_type;
+    list<e_type> *args;
 
-    Entry(string n, e_type v, int line);
-    
+    Entry(string n, e_type v, int line, e_symbol_type s);
+    Entry(string n, int line);
+
+    void classify (e_symbol_type s);
+    void add_args (list<e_type> *l);
+
     bool operator==(string n);
     
     ~Entry();
@@ -35,7 +41,7 @@ class HashMap{
     HashMap();
     ~HashMap();
     
-    bool put(string word, e_type v, int line_no);
+    bool put(string word, e_type v, int line_no, e_symbol_type s);
 
     bool contains(string word);
     Entry *get(string word);

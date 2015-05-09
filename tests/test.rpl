@@ -2,16 +2,20 @@ int main(){
     int x = 4;
     float y = 5;
     string z = "hello";
+    string t = "world";
     bool w = true;
 
-    x + w;
-    x + y;
-    x + z;
-    x - z;
+    int    test_1 = x + w;
+    float  test_2 = x + y;
+    string test_3 = x + z;
+    stringx - z;
+    z + t;
     
     float a = 1;
     int b = 1.2;
     string q = 1;
     bool c = 1.5;
+
+    string test = z + " " + t;
 
 }

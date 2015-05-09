@@ -1,0 +1,25 @@
+int main() {
+	
+	int i1 = true;
+	int i2 = false;
+	int i3 = 1.0;
+	int i4 = "hello";
+	int i5 = {1,2,3};
+
+	float f1 = true;
+	float f2 = false;
+	float f3 = "hello";
+	float f4 = {1,2,3};
+
+	bool b1 = 1;
+	bool b2 = 1.0;
+	bool b3 = "true";
+	bool b4 = {true}; 
+
+	string s1 = 1;
+	string s2 = 1.0;
+	string s3 = true;
+	string s4 = false;
+	string s5 = {"hello", "world"};
+
+}
