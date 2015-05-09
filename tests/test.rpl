@@ -1,21 +1,38 @@
 int main(){
-    int x = 4;
-    float y = 5;
-    string z = "hello";
-    string t = "world";
-    bool w = true;
 
-    int    test_1 = x + w;
-    float  test_2 = x + y;
-    string test_3 = x + z;
-    stringx - z;
-    z + t;
+    # Integer Declarations
+    int var_1;
+    var_1 = 4;
+    int var_2 = 7;
+
+    float var_3;
+    var_3 = 5.0;
+    float var_4 = 10.0;
     
-    float a = 1;
-    int b = 1.2;
-    string q = 1;
-    bool c = 1.5;
+    # String Declarations
+    string var_5;
+    var_5 = "hello";
+    string var_6 = "world";
 
-    string test = z + " " + t;
+    # Bool Declarations
+    bool var_7;
+    var_7 = true;
+    bool var_8 = false;
+
+    # Integer Arithmetic
+    int result_1 = var_2 - var_1;
+    int result_2;
+    result_2 = var_1 + var_2;
+    int result_3 = var_1 * var_2;
+    result_3 = var_1 / var_2;
+    result_3 = var_1 ^ var_2;
+
+    # Float Arithmetic
+    float result_6 = var_3 + var_4;
+    float result_7;
+    result_7 = var_3 - var_4;
+    result_7 = var_3 / var_4;
+    result_7 = var_3 * var_4;
+    result_7 = var_3 // var_4;
 
 }
