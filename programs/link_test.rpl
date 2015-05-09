@@ -1,5 +1,6 @@
 int main(){
 	int x;
 	int y = 3;
-	link(x <- y + 2);
+	int z = 4;
+	link(x <- y + z);
 }
