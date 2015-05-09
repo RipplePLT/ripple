@@ -264,10 +264,9 @@ ArrayInitNode::ArrayInitNode(ExpressionNode *arg) {
 void ArrayInitNode::add_arg(ExpressionNode *arg) {
     args_list->push_back(arg);
     sym = tARR;
-
-    if(type == 0){
+    if(type == 0 || (type == tINT && arg->type == tFLOAT)){
         type = arg->type;
-    }
+    } else if(type == tFLOAT && arg->type == tINT){}
     else if(arg->type != type){
         error = true;
         cout << ARR_ELEMENT_TYPE_ERR << endl;
@@ -706,12 +705,13 @@ ValueNode *BinaryExpressionNode::get_value_node() {
 }
 
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
+    
     bin_exp = b;
+    value = v;
     typecheck(b, v);
     sym = b->sym;
     array_length = b->array_length;
     code = v->code + " = " + b->code;
-    value = v;
 }
 
 ExpressionNode::~ExpressionNode() {}
@@ -726,9 +726,8 @@ void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *valu
     if (expression->type == value->type){
         type = value->type;
     }
-    else if (value->type == tFLOAT){
-        if(expression->type == tINT)
-            type = tFLOAT;
+    else if (value->type == tFLOAT && expression->type == tINT){
+        type = tFLOAT;
     }
     else{
         INVAL_ASSIGN_ERR(type_to_str(value->type), type_to_str(expression->type));
@@ -783,7 +782,7 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
                 error = true;
                 cout << VARIABLE_REDECL_ERR << endl;
             }
-
+            
             code += "struct " + ds_name + " " + expression_node->value->code + ";";
             break;
     }
