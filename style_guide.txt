@@ -48,7 +48,8 @@ initialized when declared.
 Spacing:
 	Line length:
 	Lines should be no longer than 80 characters long. Lines that are more than
-	80 characters should be split into multiple shorter lines. Due to the structure of lex and yacc files, lines can be upto 120 characters long.
+	80 characters should be split into multiple shorter lines. Due to the 
+	structure of lex and yacc files, lines can be upto 120 characters long.
 
 	White space:
 	Code within functions and methods should be divided into logical,
@@ -67,8 +68,16 @@ NULL vs nullptr:
 Wherever possible use nullptr. If using legacy C code use NULL or 0
 
 Curly braces:
-For functions and methods the opening curly brace should be on the same line as the function/method definition. The closing curly brace should go on the line following the last line of the function.
+For functions and methods the opening curly brace should be on the same line as the 
+function/method definition. The closing curly brace should go on the line following 
+the last line of the function.
 
-"for" and "while" loops should have the opening curly brace following the closing parenthesis and the closing curly brace on the line following the last line of the loop. If the loop body consists of a single line the curly braces may be omitted
+"for" and "while" loops should have the opening curly brace following the closing 
+parenthesis and the closing curly brace on the line following the last line of the 
+loop. If the loop body consists of a single line the curly braces may be omitted
 
-"if" statements should have the opening curly brace following the parenthesis and the closing curly brace on the line following the last line of the loop. "else" statements should start on the same line as the closing curly brace of the matching if statement. In the event that the body of an "if" statement consists of a single line the curly braces may be omitted only if there is no matching "else" statement.
+"if" statements should have the opening curly brace following the parenthesis and the 
+closing curly brace on the line following the last line of the loop. "else" statements 
+should start on the same line as the closing curly brace of the matching if statement. 
+In the event that the body of an "if" statement consists of a single line the curly 
+braces may be omitted only if there is no matching "else" statement.
