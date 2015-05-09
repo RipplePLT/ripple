@@ -859,7 +859,8 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn){
         cout << UNLINKABLE_EXPRESSION_ERR << endl;
     }
 
-    code = "linked_var *asd = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");";
+    code = "linked_var::register_cpp_var(&" + idn->code + ");\n";
+    code += "linked_var *asd = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");";
     cout << code << endl;
 }
 
