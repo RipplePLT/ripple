@@ -114,6 +114,7 @@ ValueNode::ValueNode(IDNode *i) {
     sym = i->sym;
     code = i->code;
     link_code = VALUE_NODE(VARIABLE_NODE(code));
+    linked_var = new string(code);
     is_linkable = true;
 }
 
@@ -405,6 +406,7 @@ UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op) {
             break;
     }
     link_code = UNARY_EXPRESSION(u->link_code, _op);
+    linked_var = u->linked_var;
     is_linkable = u->is_linkable;
 }
 
@@ -416,6 +418,7 @@ UnaryExpressionNode::UnaryExpressionNode(ValueNode *v){
     sym = v->sym;
     code = v->code;
     link_code = UNARY_EXPRESSION(v->link_code);
+    linked_var = v->linked_var;
     is_linkable = v->is_linkable;
 }
 
@@ -465,8 +468,12 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     
     typecheck(bl, br, op);
     
-    code = gen_binary_code(bl->code, op, br->code, bl->type, br->type); 
+    code = gen_binary_code(bl->code, op, br->code, bl->type, br->type);
     link_code = BINARY_EXPRESSION(bl->link_code, _op, br->link_code);
+    if(bl->linked_var != nullptr)
+        linked_var = bl->linked_var;
+    else if(br->linked_var != nullptr)
+        linked_var = br->linked_var;
     is_linkable = bl->is_linkable && br->is_linkable;
 }
 
@@ -481,6 +488,10 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
 
     code = gen_binary_code(bl->code, op, ur->code, bl->type, ur->type);
     link_code = BINARY_EXPRESSION(bl->link_code, _op, ur->link_code);
+    if(bl->linked_var != nullptr)
+        linked_var = bl->linked_var;
+    else if(ur->linked_var != nullptr)
+        linked_var = ur->linked_var;
     is_linkable = bl->is_linkable && ur->is_linkable;
 }
 
@@ -494,6 +505,7 @@ BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
     op = NONE;
 
     link_code = BINARY_EXPRESSION(ul->link_code);
+    linked_var = ul->linked_var;
     is_linkable = ul->is_linkable;
 }
 
@@ -692,6 +704,7 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     type = b->type;
     code = b->code;
     link_code = EXPRESSION_NODE(b->link_code);
+    linked_var = b->linked_var;
     is_linkable = b->is_linkable;
     value = NULL;
 }
@@ -860,7 +873,14 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn){
         cout << UNLINKABLE_EXPRESSION_ERR << endl;
     }
 
-    code = "linked_var *asd = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");";
+    if(expression_node->linked_var == nullptr){
+        error = true;
+        cout << UNLINKABLE_EXPRESSION_ERR << endl;
+    }
+
+    code = "linked_var::register_cpp_var(&" + idn->code + ");\n";
+    code += "linked_var::register_cpp_var(&" + *expression_node->linked_var + ");\n";
+    code += "linked_var *asd = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");\n";
     cout << code << endl;
 }
 
