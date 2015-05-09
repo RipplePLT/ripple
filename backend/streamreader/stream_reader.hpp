@@ -9,7 +9,7 @@ using namespace std;
 
 template <typename T>
 struct FuncPtr {
-    typedef T (*Type)(std::string a);
+    typedef T (*f_ptr)(std::string a);
 };
 
 template <typename T>
@@ -29,7 +29,7 @@ class StreamReader {
         virtual void start_thread()=0;
 
     protected:
-        typename FuncPtr<T>::Type ptr;
+        typename FuncPtr<T>::f_ptr aux_func_ptr;
         pthread_t stream_thread;
         bool stop_stream;
         int interval;

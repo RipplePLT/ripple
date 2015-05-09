@@ -6,25 +6,26 @@
 #include <vector>
 #include "stream_reader.hpp"
 
+#define ERROR_BUF_SIZE
+
 template <typename T>
 class WebStreamReader : StreamReader<T>{
 
     public:
-        WebStreamReader(string URL, unsigned int port = 80, int interval = 0, 
-                                typename FuncPtr<T>::Type f = NULL){
+        WebStreamReader(string URL, int interval = 0, typename FuncPtr<T>::f_ptr f = NULL, unsigned int port = 80){
             this->URL = URL;
             this->port = port;
             this->interval = interval;
-            this->ptr = f;
+            this->aux_func_ptr = f;
         }
 
-        WebStreamReader(string URL, unsigned int port = 80, typename FuncPtr<T>::Type f = NULL){
+        WebStreamReader(string URL, typename FuncPtr<T>::f_ptr f = NULL, int interval = 0){
             this->URL = URL;
-            this->port = port;
-            this->ptr = f;
+            this->aux_func_ptr = f;
+            this->interval = interval;
         }
 
-        WebStreamReader(string URL, unsigned int port = 80){
+        WebStreamReader(string URL, unsigned int port){
             this->URL = URL;
             this->port = port;
         }
@@ -52,7 +53,7 @@ class WebStreamReader : StreamReader<T>{
         //pthread runs this function to continuously get and pass webpage to either the function or something else
         void run_stream_thread(){
             string read_buffer;
-            vector<char> error_buffer(err_buff_size);
+            vector<char> error_buffer(ERROR_BUF_SIZE);
             int count = 0;
 
             while(1){
@@ -63,14 +64,17 @@ class WebStreamReader : StreamReader<T>{
                 if(curl){
                     curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, &error_buffer[0]);
                     curl_easy_setopt(curl, CURLOPT_URL, URL.c_str());
-                    curl_easy_setopt(curl, CURLOPT_PORT, port);
+
+                    if(port)
+                        curl_easy_setopt(curl, CURLOPT_PORT, port);
+
                     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &WebStreamReader::WriteCallback);
                     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer);
                     curl_result = curl_easy_perform(curl);
                 }
                 
-                
                 curl_easy_cleanup(curl);
+
                 //Result is set to something other than 0 - there was an error
                 if(curl_result)
                     cerr<<"Error from StreamReader " << URL << ": " <<  curl_easy_strerror(curl_result) << endl;
@@ -78,8 +82,8 @@ class WebStreamReader : StreamReader<T>{
                 cout << read_buffer << endl;
 
                 //Runs update method on linked variable
-                if(this->ptr)
-                    this->ptr("Page Loaded and Printed");
+                if(this->aux_func_ptr)
+                    this->aux_func_ptr("Page Loaded and Printed");
 
                 if(this->interval)
                     sleep(this->interval);
@@ -87,9 +91,9 @@ class WebStreamReader : StreamReader<T>{
         }
 
     private:
-        const size_t err_buff_size = 1024;
         unsigned int port;
         string URL;
+
         CURL *curl;
         CURLcode curl_result;
 };
