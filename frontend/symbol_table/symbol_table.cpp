@@ -6,10 +6,27 @@
 #include "symbol_table.h"
 
 SymbolTableNode::SymbolTableNode() {
+    name = "";
     hashmap = new HashMap();
     sibling = nullptr;
     child = nullptr;
     parent = nullptr;
+}
+
+SymbolTableNode::SymbolTableNode(string n) {
+    name = n;
+    hashmap = new HashMap();
+    sibling = nullptr;
+    child = nullptr;
+    parent = nullptr;
+}
+
+e_type SymbolTableNode::get_type(string n) {
+    Entry *found;
+    if ((found = hashmap->get(n)))
+        return found->type;
+    else
+        return tNOTYPE;
 }
 
 SymbolTableNode::~SymbolTableNode() {
@@ -32,7 +49,11 @@ SymbolTable::SymbolTable(){
     SymbolTableNode *main = new SymbolTableNode();
     start = main; 
     current = main;
-    insert_reserved_words();
+    insert_standard_functions();
+}
+
+void SymbolTable::insert_standard_functions() {
+    add_function(RPL_STD_OUTPUT_FUNCTION, tVOID, 0, nullptr);
 }
 
 void SymbolTable::scope_in(int line_no) {
@@ -54,16 +75,41 @@ void SymbolTable::scope_out(int line_no) {
         return;
     }
 
-    SymbolTableNode *node = new SymbolTableNode; 
+    SymbolTableNode *node = new SymbolTableNode(); 
 
     current->sibling = node;
     current = node;
 }
 
-void SymbolTable::insert_reserved_words(){
-    for(std::vector<string>::iterator it = reserved.begin(); it != reserved.end(); ++it) {
-        put(*it, tVOID, -1, tFUNC);
+bool SymbolTable::add_function(string name, e_type type, int line_no, list<e_type> *args) {
+    bool error = false;
+    if (contains_in_scope(name)) {
+        cout << "Redefinition of function " << name << " previously defined on line " << line_no << endl;
+        error = true;
+    } else {
+        put(name, type, line_no, tFUNC);
+        add_args(name, args);
     }
+    return error;
+}
+
+void SymbolTable::new_dataset(int line_no, string name) {
+    SymbolTableNode *node = new SymbolTableNode(name);
+
+    node->parent = current;
+    node->sibling = current->child;
+    current->child = node;
+    current = node;
+}
+
+SymbolTableNode *SymbolTable::get_dataset(string name) {
+    SymbolTableNode *node;
+    for(node = current; node; node = node->sibling) {
+        if (!node->name.empty() && node->name.compare(name) == 0) {
+            return node;
+        }
+    }
+    return nullptr;
 }
 
 bool SymbolTable::put(string word, e_type v, int line_no, e_symbol_type s = tNOSTYPE) {
