@@ -40,17 +40,18 @@ enum e_op str_to_op(const std::string op_string) {
 };
 
 enum e_type str_to_type(const std::string type){
-    if (type.compare("INT") == 0)
+    cout << type << endl;
+    if (type.compare("int") == 0)
         return tINT;
-    else if (type.compare("FLOAT") == 0)
+    else if (type.compare("float") == 0)
         return tFLOAT;
-    else if (type.compare("VOID") == 0)
+    else if (type.compare("void") == 0)
         return tVOID;
-    else if (type.compare("BOOL") == 0)
+    else if (type.compare("bool") == 0)
         return tBOOL;
-    else if (type.compare("STRING") == 0)
+    else if (type.compare("string") == 0)
         return tSTRING;
-    else if (type.compare("BYTE") == 0)
+    else if (type.compare("byte") == 0)
         return tBYTE;
 }
 
@@ -75,6 +76,8 @@ string type_to_str(e_type type){
             return "float";
         case tSTRING:
             return "string";
+        case tVOID:
+            return "void";
         default:
             return "undefined type";
     }
@@ -353,18 +356,18 @@ DeclArgsNode::DeclArgsNode() {
     code = "";
 }
 
-DeclArgsNode::DeclArgsNode(string t, IDNode* arg) {
+DeclArgsNode::DeclArgsNode(TypeNode *t, IDNode* arg) {
     decl_args_list.push_back(arg);
-    arg->type = str_to_type(t);
-    arg->entry->type = str_to_type(t);
+    arg->type = t->type;
+    arg->entry->type = t->type;
     type = arg->type;
     code = type_to_str(type) + " " + arg->code;
 }
 
-void DeclArgsNode::add_arg(string t, IDNode* arg) {
+void DeclArgsNode::add_arg(TypeNode *t, IDNode* arg) {
     decl_args_list.push_back(arg);
-    arg->type = str_to_type(t);
-    arg->entry->type = str_to_type(t);
+    arg->type = t->type;
+    arg->entry->type = t->type;
     type = arg->type;
     code += ", " + type_to_str(type) + " " + arg->code;
 }
@@ -445,12 +448,23 @@ void ArrayAccessNode::seppuku(){
 
 
 /* DatasetAccessNode */
-DatasetAccessNode::DatasetAccessNode(ValueNode *val, string i) {
-    value_node = val;
-    id = i;
-    type = val->type;
-    sym = tDSET;
-    array_length = val->array_length;
+DatasetAccessNode::DatasetAccessNode(string c, string i) {
+    Entry *entry = sym_table.get(c);
+    if (!entry) {
+        error = true;
+        cout << "Use of undeclared variable" << c << endl;
+    }
+
+    Entry *member_entry = sym_table.get_dataset_member(entry->ds_name, i);
+    if (!member_entry) {
+        error = true;
+        cout << "Dataset " << c << " of type " << entry->ds_name << "does not contain a member named " << i << endl;
+    } else {
+        entry = member_entry;
+        type = member_entry->type;
+        sym = member_entry->symbol_type;
+        array_length = member_entry->array_length;
+    }
 }
 
 void DatasetAccessNode::seppuku(){ 
@@ -720,7 +734,7 @@ string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string
             code = l_code + " % " + r_code;
             break;
         case EXP:
-            code = "Math.pow(" + l_code + ", " + r_code + ")";
+            code = "pow(" + l_code + ", " + r_code + ")";
             break;
         case bAND:
             code = l_code + " && " + r_code;
@@ -783,7 +797,6 @@ void BinaryExpressionNode::seppuku(){
 }
 
 /* ExpressionNode */
-ExpressionNode::ExpressionNode() { }
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     
     ValueNode *v = b->get_value_node();
@@ -840,63 +853,55 @@ void ExpressionNode::seppuku(){
 }
 
 /* DeclarativeStatementNode */
-DeclarativeStatementNode::DeclarativeStatementNode(string _type, ValueNode *arr_size, ExpressionNode *expression_node){
-    type = str_to_type(_type);
-    a_size = arr_size;
+DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *expression_node){
+    type = t->type;
+    sym = t->sym;
+    ds_name = t->ds_name;
+    array_length = t->array_length;
     en = expression_node;
-    transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
 
-    code = _type + " ";
-    if(a_size == nullptr){
-        if(expression_node->sym == tARR){
-            cout << ARR_VAR_ASSIGN_ERR << endl;
-            error = true;
-        } else {
-            code += expression_node->code + ";\n"; 
-        }
-    } else {
-        
-        if(a_size->type != tINT){
-            error = true;
-            cout << ARR_INT_SIZE_ERR << endl;
-        }
+    if (!expression_node->value || expression_node->value->val_type != IDENT) {
+        error = true;
+        cout << INVALID_DECL_ERR << endl;
+    }  
 
-        else if(a_size->sym != tVAR){
-            error = true;
-            cout << ARR_UNKNOWN_SIZE_ERR << endl;
-        }
-
-        else if(arr_size->val.lit_val->val.int_lit != -1 && 
-            arr_size->val.lit_val->val.int_lit < expression_node->array_length){ 
-            error = true;
-            cout << ARR_SMALL_SIZE_ERR << endl;
-        }
-
-        else if(expression_node->value == nullptr){
-            if(arr_size->val.lit_val->val.int_lit == -1){
+    switch(sym) {
+        case tVAR:
+            if (!sym_table.put(expression_node->value->code, type, line_no, tVAR)) {
                 error = true;
-                cout << ARR_UNKNOWN_INIT_ERR << endl;
+                cout << VARIABLE_REDECL_ERR << endl;
             }
-        }
-
-        else if(expression_node->sym != tARR){
-            error = true;
-            cout << ARR_ASSIGN_ERR << endl;
-
-        }
-
-        if(expression_node->value)
-            code += expression_node->value->code + "[" + arr_size->code + "] = " + expression_node->bin_exp->code + ";\n";
-        else 
-            code += expression_node->bin_exp->code + "[" + arr_size->code + "];\n";
-        
-    }
-
-    if(arr_size){
-        if(expression_node->value)
-            expression_node->value->val.id_val->entry->symbol_type = tARR;
-        else
-            expression_node->bin_exp->left_operand.u_exp->right_operand.v_node->val.id_val->entry->symbol_type = tARR;
+            code += type_to_str(type) + " " + expression_node->code + ";\n";
+            break;
+        case tARR:
+            if(expression_node->sym != tARR) {
+                error = true;
+                cout << ARR_ASSIGN_ERR << endl;
+            }
+            if(array_length != -1 && array_length < expression_node->array_length) { 
+                error = true;
+                cout << ARR_SMALL_SIZE_ERR << endl;
+            }
+            
+            if(!sym_table.add_array(expression_node->value->code, type, line_no, array_length)) {
+                error = true;
+                cout <<  VARIABLE_REDECL_ERR << endl;
+            }
+            
+            code += expression_node->value->code + "[" + to_string(array_length) + "]";
+            if (expression_node->bin_exp) {
+                code += "=" + expression_node->bin_exp->code;
+            }
+            code += ";\n";
+            break;
+        case tDSET:
+            if (!sym_table.instantiate_dataset(expression_node->value->code, ds_name, line_no)) {
+                error = true;
+                cout << VARIABLE_REDECL_ERR << endl;
+            }
+            
+            code += "struct " + ds_name + " " + expression_node->value->code + ";";
+            break;
     }
 }
 
@@ -914,12 +919,44 @@ void DeclarativeStatementNode::seppuku(){
     delete this;
 }
 
+/* TypeNode */
+TypeNode::TypeNode(e_type t){
+    type = t;
+    if (type == tNOTYPE) {
+        if (sym_table.get_dataset(type_to_str(t))) {
+            sym = tDSET;
+            ds_name = t;
+        } else {
+            error = true;
+            cout << UNKNOWN_TYPE_ERR << endl;
+            sym = tNOSTYPE;
+        }
+    } else {
+        sym = tVAR;
+    }
+}
+
+TypeNode::TypeNode(e_type t, int i) {
+    type = t;
+    if (type == tNOTYPE) {
+        error = true;
+        cout << UNKNOWN_TYPE_ERR << endl;
+    } else {
+        array_length = i;
+    }
+    sym = tARR;
+}
 
 /* ConditionalStatementNode */
 ConditionalStatementNode::ConditionalStatementNode(ExpressionNode *e, StatementListNode *s, StatementListNode *a) {
     condition = e;
     consequent = s;
     alternative = a;
+
+    if(e->type != tBOOL){
+        error = true;
+        cout << COND_STMT_ERR << endl;
+    }
 
     code = "if (" + e->code + ")" + s->code;
 
@@ -978,15 +1015,15 @@ LoopStatementNode::LoopStatementNode(ExpressionNode *init, ExpressionNode *cond,
         init_code = "";
     }
 
-    if(cond != nullptr){
-        cond_code = init->code;
-    } else {
+    if(cond != nullptr)
+        cond_code = cond->code;
+    else
         cond_code = "";
     }
 
-    if(n != nullptr) {
-        n_code = init->code;
-    } else {
+    if(n != nullptr)
+        n_code = n->code;
+    else
         n_code = "";
     }
 
@@ -1052,18 +1089,20 @@ void StatementListNode::seppuku(){
 }
 
 /* FunctionNode */
-FunctionNode::FunctionNode(string _type, string id_node, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n){
-    type = str_to_type(_type);
+FunctionNode::FunctionNode(TypeNode *_type, string id_node, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n){
+    if (_type->sym != tVAR) {
+        error = true;
+        cout << FUNCTION_BASIC_TYPE_ERR << endl;
+    }
     id = id_node;
     decl_args = decl_args_list;
     stmt_list = stmt_list_n;
-
-    transform(_type.begin(), _type.end(), _type.begin(), ::tolower);
+    type = _type->type;
 
     if (id.compare("main") == 0) {
         code = "int " + id + "(" + decl_args_list->code + ")" + stmt_list_n->code; 
     } else {
-        code = _type + " " + id + "(" + decl_args_list->code + ")" + stmt_list_n->code;
+        code = type_to_str(type) + " " + id + "(" + decl_args_list->code + ")" + stmt_list_n->code;
     }
 }
 
