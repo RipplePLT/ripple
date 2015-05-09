@@ -22,13 +22,12 @@ int main(){
 
     FuncPtr<int>::Type f;
     f = &test_func;
-    WebStreamReader<int> *streamy = new WebStreamReader<int>("www.google.com", f);
+    WebStreamReader<int> *streamy = new WebStreamReader<int>("128.59.15.36", 8001, f);
 
     streamy->start_thread();
 
     while(1){
         if(count ==  1000000){
- //           cout << count << endl;
             count = 0;
             count2++;
         }else{

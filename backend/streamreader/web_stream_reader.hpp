@@ -3,26 +3,42 @@
 
 #include <string>
 #include <curl/curl.h>
+#include <vector>
 #include "stream_reader.hpp"
 
 template <typename T>
 class WebStreamReader : StreamReader<T>{
 
     public:
-        WebStreamReader(string URL, typename FuncPtr<T>::Type f){
+        WebStreamReader(string URL, unsigned int port = 80, int interval = 0, 
+                                typename FuncPtr<T>::Type f = NULL){
             this->URL = URL;
+            this->port = port;
+            this->interval = interval;
             this->ptr = f;
+        }
+
+        WebStreamReader(string URL, unsigned int port = 80, typename FuncPtr<T>::Type f = NULL){
+            this->URL = URL;
+            this->port = port;
+            this->ptr = f;
+        }
+
+        WebStreamReader(string URL, unsigned int port = 80){
+            this->URL = URL;
+            this->port = port;
         }
 
         ~WebStreamReader(){}
 
         void start_thread(){
-            pthread_create(&(this->stream_thread), NULL, this->run_thread, this);
+            pthread_create(&(this->stream_thread), NULL, this->run_stream_thread_proxy, this);
         }
 
     protected:
 
-        static void* run_thread(void *p){
+        //Workaround to call pthread on a member function
+        static void* run_stream_thread_proxy(void *p){
             static_cast<WebStreamReader*>(p)->run_stream_thread();
             return NULL;
         }
@@ -33,37 +49,48 @@ class WebStreamReader : StreamReader<T>{
             return size * nmemb;
         }
 
+        //pthread runs this function to continuously get and pass webpage to either the function or something else
         void run_stream_thread(){
-            cout << "this ran from run_stream_thread()" << endl;
-            string readBuffer;
+            string read_buffer;
+            vector<char> error_buffer(err_buff_size);
             int count = 0;
+
             while(1){
                 if(this->stop_stream)
                     break;
                 
                 curl = curl_easy_init();
                 if(curl){
+                    curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, &error_buffer[0]);
                     curl_easy_setopt(curl, CURLOPT_URL, URL.c_str());
+                    curl_easy_setopt(curl, CURLOPT_PORT, port);
                     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &WebStreamReader::WriteCallback);
-                    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-                    res = curl_easy_perform(curl);
-                    cout<<readBuffer<<endl;
-
+                    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer);
+                    curl_result = curl_easy_perform(curl);
                 }
-
+                
+                
                 curl_easy_cleanup(curl);
-                count++;
-                cout << "Grabbed next page" << count << endl;
+                //Result is set to something other than 0 - there was an error
+                if(curl_result)
+                    cerr<<"Error from StreamReader " << URL << ": " <<  curl_easy_strerror(curl_result) << endl;
 
-                if(this->ptr("we got a func"))
-                    cout << this->ptr("") << endl;
-                    cout << "we returned an int" << endl;
+                cout << read_buffer << endl;
+
+                //Runs update method on linked variable
+                if(this->ptr)
+                    this->ptr("Page Loaded and Printed");
+
+                if(this->interval)
+                    sleep(this->interval);
             }
         }
 
     private:
+        const size_t err_buff_size = 1024;
+        unsigned int port;
         string URL;
         CURL *curl;
-        CURLcode res;
+        CURLcode curl_result;
 };
 #endif
