@@ -333,7 +333,7 @@ class DeclarativeStatementNode: public Node {
         ExpressionNode *en;
         ValueNode *a_size;
 
-    DeclarativeStatementNode(string _type, ValueNode *arr_size, ExpressionNode *expression_node);
+    DeclarativeStatementNode(TypeNode *t, ExpressionNode *expression_node);
     DeclarativeStatementNode(ExpressionNode *expression_node);
     void seppuku();
 };
@@ -412,7 +412,7 @@ public:
     DeclArgsNode *decl_args;
     StatementListNode *stmt_list;
 
-    FunctionNode(string _type, string id, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n);
+    FunctionNode(TypeNode *_type, string id_node, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n);
     void seppuku();
 };
 

@@ -1015,19 +1015,19 @@ LoopStatementNode::LoopStatementNode(ExpressionNode *init, ExpressionNode *cond,
         init_code = "";
     }
 
-    if(cond != nullptr)
+    if(cond != nullptr) {
         cond_code = cond->code;
-    else
+    } else {
         cond_code = "";
     }
 
-    if(n != nullptr)
+    if(n != nullptr) {
         n_code = n->code;
-    else
+    } else {
         n_code = "";
     }
 
-    code = "for (" + init_code + ", " + cond_code + ", " + n_code + ")" + stmts->code;
+    code = "for (" + init_code + "; " + cond_code + "; " + n_code + ")" + stmts->code;
 }
 
 void LoopStatementNode::seppuku(){ 

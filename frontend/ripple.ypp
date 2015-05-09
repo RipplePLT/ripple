@@ -210,7 +210,7 @@ declarative_statement : dtype expression tSEMI   { $$ = new DeclarativeStatement
                       | expression tSEMI         { $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
                       ;
 
-opt_expression : expression tL_PAREN           { $$ = $1; d("opt_expression"); }
+opt_expression : expression            { $$ = $1; d("opt_expression"); }
                |                               { $$ = nullptr; d("no opt_expression");}
                ;
 
