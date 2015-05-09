@@ -1,7 +1,7 @@
-void hello(int x, float y) {
+void hello(int x, int y) {
     print(x, y);
 }
 
 void main() {
-    banana("yes", "no");
+    hello(1, 2);
 }
