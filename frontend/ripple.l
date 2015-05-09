@@ -102,6 +102,7 @@ or          {   db(yytext); saw_type = false; return OR; }
 "{"			{	db(yytext); sym_table.scope_in(line_no); saw_type = false; return tL_CURLY; }
 "}"			{	db(yytext); sym_table.scope_out(line_no); saw_type = false; return tR_CURLY; }
 ";"         {   db(yytext); saw_type = false; return tSEMI;  }
+"<-"		{   db(yytext); saw_type = false; return tARROW; }
 "\."        {  	db(yytext); saw_type = false; return tACCESS; }
 %%
 

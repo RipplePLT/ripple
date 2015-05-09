@@ -20,6 +20,21 @@
 #define RPL_STD_CLOSE_FUNCTION "close"
 #define RPL_STD_READ_FUNCTION "read"
 
+#define VARIABE_NODE_NAME "VARIABLE_NODE_NAME"
+#define VALUE_NODE_NAME "VALUE_NODE_NAME"
+#define UNARY_EXPRESSION_NODE_NAME "UNARY_EXPRESSION_NAME"
+#define BINARY_EXPRESSION_NODE_NAME "BINARY_EXPRESSION_NAME"
+#define EXPRESSION_NODE_NAME "EXPRESSION_NODE_NAME"
+
+inline string VARIABLE_NODE(string arg){ return "new VariableNode( &" + arg + " )"; }
+inline string LITERAL_NODE(string arg){ return "new LiteralNode( " + arg + " )"; }
+inline string VALUE_NODE(string arg){ return  "new ValueNode( " + arg + " )"; }
+inline string UNARY_EXPRESSION(string arg){ return  "new UnaryExpressionNode( " + arg + " )"; }
+inline string UNARY_EXPRESSION(string arg, string op){ return  "new UnaryExpressionNode( " + arg + ", " + op + " )"; }
+inline string BINARY_EXPRESSION(string arg1){ return  "new BinaryExpressionNode( " + arg1 + " )"; }
+inline string BINARY_EXPRESSION(string arg1, string op, string arg2){ return  "new BinaryExpressionNode( " + arg1 + ", " + op + ", " + arg2 + " )"; }
+inline string EXPRESSION_NODE(string arg){ return  "new ExpressionNode( " + arg + " )"; }
+
 #define INVAL_UNARY_NOT_ERR LINE_ERR "unary not error"
 #define INVAL_UNARY_MINUS_ERR LINE_ERR "unary minus error"
 #define INVAL_BINARY_PLUS_ERR LINE_ERR "binary plus error"
@@ -51,6 +66,7 @@
 #define ARR_SMALL_SIZE_ERR LINE_ERR "size of array declared is too small"
 #define ARR_ASSIGN_ERR LINE_ERR "can't assign array to non-array variable"
 
+#define UNLINKABLE_EXPRESSION_ERR LINE_ERR "expression provided cannot be linked"
 #define NOT_A_FUNC_ERR LINE_ERR "attempt to call a non function identifier"
 
 #define ASSIGN_ERR LINE_ERR "left operand of assignment expression must be a variable"
@@ -80,6 +96,7 @@ class ConditionalStatementNode;
 class DeclarativeStatementNode;
 class JumpStatementNode;
 class LoopStatementNode;
+class LinkStatementNode;
 class StatementListNode;
 class FunctionNode;
 
@@ -127,6 +144,7 @@ union statements {
     ConditionalStatementNode *cond;
     JumpStatementNode *jump;
     LoopStatementNode *loop;
+    LinkStatementNode *link;
 };
 
 union program_section {
@@ -136,6 +154,8 @@ union program_section {
 class Node {
 public:
     string code;
+    string link_code;
+    bool is_linkable;
     e_type type = tNOTYPE;
     e_symbol_type sym;
     e_type get_type();
@@ -350,6 +370,14 @@ public:
     void seppuku();
 };
 
+class LinkStatementNode: public Node {
+public:
+    IDNode *id_node;
+    ExpressionNode *expression_node;
+
+    LinkStatementNode(IDNode *idn, ExpressionNode *expn);
+    void sepukku();
+};
 
 class StatementNode: public Node {
 public:
@@ -359,6 +387,7 @@ public:
     StatementNode(ConditionalStatementNode *c);
     StatementNode(JumpStatementNode *j);
     StatementNode(LoopStatementNode *l);
+    StatementNode(LinkStatementNode *l);
     void seppuku();
 };
 
