@@ -302,6 +302,7 @@ class ExpressionNode: public Node {
         BinaryExpressionNode *bin_exp;
         ValueNode *value;
 
+	ExpressionNode();
     ExpressionNode(BinaryExpressionNode *b);
     ExpressionNode(BinaryExpressionNode *b, ValueNode *v);
     ~ExpressionNode();

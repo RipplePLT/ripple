@@ -673,6 +673,7 @@ string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string
 
 
 /* ExpressionNode */
+ExpressionNode::ExpressionNode() { }
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     ValueNode *v = b->get_value_node();
     if (v) {
