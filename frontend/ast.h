@@ -140,8 +140,10 @@ class Node {
     public:
         string code;
         string ds_name = ""; 
+        int array_length;
         e_type type = tNOTYPE;
         e_type get_type();
+        e_symbol_type sym;
         bool is_number();
         bool is_bool();
         bool is_string();
@@ -150,6 +152,7 @@ class Node {
 
 class ArrayInitNode: public Node{
 public:
+    int array_length;
     std::vector<ExpressionNode*> *args_list;
 
     ArrayInitNode();
@@ -160,6 +163,8 @@ public:
 class ValueNode: public Node {
 public:
     union value val;
+    enum e_value_type val_type;
+    int array_length;
 
     ValueNode(IDNode *i);
     ValueNode(LiteralNode *l);
@@ -176,7 +181,6 @@ class IDNode: public Node {
 public:
     Entry *entry;
     IDNode(Entry *ent);
-    Entry *entry;
     string get_name();
     e_type get_type();
     ~IDNode();
@@ -240,7 +244,7 @@ public:
 
 class ArrayAccessNode: public Node {
     public:
-        ValueNode *vn;
+        ValueNode *value_node;
         ExpressionNode *en;
 
     ArrayAccessNode(ValueNode *v, ExpressionNode *e);
@@ -253,7 +257,7 @@ class DatasetAccessNode: public Node {
         ValueNode *value_node;
         string id;
 
-    DatasetAccessNode(ValueNode *valueNode, IDNode *idNode);
+    DatasetAccessNode(ValueNode *valueNode, string i);
     void seppuku();
 };
 
@@ -279,6 +283,8 @@ public:
     enum e_op op;
     bool left_is_binary;
     bool right_is_binary;
+
+    ValueNode *get_value_node();
 
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br);
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);

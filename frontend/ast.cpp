@@ -176,8 +176,7 @@ IDNode::~IDNode() { }
 FunctionCallNode::FunctionCallNode(string f, ArgsNode *a) {
     func_id = f;
     args_list = a;
-    type = f->type;
-    sym = f->sym;
+    sym = tFUNC;
 
     typecheck();
 
@@ -191,9 +190,8 @@ FunctionCallNode::FunctionCallNode(string f, ArgsNode *a) {
 FunctionCallNode::FunctionCallNode(string f) {
     func_id = f;
     args_list = new ArgsNode();
-    type = f->type;
-    sym = f->sym;
-    
+    sym = tFUNC;
+
     typecheck();
 
     if(IS_STD_RPL_FUNCTION(func_id)){
@@ -370,7 +368,7 @@ LiteralNode::LiteralNode(char b) {
 
 /* ArrayAccessNode */
 ArrayAccessNode::ArrayAccessNode(ValueNode *val, ExpressionNode *exp) {
-    vn = val;
+    value_node = val;
     en = exp;
     type = val->type;
     sym = val->sym;
@@ -378,11 +376,11 @@ ArrayAccessNode::ArrayAccessNode(ValueNode *val, ExpressionNode *exp) {
 
 
 /* DatasetAccessNode */
-DatasetAccessNode::DatasetAccessNode(ValueNode *val, IDNode *i) {
-    vn = val;
-    idn = i;
+DatasetAccessNode::DatasetAccessNode(ValueNode *val, string i) {
+    value_node = val;
+    id = i;
     type = val->type;
-    sym = i->sym;
+    sym = tDSET;
     array_length = val->array_length;
 }
 

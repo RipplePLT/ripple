@@ -5,9 +5,6 @@
 #include "ripple.tab.hpp"
 #include "frontend/symbol_table/symbol_table.h"
 
-#define CXX "clang++ "
-#define CPP_STANDARD " -std=c++11"
-
 void install_id();
 
 extern "C" int yywrap();
@@ -32,8 +29,8 @@ SymbolTable sym_table;
 
 /* regular definitions */
 delim       [ \t]
-nl          \n
-comment     (#\*[^(\*\#)]*\*\#)|(#.*\n)
+nl			\n
+comment     (#.*\n)|(#\*[^(\*\#)]*\*\#)
 ws          ({comment}|{delim})+
 letter      [A-Za-z_]
 digit       [0-9]
@@ -44,30 +41,6 @@ float	    {digit}+\.{digit}*
 
 %%
 
-<<<<<<< HEAD
-{nl}	    {   line_no++;  }
-{ws}        {/* don't do anything for whitespace */	}
-if          {	db(yytext); saw_type = false; return IF;	}
-else        {	db(yytext); saw_type = false; return ELSE;	}
-while       {	db(yytext); saw_type = false; return WHILE;	}
-for         {	db(yytext); saw_type = false; return FOR;	}
-link        {	db(yytext); saw_type = false; return LINK;	}
-dataset     {	db(yytext); saw_type = false; return DATASET;	}
-return      {	db(yytext); saw_type = false; return RETURN;	}
-continue    {   db(yytext); saw_type = false; return CONTINUE; }
-break       {   db(yytext); saw_type = false; return BREAK; }
-int         {	db(yytext); saw_type = true; last_type = tINT; yylval.string = new std::string("INT"); return TYPE;	}
-float       {	db(yytext); saw_type = true; last_type = tFLOAT; yylval.string = new std::string("FLOAT"); return TYPE;	}
-void        {	db(yytext); saw_type = true; last_type = tVOID; yylval.string = new std::string("VOID"); return TYPE;	}
-string      {	db(yytext); saw_type = true; last_type = tSTRING; yylval.string = new std::string("STRING"); return TYPE;	}
-byte        {	db(yytext); saw_type = true; last_type = tBYTE; yylval.string = new std::string("BYTE"); return TYPE;	}
-bool        {	db(yytext); saw_type = true; last_type = tBOOL; yylval.string = new std::string("BOOL"); return TYPE;	}
-true        {	db(yytext); saw_type = false; yylval.boolean = true; return TRUE;}
-false       {	db(yytext); saw_type = false; yylval.boolean = false; return FALSE;}
-not         {   db(yytext); saw_type = false; return NOT; }
-and         {   db(yytext); saw_type = false; return AND; }
-or          {   db(yytext); saw_type = false; return OR; }
-=======
 {nl}		{   line_no++;  }
 {ws}        {   /* don't do anything for whitespace */	}
 if          {	db(yytext); saw_id = false; return IF;	}
@@ -90,7 +63,6 @@ false       {	db(yytext); saw_id = false; yylval.boolean = false; return FALSE;}
 not         {   db(yytext); saw_id = false; return NOT; }
 and         {   db(yytext); saw_id = false; return AND; }
 or          {   db(yytext); saw_id = false; return OR; }
->>>>>>> datasets
 
 {id}        {	db(yytext); 
 				yylval.string = new std::string(yytext);
@@ -105,6 +77,7 @@ or          {   db(yytext); saw_id = false; return OR; }
 		        return FLOAT_LIT; }
 {literal}   {	db(yytext); saw_id = false; yylval.string = new string(yytext);
                 return STRING_LITERAL; }
+
 "="			{   db(yytext); saw_id = false; return tASSIGN; }
 "+"         {   db(yytext); saw_id = false; return tPLUS;  }
 "-"         {   db(yytext); saw_id = false; return tMINUS; }
@@ -130,6 +103,7 @@ or          {   db(yytext); saw_id = false; return OR; }
 "\."        {  	db(yytext); saw_id = false; return tACCESS; }
 %%
 
+
 int main(int argc, char **argv) {
 
 	if(argc < 2){
@@ -145,26 +119,19 @@ int main(int argc, char **argv) {
 	}
 
     yyin = fopen(argv[1], "r");
+    yyout = fopen(filename_cpp.c_str(), "w");
     yyparse();
     
-
     if(error){
-#ifdef DEBUG
-	write_to_file(filename_cpp, cpp_code);   
-#endif
- 	cout << COMPILE_ERR << endl;
+    	cout << COMPILE_ERR << endl;
     	return 1;
     }
-    
     write_to_file(filename_cpp, cpp_code);
-    string compile_cpp = CXX + filename_cpp + " -o " + filename + CPP_STANDARD;
+    string compile_cpp = "clang++ " + filename_cpp + " -o " + filename;
     system(compile_cpp.c_str());
    
-
-
 #ifndef DEBUG
     remove(filename_cpp.c_str());
 #endif
-
     return 0;
 }
