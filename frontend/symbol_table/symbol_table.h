@@ -51,6 +51,7 @@ class SymbolTable{
     
     void new_dataset(int line_no, string name);
     SymbolTableNode *get_dataset(string name);
+    Entry *get_dataset_member(string c, string i);
 
     bool put(string word, e_type type, int line_no, e_symbol_type s);
 

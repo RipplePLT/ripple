@@ -296,12 +296,7 @@ function_call : ID tL_PAREN args tR_PAREN { $$ = new FunctionCallNode(*($1), $3)
 array_access : value tL_BRACKET expression tR_BRACKET { $$ = new ArrayAccessNode($1, $3); d("Array access");}
              ;
 
-dataset_access : value tACCESS ID { /*if(!sym_table.dataset_contains($1.type_string, $3)) {
-                                        error = true;
-                                        cout << "error: " << $1 << " does not contain a member named " << $2 << endl; 
-                                     }*/
-                                    
-                                    $$ = new DatasetAccessNode($1, *$3); d("Dataset access");}
+dataset_access : ID tACCESS ID { $$ = new DatasetAccessNode(*$1, *$3); d("Dataset access");}
                ;
 
 var : ID { Entry *entry = sym_table.get(*yylval.string);

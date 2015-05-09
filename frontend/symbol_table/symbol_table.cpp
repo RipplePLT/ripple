@@ -138,6 +138,11 @@ SymbolTableNode *SymbolTable::get_dataset(string name) {
     return nullptr;
 }
 
+Entry *SymbolTable::get_dataset_member(string name, string member_name) {
+    SymbolTableNode *node = get_dataset(name);
+    return node->hashmap->get(member_name);
+}
+
 bool SymbolTable::put(string word, e_type v, int line_no, e_symbol_type s = tNOSTYPE) {
     return current->hashmap->put(word, v, line_no, s);
 }

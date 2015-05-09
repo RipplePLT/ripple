@@ -379,12 +379,23 @@ ArrayAccessNode::ArrayAccessNode(ValueNode *val, ExpressionNode *exp) {
 
 
 /* DatasetAccessNode */
-DatasetAccessNode::DatasetAccessNode(ValueNode *val, string i) {
-    value_node = val;
-    id = i;
-    type = val->type;
-    sym = tDSET;
-    array_length = val->array_length;
+DatasetAccessNode::DatasetAccessNode(string c, string i) {
+    Entry *entry = sym_table.get(c);
+    if (!entry) {
+        error = true;
+        cout << "Use of undeclared variable" << c << endl;
+    }
+
+    Entry *member_entry = sym_table.get_dataset_member(entry->ds_name, i);
+    if (!member_entry) {
+        error = true;
+        cout << "Dataset " << c << " of type " << entry->ds_name << "does not contain a member named " << i << endl;
+    } else {
+        entry = member_entry;
+        type = member_entry->type;
+        sym = member_entry->symbol_type;
+        array_length = member_entry->array_length;
+    }
 }
 
 /* UnaryExpressionNode */
@@ -818,7 +829,11 @@ ConditionalStatementNode::ConditionalStatementNode(ExpressionNode *e, StatementL
     consequent = s;
     alternative = a;
 
-    // TYPE CHECK
+    if(e->type != tBOOL){
+        error = true;
+        cout << COND_STMT_ERR << endl;
+    }
+
     code = "if (" + e->code + ")" + s->code;
 
     if(a != nullptr)

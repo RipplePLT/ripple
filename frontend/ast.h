@@ -57,6 +57,9 @@
 
 #define NOT_A_FUNC_ERR LINE_ERR "attempt to call a non function identifier"
 
+#define COND_STMT_ERR LINE_ERR "expression in if statement must be boolean"
+#define LOOP_CONDITION_ERR LINE_ERR "condition expression in loop must be of type boolean"
+
 #define ASSIGN_ERR "left operand of assignment expression must be a variable"
 #define ERROR "error"
 #define COMPILE_ERR "Unable to complete compilation due to errors in code. Get good"
@@ -265,7 +268,7 @@ class DatasetAccessNode: public Node {
         ValueNode *value_node;
         string id;
 
-        DatasetAccessNode(ValueNode *valueNode, string i);
+        DatasetAccessNode(string c, string i);
         void seppuku();
 };
 
