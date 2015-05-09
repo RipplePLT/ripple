@@ -7,7 +7,7 @@
 #include "../../structures/union.h"
 #define HASH_PRIME 31
 
-#define TABLE_SIZE 97
+#define TABLE_SIZE 29
 
 using namespace std;
 

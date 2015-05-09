@@ -139,28 +139,19 @@ union program_section {
 };
 
 class Node {
-    public:
-        string code;
-        string ds_name = ""; 
-        int array_length;
-        e_type type = tNOTYPE;
-        e_type get_type();
-        e_symbol_type sym;
-        bool is_number();
-        bool is_bool();
-        bool is_string();
-        bool is_byte();
-};
-
-class ArrayInitNode: public Node{
 public:
+    string code;
+    string ds_name = ""; 
     int array_length;
-    std::vector<ExpressionNode*> *args_list;
-
-    ArrayInitNode();
-    ArrayInitNode(ExpressionNode *arg);
-    void add_arg(ExpressionNode *arg);
+    e_type type = tNOTYPE;
+    e_type get_type();
+    e_symbol_type sym;
+    bool is_number();
+    bool is_bool();
+    bool is_string();
+    bool is_byte();
 };
+
 
 class ValueNode: public Node {
 public:
@@ -185,7 +176,6 @@ public:
     IDNode(Entry *ent);
     string get_name();
     e_type get_type();
-    ~IDNode();
     void seppuku();
 };
 
@@ -194,7 +184,7 @@ class FunctionCallNode: public Node {
     ArgsNode *args_list;
     string func_id;
 
-    public:
+public:
     FunctionCallNode(string f, ArgsNode *a);
     FunctionCallNode(string f);
     void typecheck();
@@ -202,10 +192,20 @@ class FunctionCallNode: public Node {
     void seppuku();
 };
 
+class ArrayInitNode: public Node{
+public:
+    int array_length;
+    std::vector<ExpressionNode *> *args_list;
+
+    ArrayInitNode();
+    ArrayInitNode(ExpressionNode *arg);
+    void add_arg(ExpressionNode *arg);
+    void seppuku();
+};
 
 class ArgsNode: public Node {
-    public:
-        std::vector<ExpressionNode*> *args_list;
+public:
+    std::vector<ExpressionNode *> *args_list;
 
     ArgsNode();
     ArgsNode(ExpressionNode *arg);
@@ -216,9 +216,9 @@ class ArgsNode: public Node {
 
 
 class DeclArgsNode: public Node {
-    std::vector<IDNode*> decl_args_list;
+    std::vector<IDNode *> decl_args_list;
 
-    public:
+public:
     DeclArgsNode();
     DeclArgsNode(string type, IDNode* arg);
     void add_arg(string type,IDNode* arg);
@@ -245,9 +245,9 @@ public:
 
 
 class ArrayAccessNode: public Node {
-    public:
-        ValueNode *value_node;
-        ExpressionNode *en;
+public:
+    ValueNode *value_node;
+    ExpressionNode *en;
 
     ArrayAccessNode(ValueNode *v, ExpressionNode *e);
     void seppuku();
@@ -255,9 +255,9 @@ class ArrayAccessNode: public Node {
 
 
 class DatasetAccessNode: public Node {
-    public:
-        ValueNode *value_node;
-        string id;
+public:
+    ValueNode *value_node;
+    string id;
 
     DatasetAccessNode(ValueNode *valueNode, string i);
     void seppuku();
@@ -265,16 +265,16 @@ class DatasetAccessNode: public Node {
 
 
 class UnaryExpressionNode: public Node {
-    public:
-        enum e_op op;
-        union operand right_operand;
+public:
+    enum e_op op;
+    union operand right_operand;
 
     UnaryExpressionNode(UnaryExpressionNode *u, string _op);
     UnaryExpressionNode(ValueNode *v);
     void seppuku();
 
-    private:
-        void typecheck(e_op op);
+private:
+    void typecheck(e_op op);
 };
 
 
@@ -300,18 +300,18 @@ private:
 
 
 class ExpressionNode: public Node {
-    public:
-        BinaryExpressionNode *bin_exp;
-        ValueNode *value;
+public:
+    BinaryExpressionNode *bin_exp;
+    ValueNode *value;
 
-	ExpressionNode();
+    ExpressionNode();
     ExpressionNode(BinaryExpressionNode *b);
     ExpressionNode(BinaryExpressionNode *b, ValueNode *v);
     ~ExpressionNode();
     void seppuku();
 
-    private:
-        void typecheck(BinaryExpressionNode *expression, ValueNode *value);
+private:
+    void typecheck(BinaryExpressionNode *expression, ValueNode *value);
 
 };
 
@@ -324,16 +324,15 @@ public:
 
     DeclarativeStatementNode(string _type, ValueNode *arr_size, ExpressionNode *expression_node);
     DeclarativeStatementNode(ExpressionNode *expression_node);
-
     void seppuku();
 };
 
 
 class ConditionalStatementNode: public Node {
-    public:
-        ExpressionNode *condition;
-        StatementListNode *consequent;
-        StatementListNode *alternative;
+public:
+    ExpressionNode *condition;
+    StatementListNode *consequent;
+    StatementListNode *alternative;
 
     ConditionalStatementNode(ExpressionNode *e, StatementListNode *s, StatementListNode *a);
     void seppuku();
@@ -341,9 +340,9 @@ class ConditionalStatementNode: public Node {
 
 
 class JumpStatementNode: public Node {
-    public:
-        e_jump type;
-        ExpressionNode *en;
+public:
+    e_jump type;
+    ExpressionNode *en;
 
     JumpStatementNode(string _type, ExpressionNode *expression_node);
     JumpStatementNode(string _type);
@@ -352,11 +351,11 @@ class JumpStatementNode: public Node {
 
 
 class LoopStatementNode: public Node {
-    public:
-        ExpressionNode *initializer;
-        ExpressionNode *condition;
-        ExpressionNode *next;
-        StatementListNode *statements;
+public:
+    ExpressionNode *initializer;
+    ExpressionNode *condition;
+    ExpressionNode *next;
+    StatementListNode *statements;
 
     LoopStatementNode(ExpressionNode *init, ExpressionNode *cond, ExpressionNode *n, StatementListNode *stmts);
     void seppuku();
@@ -364,8 +363,8 @@ class LoopStatementNode: public Node {
 
 
 class StatementNode: public Node {
-    public:
-        union statements stmts;
+public:
+    union statements stmts;
 
     StatementNode(DeclarativeStatementNode *d);
     StatementNode(ConditionalStatementNode *c);
@@ -376,9 +375,9 @@ class StatementNode: public Node {
 
 
 class StatementListNode: public Node {
-    public:
-        vector<StatementNode *> *stmt_list;
-        SymbolTableNode *st_node;
+public:
+    vector<StatementNode *> *stmt_list;
+    SymbolTableNode *st_node;
 
     StatementListNode();
     StatementListNode(SymbolTableNode *s);
@@ -387,30 +386,32 @@ class StatementListNode: public Node {
 };
 
 class DatasetNode: public Node {
-    public:
-        string name;
-        DeclArgsNode *decl_args;
+public:
+    string name;
+    DeclArgsNode *decl_args;
 
-        DatasetNode(string s, DeclArgsNode *d);
+    DatasetNode(string s, DeclArgsNode *d);
+    void seppuku();
 };
 
 class FunctionNode: public Node {
-    public:
-        enum e_type type;
-        string id;
-        DeclArgsNode *decl_args;
-        StatementListNode *stmt_list;
+public:
+    enum e_type type;
+    string id;
+    DeclArgsNode *decl_args;
+    StatementListNode *stmt_list;
 
-        FunctionNode(string _type, string id, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n);
-        void seppuku();
+    FunctionNode(string _type, string id, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n);
+    void seppuku();
 };
 
 class ProgramSectionNode: public Node {
     union program_section contents;
 
-    public:
+public:
     ProgramSectionNode(FunctionNode *f);
     ProgramSectionNode(DatasetNode *d);
+    void seppuku();
 };
 
 class ProgramNode: public Node {

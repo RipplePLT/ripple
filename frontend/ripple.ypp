@@ -202,7 +202,7 @@ else_statement : ELSE statement_block   { $$ = $2; d("else statement"); }
                 ;
 
 loop_statement : FOR tL_PAREN opt_expression tSEMI opt_expression tSEMI opt_expression tR_PAREN statement_block { $$ = new LoopStatementNode($3, $5, $7, $9); d("loop - for"); }
-                | WHILE tL_PAREN expression tR_PAREN statement_block { $$ = new LoopStatementNode(NULL ,$3, NULL, $5); d("loop - while"); }
+                | WHILE tL_PAREN expression tR_PAREN statement_block { $$ = new LoopStatementNode(nullptr ,$3, nullptr, $5); d("loop - while"); }
 
 declarative_statement : dtype expression tSEMI   { if (!$2->value) {
                                                     error = true;
