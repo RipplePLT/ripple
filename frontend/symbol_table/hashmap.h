@@ -17,15 +17,18 @@ class Entry {
     string name;
     enum e_type type;
     int line_no;
+    string ds_name;
     union literal val;
     enum e_symbol_type symbol_type;
     list<e_type> *args;
+    int array_length;
 
     Entry(string n, e_type v, int line, e_symbol_type s);
     Entry(string n, int line);
 
     void classify (e_symbol_type s);
     void add_args (list<e_type> *l);
+    void add_length (int i);
 
     bool operator==(string n);
     

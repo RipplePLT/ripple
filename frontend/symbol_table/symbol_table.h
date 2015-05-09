@@ -57,8 +57,12 @@ class SymbolTable{
     bool contains(string word);
     bool contains_in_scope(string word);
 
+    bool add_array(string name, e_type type, int line_no, int arr_length);
+    void add_length(string word, int i);
     bool add_function(string name, e_type type, int line_no, list<e_type> *l);
+    bool instantiate_dataset(string name, string ds_name, int line_no);
     void add_args(string word, list<e_type> *l);
+    void add_dsname(string word, string ds_name);
     void classify(string word, e_symbol_type s);
 
     Entry *get(string word);

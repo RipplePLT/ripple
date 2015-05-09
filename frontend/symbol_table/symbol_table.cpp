@@ -93,6 +93,32 @@ bool SymbolTable::add_function(string name, e_type type, int line_no, list<e_typ
     return error;
 }
 
+bool SymbolTable::add_array(string name, e_type type, int line_no, int length) {
+    bool error = false;
+    if (contains_in_scope(name)) {
+        error = true;
+    } else {
+        put(name, type, line_no, tARR);
+        add_length(name, length);
+    }
+    return error;
+}
+
+bool SymbolTable::instantiate_dataset(string name, string ds_name, int line_no) {
+    bool error = false;
+    if (contains_in_scope(name)) {
+        error = true;
+    } else {
+        put(name, tNOTYPE, line_no, tDSET);
+        add_dsname(name, ds_name);
+    }
+    return error;
+}
+
+void SymbolTable::add_dsname(string name, string ds_name) {
+    get(name)->ds_name = ds_name;
+}
+
 void SymbolTable::new_dataset(int line_no, string name) {
     SymbolTableNode *node = new SymbolTableNode(name);
 
@@ -123,6 +149,11 @@ void SymbolTable::classify(string word, e_symbol_type s) {
 void SymbolTable::add_args(string word, list<e_type> *l) {
     get(word)->add_args(l);
 }
+
+void SymbolTable::add_length(string word, int l) {
+    get(word)->add_length(l);
+}
+
 
 bool SymbolTable::contains(string word) {
     SymbolTableNode *n = current;
