@@ -2,6 +2,11 @@
 
 using namespace std;
 
+/**
+ * Small test suite to check the functionality of the xml parsing library.
+ *
+ * Author: Alexander Roth
+ **/
 int main() {
 
     // Set up
