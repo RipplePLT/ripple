@@ -2,9 +2,9 @@ CC          = g++-4.9
 CXX         = clang++
 CCFLAGS     = -I ../parse_lib -pthread -std=c++11
 PARENT_OBJS = ../expression_tree.o ../link_val.o ../linked_var.o
-CUR_OBJS    = file_parse_test.o html_parse_test.o sync_test.o tree_test.o \
+CUR_OBJS    = file_parse_test.o html_parse_test.o tree_test.o \
 	      vartest.o xml_parse_test.o
-EXES        = file_parse_test html_parse_test sync_test tree_test vartest \
+EXES        = file_parse_test html_parse_test tree_test vartest \
 	      xml_parse_test
 
 .PHONY: tests
@@ -21,12 +21,6 @@ html_parse_test: html_parse_test.o
 
 html_parse_test.o: html_parse_test.cpp html_parse_test.h
 	$(CXX) -c -static html_parse_test.cpp $(CCFLAGS)
-
-sync_test: sync_test.o ../sync_queue.o
-	$(CXX) sync_test.o ../sync_queue.o -o sync_test $(CCFLAGS)
-
-sync_test.o: sync_test.cpp sync_test.h
-	$(CXX) -c sync_test.cpp $(CCFLAGS)
 
 tree_test: tree_test.o $(PARENT_OBJS)
 	$(CXX) tree_test.o $(PARENT_OBJS) -o tree_test $(CCFLAGS) -lcurl

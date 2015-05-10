@@ -1,7 +1,7 @@
 CC      = g++-4.9
 CXX     = clang++
 CCFLAGS = -pthread -std=c++11
-OBJS    = linked_var.o link_val.o sync_queue.o expression_tree.o
+OBJS    = linked_var.o link_val.o expression_tree.o
 
 .PHONY: objects
 objects: $(OBJS)
@@ -14,9 +14,6 @@ expression_tree.o: expression_tree.cpp expression_tree.h
 
 link_val.o: link_val.cpp link_val.h
 	$(CXX) -c link_val.cpp $(CCFLAGS)
-
-sync_queue.o: sync_queue.cpp sync_queue.h
-	$(CXX) -c sync_queue.cpp $(CCFLAGS)
 
 .PHONY: clean-subdirs
 clean-subdirs:
