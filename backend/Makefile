@@ -22,7 +22,7 @@ clean-subdirs:
 
 .PHONY: clean
 clean:
-	rm -rf $(OBJS)
+	rm -rf $(OBJS) streamreader/*.gch
 
 .PHONY: clean-all
 clean-all: clean clean-subdirs
