@@ -1,5 +1,5 @@
-#ifndef __RIPPLE_HEADER__
-#define __RIPPLE_HEADER__
+#ifndef __RIPPLE_HEADER_H__
+#define __RIPPLE_HEADER_H__
 
 #include <cmath>
 #include <iostream>
@@ -16,13 +16,13 @@
 using namespace ripple;
 
 namespace ripple {
-	string input(string p){
-		string x;
-		cout << p;
-		cout.flush();
-		cin >> x;
-		return x;
-	}
+    string input(string p){
+        string x;
+        cout << p;
+        cout.flush();
+        cin >> x;
+        return x;
+    }
 }
 
 // Used for short-term manipulation of linked vars

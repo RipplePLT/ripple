@@ -1,7 +1,8 @@
 #ifndef __DEBUG_TOOLS_H__
 #define __DEBUG_TOOLS_H__
-#include <string>
+
 #include <iostream>
+#include <string>
 
 using namespace std;
 

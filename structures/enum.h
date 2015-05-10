@@ -1,5 +1,5 @@
-#ifndef __RPL_ENUM__
-#define __RPL_ENUM__
+#ifndef __RPL_ENUM_H__
+#define __RPL_ENUM_H__
 
 enum e_type {
     tNOTYPE,
