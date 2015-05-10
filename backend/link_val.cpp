@@ -152,7 +152,7 @@ link_val link_val::str_op(link_val a, link_val b, const char *op) {
 
 	a_str = a.get_str_val();
 	b_str = b.get_str_val();
-
+	
 	result->type = ltSTR;
 
 	if (!strcmp(op, "+")) {

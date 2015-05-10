@@ -34,6 +34,7 @@ extern e_type last_type;
     ConditionalStatementNode *cond_stmt;
     JumpStatementNode *jump_stmt;
     LoopStatementNode *loop_stmt;
+    LinkStatementNode *link_stmt;
 
     ExpressionNode *expr;
     BinaryExpressionNode *bin_expr;
@@ -96,6 +97,7 @@ extern e_type last_type;
     SEPARATORS
 *****************/
 %token tSEMI
+%token tARROW
 %token tCOMMA
 %token tL_PAREN
 %token tR_PAREN
@@ -122,6 +124,7 @@ extern e_type last_type;
 %type <jump_stmt> jump_statement
 %type <cond_stmt> conditional_statement
 %type <loop_stmt> loop_statement
+%type <link_stmt> link_statement
 %type <stmt> statement
 %type <stmt_list> statement_list statement_block else_statement
 %type <func> function
@@ -186,6 +189,7 @@ statement : declarative_statement               { $$ = new StatementNode($1); d(
           | conditional_statement               { $$ = new StatementNode($1); d("statement - conditional"); }
           | jump_statement                      { $$ = new StatementNode($1); d("statement - jump"); }
           | loop_statement                      { $$ = new StatementNode($1); d("statement - loop"); }
+          | link_statement                      { $$ = new StatementNode($1); d("statement - link"); }
           ;
 
 jump_statement : RETURN expression tSEMI        { $$ = new JumpStatementNode("return", $2); d("jump - return"); }
@@ -209,6 +213,9 @@ declarative_statement : dtype expression tSEMI   { $$ = new DeclarativeStatement
                                                    d("declarative statement -  type expr"); delete $1; }
                       | expression tSEMI         { $$ = new DeclarativeStatementNode($1); d("declarative statement - expr"); }
                       ;
+
+link_statement : LINK tL_PAREN var tARROW expression tR_PAREN tSEMI  { $$ = new LinkStatementNode($3, $5); d("link statement!"); }
+               ;
 
 opt_expression : expression            { $$ = $1; d("opt_expression"); }
                |                               { $$ = nullptr; d("no opt_expression");}

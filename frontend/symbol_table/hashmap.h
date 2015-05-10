@@ -22,6 +22,7 @@ class Entry {
     enum e_symbol_type symbol_type;
     list<e_type> *args;
     int array_length;
+    bool has_dependents = false;
 
     Entry(string n, e_type v, int line, e_symbol_type s);
     Entry(string n, int line);
