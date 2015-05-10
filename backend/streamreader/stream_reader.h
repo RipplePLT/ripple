@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <string>
 
+#include "../linked_var.h"
+
 using namespace std;
 
 /*

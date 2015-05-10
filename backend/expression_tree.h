@@ -75,19 +75,6 @@ public:
 };
 
 /*
- * Represents a call to a function in a link expression.
- */
-class FunctionCallNode {
-public:
-	link_val val;
-	void *fn;
-	vector<void*> *dependencies;
-
-	FunctionCallNode (void *);
-	link_val evaluate ();
-};
-
-/*
  * Contains a LiteralNode or a VariableNode.
  */
 class ValueNode {

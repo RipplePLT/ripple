@@ -4,6 +4,7 @@
 #include "../expression_tree.h"
 #include "../link_val.h"
 #include "../linked_var.h"
+#include "../streamreader/keyboard_stream_reader.h"
 
 /* Spaghetti */
 
@@ -23,16 +24,55 @@ public:
 	static void test_nested_expressions();
 	static void test_string_concatenation();
 	static void test_string_int_concatenation();
+	static void test_aux_fn_expressions();
 	static void test_streamreader_expressions();
 	static void run_all_unit_tests();
 	static void run_all_integration_tests();
 };
 
 void test_aux_fn (int n) {
-	assert(n == 102);
+	cerr << "[AUX_FN] " << n << endl;
+}
+
+int rpl_str_to_int (string msg) {
+	return atoi(msg.c_str());
 }
 
 void TreeTest::test_streamreader_expressions() {
+	cerr << "y <- x + 2" << endl;
+	cerr << "Enter x." << endl;
+
+	int y, x = 2;
+	linked_var::register_cpp_var(&x);
+	linked_var::register_cpp_var(&y);
+
+	// link (y <- x + 2)
+	//     text_aux_fn(y);
+	linked_var *y_var = new linked_var(&y, new ExpressionNode (
+		new BinaryExpressionNode(
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode(&x)))), "+",
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new LiteralNode(2)))))));
+	y_var->assign_aux_fn((void *)&test_aux_fn);
+
+	// link (x <- str_to_int <- KSR());
+	void *dummy;
+	FuncPtr<int>::f_ptr f = &rpl_str_to_int; 
+	StreamReader<int> sr = new StreamReader<int>(f, dummy);
+	linked_var::register_cpp_var(&dummy);
+	linked_var *sr_var = new linked_var(&dummy, new ExpressionNode (
+		new BinaryExpressionNode(
+		new UnaryExpressionNode(
+		new ValueNode(
+		new StreamReaderNode(ltINT))))));
+}
+
+void TreeTest::test_aux_fn_expressions() {
 	int y, x = 2;
 	linked_var::register_cpp_var(&x);
 	linked_var::register_cpp_var(&y);
@@ -583,8 +623,10 @@ void TreeTest::run_all_integration_tests() {
 	test_nested_expressions();
 	cerr << "[TREE_TEST] Nested expression tests passed." << endl;
 	linked_var::reset_refs();
+	test_aux_fn_expressions();
+	cerr << "[TREE_TEST] Auxiliary link function tests passed." << endl;
+	linked_var::reset_refs();
 	test_streamreader_expressions();
-	cerr << "[TREE_TEST] StreamReader expression tests passed." << endl;
 }
 
 int main() {
