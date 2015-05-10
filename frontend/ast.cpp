@@ -927,6 +927,11 @@ void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *valu
         error = true;
         cout << ASSIGN_ERR << endl;
     }
+    Entry *ent = sym_table.get(value->code);
+    if(ent && ent->is_final){
+        error = true;
+        cout << FINAL_REDECL_ERR << endl;
+    }
 
     type = expression->type;
 }
@@ -1344,6 +1349,21 @@ ProgramSectionNode::ProgramSectionNode(FunctionNode *f) {
 ProgramSectionNode::ProgramSectionNode(DatasetNode *d) {
     contents.dataset = d;
     code = d->code;
+}
+
+ProgramSectionNode::ProgramSectionNode(DeclarativeStatementNode *d){
+    contents.decl = d;
+    if(d->en->value){
+        Entry *ent = sym_table.get(d->en->value->code);
+        if(ent)
+            ent->is_final = true;
+    }
+
+    if(d->en->bin_exp == nullptr){
+        error = true;
+        cout << FINAL_MUST_INITIALIZE << endl;
+    }
+    code = "const " + d->code;
 }
 
 void ProgramSectionNode::seppuku(){ 

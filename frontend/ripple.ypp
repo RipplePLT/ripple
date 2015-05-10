@@ -171,6 +171,7 @@ program : program program_section     { $$->add_section($2);
 
 program_section : function { $$ = new ProgramSectionNode($1); d("program section"); }
                 | dataset_declaration { $$ = new ProgramSectionNode($1); d("program section"); }
+                | FINAL declarative_statement { $$ = new ProgramSectionNode($2); }
                 ;
 
 function : dtype ID tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode($1, *$2, $4, $6);

@@ -1,0 +1,5 @@
+final int x = 6;
+void main(){
+	int x22 = x;
+	print(x22);
+}

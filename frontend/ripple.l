@@ -73,6 +73,7 @@ not         {   db(yytext); saw_id = false; return NOT; }
 and         {   db(yytext); saw_id = false; return AND; }
 or          {   db(yytext); saw_id = false; return OR; }
 then        {   db(yytext); saw_id = false; return THEN; }
+final       {   db(yytext); saw_id = false; return FINAL; }
 
 {id}        {	db(yytext); 
 				yylval.string = new std::string(yytext);

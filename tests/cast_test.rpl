@@ -1,0 +1,13 @@
+void main(){
+	bool b = true;
+	int x = 3;
+	float y = 2;
+	string s = "hello";
+
+	s = (string) y;
+	s = (string) b;
+	s = (string) x;
+	s = (string) x;
+	s = (string) b;
+	print(s);
+}
