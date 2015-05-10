@@ -443,12 +443,13 @@ public:
     ArgsNode *arg_list;
 
     StreamReaderNode(string n, ArgsNode *args_list);
+    string generate_code(e_type type);
 };
 
 
 class LinkStatementNode: public Node {
     public:
-        IDNode *id_node;
+        IDNode *id_node, *filter;
         ExpressionNode *expression_node;
         StreamReaderNode *stream_reader_node;
         string auxiliary = "";
@@ -457,6 +458,8 @@ class LinkStatementNode: public Node {
         LinkStatementNode(IDNode *idn, ExpressionNode *expn, string func);
         LinkStatementNode(IDNode *idn, StreamReaderNode *srn);
         LinkStatementNode(IDNode *idn, StreamReaderNode *srn, string func);
+        LinkStatementNode(IDNode *idn, IDNode *filt, StreamReaderNode *srn);
+        LinkStatementNode(IDNode *idn, IDNode *filt, StreamReaderNode *srn, string func);
 
         void sepukku();
 };

@@ -241,7 +241,9 @@ link_statement : LINK tL_PAREN var tARROW expression tR_PAREN tSEMI         { $$
                | LINK tL_PAREN var tARROW expression tR_PAREN THEN ID tSEMI { $$ = new LinkStatementNode($3, $5, *$8); 
                                                                               d("link statement with then!"); }
                | LINK tL_PAREN var tARROW stream_reader tR_PAREN tSEMI      { $$ = new LinkStatementNode($3, $5); d("link stream"); }
-               | LINK tL_PAREN var tARROW stream_reader tL_PAREN THEN ID tSEMI { $$ = new LinkStatementNode($3, $5, *$8); }
+               | LINK tL_PAREN var tARROW stream_reader tR_PAREN THEN ID tSEMI { $$ = new LinkStatementNode($3, $5, *$8); }
+               | LINK tL_PAREN var tARROW var tARROW stream_reader tR_PAREN tSEMI      { $$ = new LinkStatementNode($3, $5, $7); }
+               | LINK tL_PAREN var tARROW var tARROW stream_reader tR_PAREN THEN ID tSEMI      { $$ = new LinkStatementNode($3, $5, $7, *$10); }
                ;
 
 stream_reader : stream_reader_name tL_PAREN args tR_PAREN { $$ = new StreamReaderNode(*$1, $3); d("stream_reader"); }
