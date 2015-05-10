@@ -10,9 +10,9 @@ template <typename T>
 class KeyboardStreamReader : StreamReader<T> {
 public:
 
-    KeyboardStreamReader<T> (typename FuncPtr<T>::f_ptr f = nullptr, void *to_update = nullptr) {
-        this->filter_func_ptr = f;
+    KeyboardStreamReader<T> (void *to_update = nullptr, typename FuncPtr<T>::f_ptr f = nullptr, ) {
         this->to_update = (T *)to_update;
+        this->filter_func_ptr = f;
     }
 
    ~KeyboardStreamReader<T>() {};
@@ -21,7 +21,6 @@ public:
      * Public accessor function used to begin running the instantiated WebStreamReader.
      */
     void start_thread() {
-        cout << "start_thread" << endl;
         if (pthread_create(&(this->stream_thread), NULL, this->run_stream_thread_proxy, this)) {
             cerr << "Could not create StreamReader" << endl;
             exit(1);
@@ -37,7 +36,6 @@ protected:
      * that enables the ability to call the non-static function run_stream_thread.
      */
     static void* run_stream_thread_proxy(void *p) {
-        cout << "run_stream_thread_proxy" << endl;
         static_cast<KeyboardStreamReader*>(p)->run_stream_thread();
         return NULL;
     }
@@ -51,7 +49,6 @@ protected:
      */
     void run_stream_thread() {
         
-        cout << "run_stream_thread" << endl;
         string read_buffer;
 
         while(1) {

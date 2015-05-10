@@ -17,13 +17,13 @@ private:
     CURLcode curl_result;
 
 public:
-    WebStreamReader(string URL, void *to_update, int interval = 0, unsigned int port = 80,
-                    typename FuncPtr<T>::f_ptr f = nullptr) {
-        this->URL = URL;
+    WebStreamReader(void *to_update, typename FuncPtr<T>::f_ptr f = nullptr, 
+                string URL, unsigned int port = 80, int interval = 0) {
         this->to_update = (T *)to_update; 
+        this->filter_func_ptr = f;
+        this->URL = URL;
         this->port = port;
         this->interval = interval;
-        this->filter_func_ptr = f;
     }
 
     ~WebStreamReader() {}

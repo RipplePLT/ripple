@@ -14,10 +14,10 @@ private:
     string delimiter;
 
 public:
-    FileStreamReader<T>(string file_path, void *to_update, typename FuncPtr<T>::f_ptr f = nullptr, int interval=0, const string delim = "\0") {
-        this->file_path = file_path;
+    FileStreamReader<T>(void *to_update, typename FuncPtr<T>::f_ptr f = nullptr, string file_path, int interval=0, const string delim = "\0") {
         this->to_update = (T *)to_update; 
         this->filter_func_ptr = f;
+        this->file_path = file_path;
         this->interval = interval;
         this->delimiter = delim;
     }
