@@ -1279,7 +1279,15 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, StreamReaderNode *srn){
     id_node = idn;
     stream_reader_node = srn;
 
-    code = type_to_str()
+    code = type_to_str(idn->type) + " " + stream + to_string(num) + ";\n";
+    code += "linked_var::register_cpp_var(&" + stream + to_string(num) + ");\n";
+    code += "FuncPtr<" + type_to_str(idn->type) + ">::f_ptr " + function_pointer + to_string(num) + " = &default_rpl_str_str;\n";
+    code += "KeyboardStreamReader<" + type_to_str(idn->type) + "> * " + stream_reader_name + to_string(num) + 
+        " = new KeyboardStreamReader<" + type_to_str(idn->type) + ">(&" + stream + to_string(num) + ", " + function_pointer + to_string(num) + ");\n";
+    code += "universal_linked_var_ptr = new linked_var(&" + idn->code + ", " +
+            EXPRESSION_NODE(BINARY_EXPRESSION(UNARY_EXPRESSION(VALUE_NODE(VARIABLE_NODE("&" + stream + to_string(num)))))) + ";\n";
+    code += stream_reader_name + to_string(num) + "->start_thread();\n";
+    cout << code << endl;
 
 }
 
