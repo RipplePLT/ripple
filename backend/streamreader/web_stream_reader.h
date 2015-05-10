@@ -18,7 +18,7 @@ private:
 
 public:
     WebStreamReader(void *to_update, typename FuncPtr<T>::f_ptr f = nullptr, 
-                string URL, unsigned int port = 80, int interval = 0) {
+                string URL = nullptr, unsigned int port = 80, int interval = 0) {
         this->to_update = (T *)to_update; 
         this->filter_func_ptr = f;
         this->URL = URL;
@@ -85,7 +85,6 @@ protected:
             }
             
             curl_easy_cleanup(curl);
-            cout << read_buffer << endl;
 
             //Result is set to something other than 0 - there was an error so print and exit program
             if (curl_result) {
@@ -93,7 +92,7 @@ protected:
                 exit(1);
             }
                 
-            *this->to_update = this->filter_func_ptr(line);
+            *this->to_update = this->filter_func_ptr(read_buffer);
             linked_var::update_nonlinked_var(this->to_update);
 
             if (this->interval)
