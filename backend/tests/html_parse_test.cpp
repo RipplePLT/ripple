@@ -1,4 +1,4 @@
-#include "html_parse_test.hpp"
+#include "html_parse_test.h"
 
 /**
  * Small test suite to check the functionality of the html parse library.

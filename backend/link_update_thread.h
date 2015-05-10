@@ -1,9 +1,10 @@
-#ifndef LINK_UPDATE_THREAD_HPP
-#define LINK_UPDATE_THREAD_HPP
+#ifndef __LINK_UPDATE_THREAD_H__
+#define __LINK_UPDATE_THREAD_H__
 
+#include <mutex>
 #include <thread>
 
-#include "sync_queue.hpp"
+#include "sync_queue.h"
 
 using namespace std;
 

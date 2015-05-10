@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "stream_reader.hpp"
+#include "stream_reader.h"
 
 using namespace std;
 

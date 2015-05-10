@@ -1,10 +1,10 @@
-#ifndef SYNC_QUEUE_HPP
-#define SYNC_QUEUE_HPP
+#ifndef __SYNC_QUEUE_H__
+#define __SYNC_QUEUE_H__
 
 #include <queue>
 
-#include "expression_tree.hpp"
-#include "link_val.hpp"
+#include "expression_tree.h"
+#include "link_val.h"
 
 using namespace std;
 

@@ -1,5 +1,5 @@
-#ifndef STREAM_READER_HPP
-#define STREAM_READER_HPP
+#ifndef __STREAM_READER_H__
+#define __STREAM_READER_H__
 
 #include <thread>
 #include <string>

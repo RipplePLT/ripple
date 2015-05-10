@@ -1,4 +1,4 @@
-#include "sync_queue.hpp"
+#include "sync_queue.h"
 
 sync_queue::sync_queue() {
     this->size = 0;

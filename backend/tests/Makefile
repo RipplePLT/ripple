@@ -13,19 +13,19 @@ tests: $(EXES)
 file_parse_test: file_parse_test.o
 	$(CXX) file_parse_test.o -L ../lib -lfile -o file_parse_test
 
-file_parse_test.o: file_parse_test.cpp file_parse_test.hpp
+file_parse_test.o: file_parse_test.cpp file_parse_test.h
 	$(CXX) -c -static file_parse_test.cpp $(CCFLAGS)
 
 html_parse_test: html_parse_test.o
 	$(CXX) html_parse_test.o -L ../lib -lhtml -o html_parse_test
 
-html_parse_test.o: html_parse_test.cpp html_parse_test.hpp
+html_parse_test.o: html_parse_test.cpp html_parse_test.h
 	$(CXX) -c -static html_parse_test.cpp $(CCFLAGS)
 
 sync_test: sync_test.o ../sync_queue.o
 	$(CXX) sync_test.o ../sync_queue.o -o sync_test $(CCFLAGS)
 
-sync_test.o: sync_test.cpp sync_test.hpp
+sync_test.o: sync_test.cpp sync_test.h
 	$(CXX) -c sync_test.cpp $(CCFLAGS)
 
 tree_test: tree_test.o $(PARENT_OBJS)
@@ -43,7 +43,7 @@ vartest.o: vartest.cpp ../linked_var.o
 xml_parse_test: xml_parse_test.o
 	$(CXX) xml_parse_test.o -L ../lib -lxml -o xml_parse_test
 
-xml_parse_test.o: xml_parse_test.cpp xml_parse_test.hpp
+xml_parse_test.o: xml_parse_test.cpp xml_parse_test.h
 	$(CXX) -c -static xml_parse_test.cpp $(CCFLAGS)
 
 .PHONY: clean

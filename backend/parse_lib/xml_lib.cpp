@@ -1,4 +1,4 @@
-#include "xml_lib.hpp"
+#include "xml_lib.h"
 
 using namespace std;
 

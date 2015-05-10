@@ -1,8 +1,5 @@
-#include "stream_reader.hpp"
+#include "stream_reader.h"
 
-/*
- *
- */
 StreamReader::StreamReader(int* update){
     cout << "Constructor ran" << endl;
     this->stop_thread = false;

@@ -1,4 +1,4 @@
-#include "link_update_thread.hpp"
+#include "link_update_thread.h"
 
 #include <mutex>
 
@@ -28,10 +28,4 @@ int main() {
     t.join();
     return 0;
 }
-
-/*
-void link_update_thread::run(bool working, sync_queue& queue) {
-    this->updater = thread(consume, working, queue);
-}
-*/
 

@@ -1,5 +1,10 @@
-#ifndef __LINK_VAL_HPP__
-#define __LINK_VAL_HPP__
+#ifndef __LINK_VAL_H__
+#define __LINK_VAL_H__
+
+#include <cmath>
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
 
 /*
  * The link_val class represents a linked variable's value and its

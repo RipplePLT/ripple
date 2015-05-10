@@ -1,4 +1,4 @@
-#include "sync_test.hpp"
+#include "sync_test.h"
 
 int main() {
 
