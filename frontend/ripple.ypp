@@ -303,8 +303,9 @@ var : ID { Entry *entry = sym_table.get(*yylval.string);
            if (entry) {
                 $$ = new IDNode(entry); d("id");
             } else {
-                Entry *fake_entry = new Entry(*yylval.string, line_no);
-                $$ = new IDNode(fake_entry); d("undeclared id");
+                sym_table.put(*yylval.string, tNOTYPE, line_no, tVAR);
+                Entry *new_entry = sym_table.get(*yylval.string);
+                $$ = new IDNode(new_entry); d("undeclared id");
             }
           }
 

@@ -44,6 +44,7 @@
 
 #define INVALID_DECL_ERR LINE_ERR "invalid declaration"
 #define VARIABLE_REDECL_ERR LINE_ERR "variable redeclaration"
+#define UNDECLARED_ERROR LINE_ERR "undeclared identifier"
 
 #define ARR_ELEMENT_TYPE_ERR LINE_ERR "all elements in an array initialization must have the same type"
 #define ARR_UNARY_MINUS_ERR LINE_ERR "cannot perform negation on arrays"
@@ -335,6 +336,7 @@ class DeclarativeStatementNode: public Node {
 
     DeclarativeStatementNode(TypeNode *t, ExpressionNode *expression_node);
     DeclarativeStatementNode(ExpressionNode *expression_node);
+    void typecheck();
     void seppuku();
 };
 

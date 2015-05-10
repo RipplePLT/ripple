@@ -30,7 +30,7 @@ SymbolTable sym_table;
 /* regular definitions */
 delim       [ \t]
 nl			\n
-comment     (#\*[^(\*#)]*\*#)|(#[^\*]*\n)
+comment     ("#~"[^(~#)]*"~#")|(#[^~]*\n)
 ws          ({comment}|{delim})+
 letter      [A-Za-z_]
 digit       [0-9]
@@ -128,7 +128,7 @@ int main(int argc, char **argv) {
     	return 1;
     }
     write_to_file(filename_cpp, cpp_code);
-    string compile_cpp = "clang++ " + filename_cpp + " -o " + filename;
+    string compile_cpp = "clang++ " + filename_cpp + " -o " + filename + " --std=c++11";
     system(compile_cpp.c_str());
    
 #ifndef DEBUG

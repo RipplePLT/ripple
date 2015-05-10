@@ -179,8 +179,7 @@ void DatasetNode::seppuku(){
 /* IDNode */
 IDNode::IDNode(Entry *ent) {
     entry = ent;
-    if (ent) { // is there a better way to deal with
-        // undeclared identifiers?
+    if (ent) {
         type = ent->type;
         code = ent->name;
         sym = ent->symbol_type;
@@ -310,7 +309,7 @@ void ArrayInitNode::add_arg(ExpressionNode *arg) {
 
 void ArrayInitNode::seppuku(){ 
     for(std::vector<ExpressionNode *>::iterator it = args_list->begin();
-        it != args_list->end(); ++it)
+            it != args_list->end(); ++it)
         (*it)->seppuku();
 
     delete this;
@@ -323,12 +322,21 @@ ArgsNode::ArgsNode() {
 }
 
 ArgsNode::ArgsNode(ExpressionNode *arg) {
+    if (arg->type == tNOTYPE) {
+        error = true;
+        cout << UNDECLARED_ERROR << endl;
+    }
     args_list->push_back(arg);
     code = arg->code;
 }
 
 void ArgsNode::add_arg(ExpressionNode *arg) {
     args_list->push_back(arg);
+
+    if (arg->type == tNOTYPE) {
+        error = true;
+        cout << UNDECLARED_ERROR << endl;
+    }
 
     if(code.compare("") == 0)
         code += arg->code;
@@ -346,7 +354,7 @@ list<e_type> *ArgsNode::to_enum_list() {
 
 void ArgsNode::seppuku(){ 
     for(std::vector<ExpressionNode *>::iterator it = args_list->begin();
-        it != args_list->end(); ++it)
+            it != args_list->end(); ++it)
         (*it)->seppuku();
     delete this;
 }
@@ -390,7 +398,7 @@ list<e_type> *DeclArgsNode::to_enum_list() {
 
 void DeclArgsNode::seppuku(){ 
     for(std::vector<IDNode *>::iterator it = decl_args_list.begin();
-        it != decl_args_list.end(); ++it)
+            it != decl_args_list.end(); ++it)
         (*it)->seppuku();
     delete this;
 }
@@ -531,7 +539,7 @@ void UnaryExpressionNode::typecheck(e_op op){
                 type = tBOOL;
             break;
         case MINUS:
-            if(child_type != tINT || child_type != tFLOAT){
+            if(child_type != tINT && child_type != tFLOAT){
                 cout << INVAL_UNARY_MINUS_ERR << endl;
                 error = true;
             }
@@ -642,7 +650,7 @@ void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
     } else if (op == MOD) {
 
         if (left->is_number() && right->is_number()
-            && left->type == tINT && right->type == tINT){
+                && left->type == tINT && right->type == tINT){
             type = tINT;
         } else {
             error = true;
@@ -710,9 +718,9 @@ string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string
     string code;
 
     if(r_type == tSTRING && l_type != tSTRING)
-        l_code = "to_string(" + l_code + ")";
+        l_code = "std::to_string(" + l_code + ")";
     else if(l_type == tSTRING && r_type != tSTRING)
-        r_code = "to_string(" + r_code + ")";
+        r_code = "std::to_string(" + r_code + ")";
 
     switch(op) {
         case PLUS:
@@ -775,7 +783,7 @@ ValueNode *BinaryExpressionNode::get_value_node() {
 }
 
 void BinaryExpressionNode::seppuku(){ 
-    
+
 
     if(left_is_binary){
         left_operand.b_exp->seppuku();
@@ -798,7 +806,7 @@ void BinaryExpressionNode::seppuku(){
 
 /* ExpressionNode */
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
-    
+
     ValueNode *v = b->get_value_node();
     if (v) {
         value = v;
@@ -807,14 +815,14 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
         value = nullptr;
         bin_exp = b;
     }
-    
+
     type = b->type;
     code = b->code;
     array_length = b->array_length;
 }
 
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
-    
+
     bin_exp = b;
     value = v;
     typecheck(b, v);
@@ -832,16 +840,7 @@ void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *valu
         cout << ASSIGN_ERR << endl;
     }
 
-    if (expression->type == value->type){
-        type = value->type;
-    }
-    else if (value->type == tFLOAT && expression->type == tINT){
-        type = tFLOAT;
-    }
-    else{
-        INVAL_ASSIGN_ERR(type_to_str(value->type), type_to_str(expression->type));
-        error = true;
-    }
+    type = expression->type;
 }
 
 void ExpressionNode::seppuku(){ 
@@ -865,11 +864,16 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
         cout << INVALID_DECL_ERR << endl;
     }  
 
+    typecheck();
+
+    Entry *entry = sym_table.get(expression_node->value->code);
     switch(sym) {
         case tVAR:
-            if (!sym_table.put(expression_node->value->code, type, line_no, tVAR)) {
+            if (entry->type != tNOTYPE) {
                 error = true;
                 cout << VARIABLE_REDECL_ERR << endl;
+            } else {
+                entry->type = type;
             }
             code += type_to_str(type) + " " + expression_node->code + ";\n";
             break;
@@ -882,12 +886,12 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
                 error = true;
                 cout << ARR_SMALL_SIZE_ERR << endl;
             }
-            
+
             if(!sym_table.add_array(expression_node->value->code, type, line_no, array_length)) {
                 error = true;
                 cout <<  VARIABLE_REDECL_ERR << endl;
             }
-            
+
             code += expression_node->value->code + "[" + to_string(array_length) + "]";
             if (expression_node->bin_exp) {
                 code += "=" + expression_node->bin_exp->code;
@@ -899,7 +903,7 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
                 error = true;
                 cout << VARIABLE_REDECL_ERR << endl;
             }
-            
+
             code += "struct " + ds_name + " " + expression_node->value->code + ";";
             break;
     }
@@ -911,6 +915,15 @@ DeclarativeStatementNode::DeclarativeStatementNode(ExpressionNode *expression_no
     a_size = nullptr;
     code = expression_node->code + ";\n";
 }
+
+void DeclarativeStatementNode::typecheck() { 
+    if (!en->bin_exp || type == tFLOAT && en->type == tINT){
+    } else if (en->type != type){
+        INVAL_ASSIGN_ERR(type_to_str(type), type_to_str(en->type));
+        error = true;
+    }
+}
+
 
 void DeclarativeStatementNode::seppuku(){ 
     if(a_size != nullptr)
@@ -995,7 +1008,7 @@ void JumpStatementNode::seppuku(){
 
 /* LoopStatementNode */
 LoopStatementNode::LoopStatementNode(ExpressionNode *init, ExpressionNode *cond, ExpressionNode *n, StatementListNode *stmts){
-    
+
     string init_code, cond_code, n_code;
 
 
@@ -1003,12 +1016,12 @@ LoopStatementNode::LoopStatementNode(ExpressionNode *init, ExpressionNode *cond,
     condition = cond;
     next = n;
     statements = stmts;
-    
+
     if(cond->type != tBOOL){
         cout << LOOP_CONDITION_ERR << endl;
         error = true;
     }
-    
+
     if(init != nullptr){
         init_code = init->code;
     } else {
@@ -1082,7 +1095,7 @@ void StatementListNode::push_statement(StatementNode *s) {
 
 void StatementListNode::seppuku(){ 
     for(std::vector<StatementNode *>::iterator it = stmt_list->begin();
-        it != stmt_list->end(); ++it)
+            it != stmt_list->end(); ++it)
         (*it)->seppuku();
 
     delete this;
