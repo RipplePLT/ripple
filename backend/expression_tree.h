@@ -21,6 +21,7 @@
 
 using namespace std;
 
+
 class ExpressionNode;
 class BinaryExpressionNode;
 class UnaryExpressionNode;
@@ -29,32 +30,36 @@ class LiteralNode;
 class VariableNode;
 class StreamReaderNode;
 
+
 union operand {
     BinaryExpressionNode *b_exp;
     UnaryExpressionNode *u_exp;
     ValueNode *v_node;
 };
 
+
 class StreamReaderNode {
 public:
-	link_val val;
-	vector<void*> *dependencies;
+    link_val val;
+    vector<void*> *dependencies;
 
-	StreamReaderNode (enum link_val_type t);
-	link_val evaluate();
+    StreamReaderNode (enum link_val_type t);
+    link_val evaluate();
 };
+
 
 class LiteralNode {
 public:
-	link_val val;
-	vector<void*> *dependencies;
+    link_val val;
+    vector<void*> *dependencies;
 
-	LiteralNode (int i);
-	LiteralNode (double f);
-	LiteralNode (bool b);
-	LiteralNode (const char *s);
-	link_val evaluate();
+    LiteralNode (int i);
+    LiteralNode (double f);
+    LiteralNode (bool b);	
+    LiteralNode (const char *s);
+    link_val evaluate();
 };
+
 
 /*
  * Used to represent regular variables (e.g. "int x") in a link
@@ -65,60 +70,65 @@ public:
  */
 class VariableNode {
 public:
-	link_val val;
-	void *var;
-	vector<void*> *dependencies;
+    link_val val;
+    void *var;
+    vector<void*> *dependencies;
 
-	VariableNode (int *var);
-	VariableNode (double *var);
-	VariableNode (bool *var);
-	VariableNode (string **var);
-	link_val evaluate();
+    VariableNode (int *var);
+    VariableNode (double *var);
+    VariableNode (bool *var);
+    VariableNode (string **var);
+    link_val evaluate();
 };
+
 
 /*
  * Represents a call to a function in a link expression.
  */
 class FunctionCallNode {
 public:
-	link_val val;
-	void *fn;
-	vector<void*> *dependencies;
+    link_val val;
+    void *fn;
+    vector<void*> *dependencies;
 
-	FunctionCallNode (void *);
-	link_val evaluate ();
+    FunctionCallNode (void *);
+    link_val evaluate ();
 };
+
 
 /*
  * Contains a LiteralNode or a VariableNode.
  */
 class ValueNode {
 public:
-	bool is_literal;
-	bool is_expression;
-	bool is_stream;
-	LiteralNode *lit_node;
-	VariableNode *var_node;
-	ExpressionNode *expr_node;
-	StreamReaderNode *sr_node;
-	vector<void*> *dependencies;
+    bool is_literal;
+    bool is_expression;
+    bool is_stream;
 
-	ValueNode (LiteralNode *l);
-	ValueNode (VariableNode *v);
-	ValueNode (ExpressionNode *e);
-	ValueNode (StreamReaderNode *s);
-	link_val evaluate();
+    LiteralNode *lit_node;
+    VariableNode *var_node;
+    ExpressionNode *expr_node;
+    StreamReaderNode *sr_node;
+    vector<void*> *dependencies;
+
+    ValueNode (LiteralNode *l);
+    ValueNode (VariableNode *v);
+    ValueNode (ExpressionNode *e);
+    ValueNode (StreamReaderNode *s);
+    link_val evaluate();
 };
+
 
 class UnaryExpressionNode {
 public:
     enum e_op op;
     union operand right_operand;
-	vector<void*> *dependencies;
+
+    vector<void*> *dependencies;
 
     UnaryExpressionNode(UnaryExpressionNode *u, string _op);
     UnaryExpressionNode(ValueNode *v);
-	link_val evaluate();
+    link_val evaluate();
 };
 
 
@@ -129,12 +139,12 @@ public:
     enum e_op op;
     bool left_is_binary;
     bool right_is_binary;
-	vector<void*> *dependencies;
+    vector<void*> *dependencies;
 
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br);
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
     BinaryExpressionNode(UnaryExpressionNode *ul);
-	link_val evaluate();
+    link_val evaluate();
 };
 
 
@@ -142,13 +152,13 @@ class ExpressionNode {
 public:
     BinaryExpressionNode *bin_exp;
     ValueNode *value;
-	vector<void*> *dependencies;
+    vector<void*> *dependencies;
 
-	ExpressionNode();
-	~ExpressionNode();
+    ExpressionNode();
+    ~ExpressionNode();
     ExpressionNode(BinaryExpressionNode *b);
-	link_val evaluate();
-	static vector<void*> *dep_union(vector<void*> *r1, vector<void*> *r2);
+    link_val evaluate();
+    static vector<void*> *dep_union(vector<void*> *r1, vector<void*> *r2);
 };
 
 #endif

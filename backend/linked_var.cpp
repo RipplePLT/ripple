@@ -29,9 +29,11 @@ linked_var::linked_var(void *var, ExpressionNode *exp) {
 	this->update_cpp_var();
 }
 
+
 link_val linked_var::get_value() {
     return this->value;
 }
+
 
 void linked_var::update_cpp_var() {
 	switch (this->value.type) {
@@ -50,6 +52,7 @@ void linked_var::update_cpp_var() {
 		break;
 	}
 }
+
 
 /*
  * Update the value of a linked variable, and all the linked
@@ -72,6 +75,7 @@ void linked_var::update() {
 				(*references[this->address])[i]->update();
 }
 
+
 /*
  * Set the present linked_var to the given value, then accordingly
  * update all linked_vars which depend on this one.
@@ -86,6 +90,7 @@ void linked_var::update(link_val new_value) {
 		(*references[this->address])[i]->update();
 }
 
+
 /*
  * This function takes a pointer to the C++ variable to be used in a
  * linked_var. (Each linked_var must have one.) It creates an
@@ -96,6 +101,7 @@ void linked_var::register_cpp_var (void *var) {
 	if (references[var] == NULL)
 		references[var] = new vector<linked_var*>();
 }
+
 
 /*
  * Call this function immediately after directly updating a nonlinked
@@ -109,12 +115,14 @@ void linked_var::update_nonlinked_var (void *var) {
 			(*references[var])[i]->update();
 }
 
+
 /*
  * Unregister all cpp vars. Used for testing.
  */
 void linked_var::reset_refs () {
 	references.clear();
 }
+
 
 void linked_var::call_aux (void *arg) {
 	switch(this->value.type) {
@@ -134,6 +142,7 @@ void linked_var::call_aux (void *arg) {
 		return;
 	}
 }
+
 
 void linked_var::assign_aux_fn (void *fn) {
 	this->has_aux = true;
