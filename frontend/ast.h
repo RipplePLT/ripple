@@ -70,7 +70,6 @@
 #define COND_STMT_ERR LINE_ERR "expression in if statement must be boolean"
 #define LOOP_CONDITION_ERR LINE_ERR "condition expression in loop must be of type boolean"
 
-#define ASSIGN_ERR "left operand of assignment expression must be a variable"
 #define ASSIGN_ERR LINE_ERR "left operand of assignment expression must be a variable"
 
 #define ERROR "error"

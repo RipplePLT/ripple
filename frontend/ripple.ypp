@@ -179,7 +179,7 @@ function : dtype ID tL_PAREN decl_args tR_PAREN statement_block { $$ = new Funct
                                                                 }
          ;
 
-dataset_declaration : DATASET ID tL_CURLY decl_args tR_CURLY  { $$ = new DatasetNode(*$2, $4); }
+dataset_declaration : DATASET ID tL_CURLY decl_args tR_CURLY  { $$ = new DatasetNode(*$2, $4); d("dataset declaration"); }
                     ;
 
 statement_block : tL_CURLY statement_list tR_CURLY { $$ = $2; $$->code = "{\n" + $2->code + "}\n"; d("statement_block"); }

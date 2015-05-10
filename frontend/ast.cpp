@@ -508,14 +508,16 @@ DatasetAccessNode::DatasetAccessNode(string c, string i) {
     Entry *member_entry = sym_table.get_dataset_member(entry->ds_name, i);
     if (!member_entry) {
         error = true;
-        cout << LINE_ERR "dataset " << c << " of type " << entry->ds_name << "does not contain a member named " << i << endl;
-    } else {
-        cout << "here" << endl;
+        cout << LINE_ERR "dataset " << c << " of type " << entry->ds_name << " does not contain a member named " << i << endl;
+        type = tDERIV;
+        sym = tVAR;
+    } else { 
         entry = member_entry;
         type = member_entry->type;
         sym = member_entry->symbol_type;
         array_length = member_entry->array_length;
     }
+    code += c + "." + i ;
 }
 
 void DatasetAccessNode::seppuku(){ 
@@ -968,12 +970,11 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
             code += ";\n";
             break;
         case tDSET:
-            if (!sym_table.instantiate_dataset(expression_node->value->code, ds_name, line_no)) {
+            if (sym_table.instantiate_dataset(expression_node->value->code, ds_name, line_no)) {
                 error = true;
                 cout << VARIABLE_REDECL_ERR << endl;
             }
-
-            code += "struct ds " + expression_node->value->code + ";\n";
+            code += "struct " + ds_name + " " + expression_node->value->code + ";\n";
             break;
     }
 }
