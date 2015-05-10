@@ -65,6 +65,7 @@
 
 #define UNLINKABLE_NO_VAR_ERR LINE_ERR "linked expression must have variables"
 #define UNLINKABLE_EXPRESSION_ERR LINE_ERR "expression provided cannot be linked"
+#define INVAL_FUNC_ARGS_ERR LINE_ERR "an auxiliary function may only have one argument of the same type as the linked variable"
 #define NOT_A_FUNC_ERR LINE_ERR "attempt to call a non function identifier"
 #define COND_STMT_ERR LINE_ERR "expression in if statement must be boolean"
 #define LOOP_CONDITION_ERR LINE_ERR "condition expression in loop must be of type boolean"
@@ -402,8 +403,10 @@ class LinkStatementNode: public Node {
     public:
         IDNode *id_node;
         ExpressionNode *expression_node;
+        string auxiliary = "";
 
         LinkStatementNode(IDNode *idn, ExpressionNode *expn);
+        LinkStatementNode(IDNode *idn, ExpressionNode *expn, string func);
         void sepukku();
 };
 
