@@ -2,18 +2,18 @@
 
 using namespace std;
 
-bool file_lib::contains_word(string line, string word) {
+bool ripple::contains_word(string line, string word) {
     return line.find(word) != string::npos ? true : false;
 }
 
-int file_lib::length(string line) {
+int ripple::length(string line) {
     return line.size();
 }
 
-int file_lib::locate_word(string line, string word) {
+int ripple::locate_word(string line, string word) {
     return line.find(word);
 }
 
-void file_lib::print_line(string line) {
+void ripple::print_line(string line) {
     cout << line << endl;
 }

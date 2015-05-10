@@ -53,7 +53,28 @@ SymbolTable::SymbolTable(){
 }
 
 void SymbolTable::insert_standard_functions() {
+    /* Print */
     add_function(RPL_STD_OUTPUT_FUNCTION, tVOID, 0, nullptr);
+    
+    /* Files */
+    add_function("contains_word", tBOOL, 0,  new list<e_type>({ tSTRING, tSTRING }));  
+    add_function("length", tINT, 0, new list<e_type>({ tSTRING }));
+    add_function("print_line", tVOID, 0, new list<e_type>({ tSTRING }));
+    add_function("locate_word", tINT, 0, new list<e_type>({ tSTRING, tSTRING }));
+
+    /* HTML */
+    add_function("contains_tag", tBOOL, 0, new list<e_type>({ tSTRING, tSTRING }));
+    add_function("get_num_tags", tINT, 0, new list<e_type>({ tSTRING, tSTRING }));
+    add_function("size", tINT, 0, new list<e_type>({ tSTRING }));
+    add_function("get_body", tSTRING, 0, new list<e_type>({ tSTRING }));
+    add_function("get_head", tSTRING, 0, new list<e_type>({ tSTRING }));
+    add_function("get_tag", tSTRING, 0, new list<e_type>({ tSTRING, tSTRING }));
+    
+
+    /* XML */
+    add_function("get_num_nodes", tINT, 0, new list<e_type>({ tSTRING, tSTRING }));
+    add_function("get_node", tINT, 0, new list<e_type>({ tSTRING, tSTRING }));
+    add_function("get_node_text", tINT, 0, new list<e_type>({ tSTRING, tSTRING }));
 }
 
 void SymbolTable::scope_in(int line_no) {

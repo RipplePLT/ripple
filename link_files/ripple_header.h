@@ -13,7 +13,7 @@
 #include "linked_var.h"
 #include "xml_lib.h"
 
-using namespace std;
+using namespace ripple;
 
 // Used for short-term manipulation of linked vars
 linked_var *universal_linked_var_ptr;

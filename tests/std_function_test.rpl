@@ -1,0 +1,4 @@
+void main() {
+    string text = "PLT is awesome and cool!";
+    print(contains_word(text, "PLT"));
+}
