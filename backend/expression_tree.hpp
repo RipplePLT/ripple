@@ -83,12 +83,15 @@ public:
 class ValueNode {
 public:
 	bool is_literal;
+	bool is_expression;
 	LiteralNode *lit_node;
 	VariableNode *var_node;
+	ExpressionNode *expr_node;
 	vector<void*> *dependencies;
 
 	ValueNode (LiteralNode *l);
 	ValueNode (VariableNode *v);
+	ValueNode (ExpressionNode *e);
 	link_val evaluate();
 };
 
