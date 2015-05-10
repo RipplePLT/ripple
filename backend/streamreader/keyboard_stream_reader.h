@@ -59,11 +59,11 @@ protected:
             getline(cin, line);
 
             if (this->filter_func_ptr){
-                to_update = filter_func_ptr(line);
-                linked_var::update_nonlinked_var(to_update);
+                this->to_update = filter_func_ptr(line);
+                linked_var::update_nonlinked_var(this->to_update);
             } else {
-                to_update = line;
-                linked_var::update_nonlinked_var(to_update); 
+                this->to_update = line;
+                linked_var::update_nonlinked_var(this->to_update); 
             }
         }
     }
