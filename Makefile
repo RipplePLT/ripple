@@ -11,8 +11,9 @@ CC=gcc-4.9
 CXX=clang++
 LEX=flex
 YACC=bison
-CXXFLAGS= -std=c++11 -w $(MODE)
-LDLIBS= -L./frontend/symbol_table/
+CXXFLAGS= -std=c++11 -w $(INCLUDES) $(MODE)
+LDLIBS= -L./frontend/symbol_table/ -L./backend/lib/
+INCLUDES= -I./link_files/
 YFLAGS= -Wnone 
 LFLAGS= 
 MISCFLAGS= 
@@ -20,10 +21,9 @@ OBJS=ast.o ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o \
      frontend/symbol_table/hashmap.o debug_tools.o
 BACKEND_OBJS=backend/linked_var.o backend/expression_tree.o backend/link_val.o
 
-rpl: ast.o ripple.tab.o lex.yy.o debug_tools.o libsym.a libbackend.a
-	$(CXX) -o rpl $(OBJS) $(LDLIBS) -lfl
+rpl: ast.o ripple.tab.o lex.yy.o debug_tools.o libsym.a libbackend.a libfile.a 
+	$(CXX) -o rpl $(OBJS) $(LDLIBS) -lfl -lfile -lxml -lhtml
 	rm -f *.o *.hpp *.cpp *.c *.cc
-	$(MAKE) -C backend all
 
 ast.o: ast.cpp ast.h
 	$(CXX) -c frontend/ast.cpp $(CXXFLAGS)
@@ -49,7 +49,10 @@ libsym.a:
 libbackend.a: backend/linked_var.o backend/expression_tree.o backend/link_val.o
 	ar rcs libbackend.a $(BACKEND_OBJS)
 	ranlib libbackend.a
-	
+
+libfile.a:
+	$(MAKE) -C backend all
+
 .PHONY: clean
 clean:
 	rm -f *.o *.hpp *.cpp *.c *.cc *.a rpl output

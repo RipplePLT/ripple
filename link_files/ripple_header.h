@@ -13,7 +13,17 @@
 #include "linked_var.h"
 #include "xml_lib.h"
 
-using namespace std;
+using namespace ripple;
+
+namespace ripple {
+	string input(string p){
+		string x;
+		cout << p;
+		cout.flush();
+		cin >> x;
+		return x;
+	}
+}
 
 // Used for short-term manipulation of linked vars
 linked_var *universal_linked_var_ptr;

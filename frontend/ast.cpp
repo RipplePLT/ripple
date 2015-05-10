@@ -252,11 +252,10 @@ FunctionCallNode::FunctionCallNode(string f, ArgsNode *a) {
     args_list = a;
     sym = tFUNC;
 
-    typecheck();
-
     if(IS_STD_RPL_FUNCTION(func_id)){
         code = generate_std_rpl_function();
     } else {
+        typecheck();
         code = f + "( " + a->code + " )";
     }   
 }
@@ -267,11 +266,10 @@ FunctionCallNode::FunctionCallNode(string f) {
     args_list = new ArgsNode();
     sym = tFUNC;
 
-    typecheck();
-
     if(IS_STD_RPL_FUNCTION(func_id)){
         code = generate_std_rpl_function();
     } else {
+        typecheck();
         code = f + "()";
     }   
 }
@@ -312,18 +310,27 @@ string FunctionCallNode::generate_std_rpl_function(){
     string code;
     if (func_name.compare(RPL_STD_OUTPUT_FUNCTION) == 0){
         code = "std::cout << ";
-        for(std::vector<ExpressionNode *>::iterator it = args_list->args_list->begin(); it != args_list->args_list->end(); ++it) {
+        for(std::vector<ExpressionNode *>::iterator it = args_list->args_list->begin();
+            it != args_list->args_list->end(); ++it) {
             code += (*it)->code + " << \" \" << ";
         }
         code += "std::endl";
     } else if (func_name.compare(RPL_STD_INPUT_FUNCTION) == 0){
-
+        if(args_list->args_list->size() != 1 || args_list->args_list->at(0)->type != tSTRING){
+            error = true;
+            cout << RPL_STD_INPUT_FUNCTION_ERR << endl;
+        } else {
+            type = tSTRING;
+            code = "ripple::input(" + args_list->args_list->at(0)->code + ")";
+        }
     } else if (func_name.compare(RPL_STD_OPEN_FUNCTION) == 0){
 
     } else if (func_name.compare(RPL_STD_CLOSE_FUNCTION) == 0){
 
     } else if (func_name.compare(RPL_STD_READ_FUNCTION) == 0){
 
+    } else {
+        code = func_id + "(" + args_list->code + ")";
     }
     return code;
 }
@@ -543,7 +550,8 @@ DatasetAccessNode::DatasetAccessNode(string c, string i) {
     Entry *member_entry = sym_table.get_dataset_member(entry->ds_name, i);
     if (!member_entry) {
         error = true;
-        cout << LINE_ERR "dataset " << c << " of type " << entry->ds_name << " does not contain a member named " << i << endl;
+        cout << LINE_ERR "dataset " << c << " of type " << entry->ds_name << 
+                            " does not contain a member named " << i << endl;
         type = tDERIV;
         sym = tVAR;
     } else {
@@ -575,7 +583,8 @@ UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op) {
             break;
         case SIZE:
             if(sym == tARR){
-                code = "sizeof( " + u->code + " ) / sizeof( " + type_to_str(u->type) + " )";
+                code = "sizeof( " + u->code + " ) / sizeof( " + 
+                    type_to_str(u->type) + " )";
             } else {
                 code = "sizeof( " + u->code + " )";
             }
@@ -972,6 +981,11 @@ void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *valu
         error = true;
         cout << ASSIGN_ERR << endl;
     }
+    Entry *ent = sym_table.get(value->code);
+    if(ent && ent->is_final){
+        error = true;
+        cout << FINAL_REDECL_ERR << endl;
+    }
 
     type = expression->type;
 }
@@ -1162,12 +1176,19 @@ void ConditionalStatementNode::seppuku(){
 JumpStatementNode::JumpStatementNode(string _type, ExpressionNode *expression_node){
     type = str_to_jump(_type);
     en = expression_node;
+    if (expression_node->type != func_type) {
+        error = true;
+        cout << RETURN_TYPE_ERROR << endl;
+    }
     code = _type + " " + expression_node->code + ";\n";
 }
 
 
 JumpStatementNode::JumpStatementNode(string _type){
     type = str_to_jump(_type);
+    if (type == tRETURN && func_type != tVOID) {
+        cout << RETURN_TYPE_ERROR << endl;
+    }
     en = nullptr;
     code = _type + ";\n";
 }
@@ -1181,7 +1202,8 @@ void JumpStatementNode::seppuku(){
 
 
 /* LoopStatementNode */
-LoopStatementNode::LoopStatementNode(ExpressionNode *init, ExpressionNode *cond, ExpressionNode *n, StatementListNode *stmts){
+LoopStatementNode::LoopStatementNode(ExpressionNode *init, ExpressionNode *cond, 
+                                    ExpressionNode *n, StatementListNode *stmts){
     string init_code, cond_code, n_code;
 
     initializer = init;
@@ -1243,7 +1265,8 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn){
     }
 
     code = "linked_var::register_cpp_var(&" + idn->code + ");\n";
-    for(vector<string *>::iterator it = expression_node->linked_vars.begin(); it != expression_node->linked_vars.end(); it++) {
+    for(vector<string *>::iterator it = expression_node->linked_vars.begin();
+            it != expression_node->linked_vars.end(); it++) {
         code += "linked_var::register_cpp_var(&" + **it + ");\n";
         Entry *linked_entry = sym_table.get(**it);
         if (linked_entry) {
@@ -1273,7 +1296,8 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn, string f
     }
 
     code = "linked_var::register_cpp_var(&" + idn->code + ");\n";
-    for(vector<string *>::iterator it = expression_node->linked_vars.begin(); it != expression_node->linked_vars.end(); it++) {
+    for(vector<string *>::iterator it = expression_node->linked_vars.begin();
+                it != expression_node->linked_vars.end(); it++) {
         code += "linked_var::register_cpp_var(&" + **it + ");\n";
         Entry *linked_entry = sym_table.get(**it);
         if (linked_entry) {
@@ -1320,6 +1344,7 @@ StatementNode::StatementNode(ConditionalStatementNode *c) {
 StatementNode::StatementNode(JumpStatementNode *j) {
     stmts.jump = j;
     code = j->code;
+    returns_value = j->returns_value;
 }
 
 
@@ -1356,6 +1381,9 @@ StatementListNode::StatementListNode(SymbolTableNode *s) {
 
 void StatementListNode::push_statement(StatementNode *s) {
     stmt_list->push_back(s);
+    if (s->returns_value) {
+        returns_value = true;
+    }
     code = code + s->code;
 }
 
@@ -1370,7 +1398,8 @@ void StatementListNode::seppuku(){
 
 
 /* FunctionNode */
-FunctionNode::FunctionNode(TypeNode *_type, string id_node, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n){
+FunctionNode::FunctionNode(TypeNode *_type, string id_node, 
+            DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n){
     if (_type->sym != tVAR) {
         error = true;
         cout << FUNCTION_BASIC_TYPE_ERR << endl;
@@ -1379,6 +1408,11 @@ FunctionNode::FunctionNode(TypeNode *_type, string id_node, DeclArgsNode *decl_a
     decl_args = decl_args_list;
     stmt_list = stmt_list_n;
     type = _type->type;
+
+    if (type != tVOID && !stmt_list->returns_value) {
+        error = true;
+        cout << RETURN_TYPE_ERROR << endl;
+    }
 
     if (id.compare("main") == 0) {
         code = "int " + id + "(" + decl_args_list->code + ")" + stmt_list_n->code; 
@@ -1407,6 +1441,20 @@ ProgramSectionNode::ProgramSectionNode(DatasetNode *d) {
     code = d->code;
 }
 
+ProgramSectionNode::ProgramSectionNode(DeclarativeStatementNode *d){
+    contents.decl = d;
+    if(d->en->value){
+        Entry *ent = sym_table.get(d->en->value->code);
+        if(ent)
+            ent->is_final = true;
+    }
+
+    if(d->en->bin_exp == nullptr){
+        error = true;
+        cout << FINAL_MUST_INITIALIZE << endl;
+    }
+    code = "const " + d->code;
+}
 
 void ProgramSectionNode::seppuku(){ 
     contents.function->seppuku();

@@ -22,6 +22,8 @@
 #define RPL_STD_CLOSE_FUNCTION "close"
 #define RPL_STD_READ_FUNCTION "read"
 
+#define RPL_STD_INPUT_FUNCTION_ERR LINE_ERR "input() takes a single string input"
+
 #define VARIABE_NODE_NAME "VARIABLE_NODE_NAME"
 #define VALUE_NODE_NAME "VALUE_NODE_NAME"
 #define UNARY_EXPRESSION_NODE_NAME "UNARY_EXPRESSION_NAME"
@@ -50,6 +52,7 @@
 #define LOOP_CONDITION_ERR LINE_ERR "loop condition error"
 #define UNKNOWN_TYPE_ERR LINE_ERR "unknown type error"
 #define FUNCTION_BASIC_TYPE_ERR LINE_ERR "functions can only return primitive types"
+#define RETURN_TYPE_ERROR LINE_ERR "return type does not match function type"
 
 #define INVALID_DECL_ERR LINE_ERR "invalid declaration"
 #define VARIABLE_REDECL_ERR LINE_ERR "variable redeclaration"
@@ -67,9 +70,12 @@
 #define ARR_SMALL_SIZE_ERR LINE_ERR "size of array declared is too small"
 #define ARR_ASSIGN_ERR LINE_ERR "can't assign array to non-array variable"
 
+#define FINAL_MUST_INITIALIZE LINE_ERR "must initialize a final variable"
+#define FINAL_REDECL_ERR LINE_ERR "cannot change a final variable"
 #define UNLINKABLE_NO_VAR_ERR LINE_ERR "linked expression must have variables"
 #define UNLINKABLE_EXPRESSION_ERR LINE_ERR "expression provided cannot be linked"
-#define INVAL_FUNC_ARGS_ERR LINE_ERR "an auxiliary function may only have one argument of the same type as the linked variable"
+#define INVAL_FUNC_ARGS_ERR LINE_ERR \
+                            "an auxiliary function may only have one argument of the same type as the linked variable"
 #define NOT_A_FUNC_ERR LINE_ERR "attempt to call a non function identifier"
 #define COND_STMT_ERR LINE_ERR "expression in if statement must be boolean"
 #define LOOP_CONDITION_ERR LINE_ERR "condition expression in loop must be of type boolean"
@@ -84,9 +90,11 @@ inline string VARIABLE_NODE(string arg){ return "new VariableNode( &" + arg + " 
 inline string LITERAL_NODE(string arg){ return "new LiteralNode( " + arg + " )"; }
 inline string VALUE_NODE(string arg){ return  "new ValueNode( " + arg + " )"; }
 inline string UNARY_EXPRESSION(string arg){ return  "new UnaryExpressionNode( " + arg + " )"; }
-inline string UNARY_EXPRESSION(string arg, string op){ return  "new UnaryExpressionNode( " + arg + ", \"" + op + "\" )"; }
+inline string UNARY_EXPRESSION(string arg, string op)
+            { return  "new UnaryExpressionNode( " + arg + ", \"" + op + "\" )"; }
 inline string BINARY_EXPRESSION(string arg1){ return  "new BinaryExpressionNode( " + arg1 + " )"; }
-inline string BINARY_EXPRESSION(string arg1, string op, string arg2){ return  "new BinaryExpressionNode( " + arg1 + ", \"" + op + "\", " + arg2 + " )"; }
+inline string BINARY_EXPRESSION(string arg1, string op, string arg2)
+            { return  "new BinaryExpressionNode( " + arg1 + ", \"" + op + "\", " + arg2 + " )"; }
 inline string EXPRESSION_NODE(string arg){ return  "new ExpressionNode( " + arg + " )"; }
 
 using namespace std;
@@ -125,12 +133,27 @@ string type_to_str(e_type type);
 void write_to_file(string filename, string code);
 
 extern SymbolTable sym_table;
+extern e_type func_type;
 
-#define IS_STD_RPL_FUNCTION(f_name) (f_name).compare(RPL_STD_INPUT_FUNCTION) == 0    || \
-                                                                              (f_name).compare(RPL_STD_OUTPUT_FUNCTION) == 0   || \
-(f_name).compare(RPL_STD_OPEN_FUNCTION) == 0     || \
-(f_name).compare(RPL_STD_READ_FUNCTION) == 0     || \
-(f_name).compare(RPL_STD_CLOSE_FUNCTION) == 0
+#define IS_STD_RPL_FUNCTION(f_name) (f_name).compare(RPL_STD_INPUT_FUNCTION) == 0   || \
+                                    (f_name).compare(RPL_STD_OUTPUT_FUNCTION) == 0  || \
+                                    (f_name).compare(RPL_STD_OPEN_FUNCTION) == 0    || \
+                                    (f_name).compare(RPL_STD_READ_FUNCTION) == 0    || \
+                                    (f_name).compare(RPL_STD_CLOSE_FUNCTION) == 0   || \
+                                    (f_name).compare("contains_word") == 0          || \
+                                    (f_name).compare("length") == 0                 || \
+                                    (f_name).compare("print_line") == 0             || \
+                                    (f_name).compare("locate_word") == 0            || \
+                                    (f_name).compare("contains_tag") == 0           || \
+                                    (f_name).compare("contains_word") == 0          || \
+                                    (f_name).compare("get_num_tags") == 0           || \
+                                    (f_name).compare("size") == 0                   || \
+                                    (f_name).compare("get_body") == 0               || \
+                                    (f_name).compare("get_head") == 0               || \
+                                    (f_name).compare("get_tag") == 0                || \
+                                    (f_name).compare("get_num_nodes") == 0          || \
+                                    (f_name).compare("get_node") == 0               || \
+                                    (f_name).compare("get_node_text") == 0
 
 #define INVAL_ASSIGN_ERR(val_type, expression_type) { cout << LINE_ERR \
     "invalid assignment between operands of type " <<  \
@@ -167,6 +190,7 @@ union statements {
 union program_section {
     FunctionNode *function;
     DatasetNode *dataset;
+    DeclarativeStatementNode *decl;
 };
 
 
@@ -187,6 +211,7 @@ class Node {
         bool is_number();
         bool is_bool();
         bool is_string();
+        bool returns_value = false;
 };
 
 /* The names of Node classes are better understood
@@ -476,6 +501,7 @@ class ProgramSectionNode: public Node {
     public:
     ProgramSectionNode(FunctionNode *f);
     ProgramSectionNode(DatasetNode *d);
+    ProgramSectionNode(DeclarativeStatementNode *dsn);
     void seppuku();
 };
 

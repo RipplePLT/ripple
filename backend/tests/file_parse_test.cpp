@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
     string test_line = "Here is a sample string";
 
     // Test contains_word method
-    cout << "file_lib::contains_word() Test" << endl;
+    cout << "ripple::contains_word() Test" << endl;
     cout << "======================================================" << endl;
 
     test_contains_word(test_line);
@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
     cout << endl;
 
     // Test length method
-    cout << "file_lib::length() Test" << endl;
+    cout << "ripple::length() Test" << endl;
     cout << "======================================================" << endl;
 
     test_length(test_line);
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     // Test locate_word method
     // assert(check == local);
     // assert(check == local);
-    cout << "file_lib::locate_word() Test" << endl;
+    cout << "ripple::locate_word() Test" << endl;
     cout << "======================================================" << endl;
 
     test_locate_word(test_line);
@@ -42,23 +42,23 @@ int main(int argc, char **argv) {
 }
 
 void test_contains_word(string line) {
-    bool contains = file_lib::contains_word(line, "sample");
+    bool contains = ripple::contains_word(line, "sample");
     assert(contains == true);
 }
 
 void test_does_not_contain_word(string line) {
-    bool contains = file_lib::contains_word(line, "dog");
+    bool contains = ripple::contains_word(line, "dog");
     assert(contains == false);
 }
 
 void test_length(string line) {
     int check = line.size();
-    int len = file_lib::length(line);
+    int len = ripple::length(line);
     assert(len == check);
 }
 
 void test_locate_word(string line) {
-    int local = file_lib::locate_word(line, "sample");
+    int local = ripple::locate_word(line, "sample");
     int check = line.find("sample");
     assert(local != string::npos);
     assert(check == local);

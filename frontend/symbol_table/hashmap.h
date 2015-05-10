@@ -27,6 +27,7 @@ public:
     list<e_type> *args;
     int array_length;
     bool has_dependents = false;
+    bool is_final = false;
 
     Entry(string n, e_type v, int line, e_symbol_type s);
     Entry(string n, int line);

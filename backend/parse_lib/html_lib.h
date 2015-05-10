@@ -7,27 +7,20 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 static void empty_stack();
 
-namespace html_lib {
+namespace ripple {
 
-    bool contains_tag(string line, string tag);
-    bool contains_word(string line, string word);
+    bool contains_tag(std::string line, std::string tag);
 
-    int get_num_tags(string line, string tag);
-    int locate_word(string line, string word);
-    int size(string line);
+    int get_num_tags(std::string line, std::string tag);
+    int size(std::string line);
 
-    string get_body(string line);
-    string get_head(string line);
-    string get_tag(string line, string tag);
+    std::string get_body(std::string line);
+    std::string get_head(std::string line);
+    std::string get_tag(std::string line, std::string tag);
 
-    vector<string> get_collection(string line, string tag);
-
-    void print_line(string line);
-
+    std::string trim(std::string line);
 }
 
 #endif

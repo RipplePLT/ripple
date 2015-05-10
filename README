@@ -1,4 +1,5 @@
-Ripple README
+     Ripple
+~*~make waves~*~
 
 Authors:
 Alex Roth
@@ -7,10 +8,13 @@ Artur Renault
 Spencer Brown
 Tom Segarra
 
-The makefile is no longer responsible for compiling.
-Mkae now produces "parser" which is the same as the old "rpl" file
+To compile the Ripple compiler:
+1) Make sure you have flex, bison, and clang++ installed.
+2) Run "make"
 
 To compile a Ripple program:
 ./rpl <input_filename> [output_filename]
 
-Someone should make the script not suck
+If you don't provide the output_filename, the output file will be simply called output.
+
+Enjoy!

@@ -7,6 +7,7 @@
 
 #define CXX "clang++"
 #define CPP_STANDARD "c++11"
+#define LIBS "-L./backend/lib/ -lbackend -lfile -lhtml -lxml"
 
 void install_id();
 
@@ -57,17 +58,26 @@ dataset     {	db(yytext); saw_id = false; return DATASET;	}
 return      {	db(yytext); saw_id = false; return RETURN;	}
 continue    {   db(yytext); saw_id = false; return CONTINUE; }
 break 		{   db(yytext); saw_id = false; return BREAK; }
-int         {	db(yytext); saw_id = false; last_type = tINT; yylval.string = new std::string("INT"); return TYPE;	}
-float       {	db(yytext); saw_id = false; last_type = tFLOAT; yylval.string = new std::string("FLOAT"); return TYPE;	}
-void        {	db(yytext); saw_id = false; last_type = tVOID; yylval.string = new std::string("VOID"); return TYPE;	}
-string      {	db(yytext); saw_id = false; last_type = tSTRING; yylval.string = new std::string("STRING"); return TYPE;	}
-bool        {	db(yytext); saw_id = false; last_type = tBOOL; yylval.string = new std::string("BOOL"); return TYPE;	}
+int         {	db(yytext); saw_id = false; last_type = tINT; 
+                yylval.string = new std::string("INT"); return TYPE;	}
+float       {	db(yytext); saw_id = false; last_type = tFLOAT; 
+                yylval.string = new std::string("FLOAT"); return TYPE;	}
+void        {	db(yytext); saw_id = false; last_type = tVOID; 
+                yylval.string = new std::string("VOID"); return TYPE;	}
+string      {	db(yytext); saw_id = false; last_type = tSTRING; 
+                yylval.string = new std::string("STRING"); return TYPE;  }
+bool        {	db(yytext); saw_id = false; last_type = tBOOL; 
+                yylval.string = new std::string("BOOL"); return TYPE;	}
 true        {	db(yytext); saw_id = false; yylval.boolean = true; return TRUE;}
 false       {	db(yytext); saw_id = false; yylval.boolean = false; return FALSE;}
 not         {   db(yytext); saw_id = false; return NOT; }
 and         {   db(yytext); saw_id = false; return AND; }
 or          {   db(yytext); saw_id = false; return OR; }
 then        {   db(yytext); saw_id = false; return THEN; }
+final       {   db(yytext); saw_id = false; return FINAL; }
+web_stream  {   db(yytext); saw_id = false; yylval.string = new string(WEB_STREAM_NAME); return STREAM_READER; }
+keyboard_stream  {   db(yytext); saw_id = false; yylval.string = new string(KEYBOARD_STREAM_NAME); return STREAM_READER; }
+file_stream  {   db(yytext); saw_id = false; yylval.string = new string(FILE_STREAM_NAME); return STREAM_READER; }
 
 {id}        {	db(yytext); 
 				yylval.string = new std::string(yytext);
@@ -103,7 +113,12 @@ then        {   db(yytext); saw_id = false; return THEN; }
 ")"			{	db(yytext); saw_id = false; return tR_PAREN; }
 "["			{	db(yytext); saw_id = false; return tL_BRACKET; }
 "]"			{	db(yytext); saw_id = false; return tR_BRACKET; }
-"{"			{	db(yytext); if(saw_id) sym_table.new_dataset(line_no, last_id); else sym_table.scope_in(line_no); saw_id = false; return tL_CURLY; }
+"{"			{	db(yytext); if(saw_id) 
+                                sym_table.new_dataset(line_no, last_id);
+                            else 
+                                sym_table.scope_in(line_no); 
+                            saw_id = false;
+                            return tL_CURLY; }
 "}"			{	db(yytext); sym_table.scope_out(line_no); return tR_CURLY; }
 ";"         {   db(yytext); saw_id = false; return tSEMI;  }
 "\."        {  	db(yytext); saw_id = false; return tACCESS; }
@@ -145,7 +160,8 @@ int main(int argc, char **argv) {
     }
 
     write_to_file(filename_cpp, cpp_code);
-    string compile_cpp = string(CXX) + " " + filename_cpp + " -L. -o " + filename + " --std=" + CPP_STANDARD + " -lbackend";
+    string compile_cpp = string(CXX) + " " + filename_cpp + " -L. -o " + filename 
+                        + " --std=" + CPP_STANDARD + " " + LIBS;
     system(compile_cpp.c_str());
 #ifndef DEBUG
     remove(filename_cpp.c_str());
