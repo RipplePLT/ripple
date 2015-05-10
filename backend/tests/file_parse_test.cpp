@@ -1,5 +1,10 @@
 #include "file_parse_test.hpp"
 
+/**
+ * Simple test suite for file parse library.
+ *
+ * Author: Alexander Roth
+ **/
 int main(int argc, char **argv) {
     // Set up
     string test_line = "Here is a sample string";

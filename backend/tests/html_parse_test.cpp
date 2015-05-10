@@ -1,5 +1,10 @@
 #include "html_parse_test.hpp"
 
+/**
+ * Small test suite to check the functionality of the html parse library.
+ *
+ * Author: Alexander Roth
+ **/
 int main() {
 
     // Setup

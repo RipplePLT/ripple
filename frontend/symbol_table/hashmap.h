@@ -7,7 +7,7 @@
 #include "../../structures/union.h"
 #define HASH_PRIME 31
 
-#define TABLE_SIZE 97
+#define TABLE_SIZE 29
 
 using namespace std;
 
@@ -17,15 +17,19 @@ class Entry {
     string name;
     enum e_type type;
     int line_no;
+    string ds_name;
     union literal val;
     enum e_symbol_type symbol_type;
     list<e_type> *args;
+    int array_length;
+    bool has_dependents = false;
 
     Entry(string n, e_type v, int line, e_symbol_type s);
     Entry(string n, int line);
 
     void classify (e_symbol_type s);
     void add_args (list<e_type> *l);
+    void add_length (int i);
 
     bool operator==(string n);
     

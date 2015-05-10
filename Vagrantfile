@@ -67,14 +67,8 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL 
      sudo add-apt-repository ppa:ubuntu-toolchain-r/test
      sudo apt-get update -y
+     sudo apt-get install -y clang
      sudo apt-get install -y git 
-     sudo apt-get install -y default-jre # for java
-     sudo apt-get install -y default-jdk # for javac
-     sudo apt-get install -y junit
-     sudo apt-get install -y g++-4.9
-     alias g++="g++-4.9"
-     sudo apt-get install -y gcc-4.9
-     alias gcc="gcc-4.9"
      sudo apt-get install -y cmake
      sudo apt-get install -y valgrind
      sudo apt-get install -y flex

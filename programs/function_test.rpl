@@ -1,7 +1,0 @@
-void hello(string x, string y) {
-    print(x, y);
-}
-
-void main() {
-    hello("yes", "no");
-}

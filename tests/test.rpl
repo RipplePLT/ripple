@@ -1,21 +1,259 @@
-int main(){
-    int x = 4;
-    float y = 5;
-    string z = "hello";
-    string t = "world";
-    bool w = true;
+void test_integer_decl() {
+    # Integer Declarations
+    print("[INT DECLARATION TEST]");
+    int var_1;
+    var_1 = 4;
+    int var_2 = 7;
+    print("\tValue for var_1:\t", var_1);
+    print("\tValue for var_2:\t", var_2);
+    print("\tInteger Declarations Passed!\n");
+}
 
-    int    test_1 = x + w;
-    float  test_2 = x + y;
-    string test_3 = x + z;
-    stringx - z;
-    z + t;
+
+void test_float_decl() {
+    # Float Declarations
+    print("[FLOAT DECLARATION TEST]");
+    float var_3;
+    var_3 = 5.0;
+    float var_4 = 10.0;
+    print("\tValue for var_3:\t", var_3);
+    print("\tValue for var_4:\t", var_4);
+    print("\tFloat Declarations Passed!\n");
+}
+
+
+void test_string_decl() {
+    # String Declarations
+    print("[STRING DECLARATION TEST]");
+    string var_5;
+    var_5 = "hello";
+    string var_6 = "world";
+    print("\tValue for var_5:\t", var_5);
+    print("\tValue for var_6:\t", var_6);
+    print("\tString Declarations Passed!\n");
+}
+
+
+void test_bool_decl() {
+    # Bool Declarations
+    print("[BOOL DECLARATION TEST]");
+    bool var_7;
+    var_7 = true;
+    bool var_8 = false;
+    print("\tValue for var_7:\t", var_7);
+    print("\tBool Declarations Passed!\n");
+}
+
+
+void test_int_arithmetic() {
+   # Integer Arithmetic
+   print("[INTEGER ARITHMETIC TEST]");
+
+   int result_1 = 1 + 2;
+   print("\tLiteral Addition:\t", result_1);
+
+   int result_2 = 4 - 2;
+   print("\tLiteral Substraction:\t", result_2);
+
+   int result_3 = 4 * 2;
+   print("\tLiteral Multiplication:\t", result_3);
+
+   int result_4 = 4 / 2;
+   print("\tLiteral Division:\t", result_4);
+
+   int result_5 = 2 ^ 4;
+   print("\tLiteral Exponent:\t", result_5);
+
+   int result_6 = 10 % 5;
+   print("\tLiteral Modulo:     \t", result_6);
+   print("\tLiteral Tests Passed!\n");
+
+   result_1 = result_2 + 4;  # Should be 6
+   print("\tSingle Var Addition:\t", result_1);
+
+   result_2 = result_1 - 10; # Should be -4
+   print("\tSingle Var Subtraction:\t", result_2);
+
+   result_3 = result_2 * 2;  # Should be -8
+   print("\tSingle Var Multi:\t", result_3);
+
+   result_4 = result_3 / 5;  # Should be -1
+   print("\tSingle Var Division:\t", result_4);
+
+   result_5 = result_4 ^ 2;  # Should be 1
+   print("\tSingle Var Exponent:\t", result_5);
+
+   result_6 = result_1 % 4; # Should be 2
+   print("\tSingle Var Modulo:\t", result_6);
+   print("\tSingle Var Tests Passed!\n");
+
+   result_1 = result_2 + result_3; # Should be -12
+   print("\tTwo Var Addition:\t", result_1);
+
+   result_2 = result_1 - result_3; # Should be -4
+   print("\tTwo Var Subtraction:\t", result_2);
+
+   result_3 = result_1 * result_2; # Should be 48
+   print("\tTwo Var Multiplication:\t", result_3);
+
+   result_4 = result_3 / result_1; # Should be -4
+   print("\tTwo Var Division:\t", result_4);
+
+   result_5 = result_4 ^ -result_2; # Should be 256
+   print("\tTWo Var Exponentiation:\t", result_5);
+
+   result_6 = result_5 % result_2; # Should be 0
+   print("\tTwo Var Modulo:\t\t", result_6);
+   print("\tInteger Arithmetic Passed!\n");
+}
+
+
+void test_float_arithmetic() {
+   # Integer Arithmetic
+   print("[FLOAT ARITHMETIC TEST]");
+
+   float result_1 = 1 + 2;
+   print("\tLiteral Addition:\t", result_1);
+
+   float result_2 = 4 - 2;
+   print("\tLiteral Substraction:\t", result_2);
+
+   float result_3 = 4 * 2;
+   print("\tLiteral Multiplication:\t", result_3);
+
+   float result_4 = 4 / 2;
+   print("\tLiteral Division:\t", result_4);
+
+   float result_6 = 10 // 2;
+   print("\tLiteral Float Division:\t", result_6);
+
+   float result_5 = 2 ^ 4;
+   print("\tLiteral Exponent:\t", result_5);
+   print("\tLiteral Tests Passed!\n");
+
+   result_1 = result_2 + 4;  # Should be 6
+   print("\tSingle Var Addition:\t", result_1);
+
+   result_2 = result_1 - 10; # Should be -4
+   print("\tSingle Var Subtraction:\t", result_2);
+
+   result_3 = result_2 * 2;  # Should be -8
+   print("\tSingle Var Multi:\t", result_3);
+
+   result_4 = result_3 / 5;  # Should be -1
+   print("\tSingle Var Division:\t", result_4);
+
+   result_6 = result_3 // -2;
+   print("\tSingle Var Float Div:\t", result_6);
+
+   result_5 = result_4 ^ 2;  # Should be 1
+   print("\tSingle Var Exponent:\t", result_5);
+   print("\tSingle Var Tests Passed!\n");
+
+   result_1 = result_2 + result_3; # Should be -12
+   print("\tDouble Var Addition:\t", result_1);
+
+   result_2 = result_1 - result_3; # Should be -4
+   print("\tDouble Var Subtraction:\t", result_2);
+
+   result_3 = result_1 * result_2; # Should be 48
+   print("\tTwo Var Multiplication:\t", result_3);
+
+   result_4 = result_3 / result_1; # Should be -4
+   print("\tTwo Var Division:\t", result_4);
+
+   result_6 = result_1 // result_2;
+   print("\tTwo Var Float Division:\t", result_6);
+
+   result_5 = result_4 ^ -result_2; # Should be 256
+   print("\tTwo Var Exponent:\t", result_5);
+   print("\tFloat Arithmetic Passed!\n");
+}
+
+
+void test_string_concatenation() {
+   # String Concatenation
+   print("[STRING CONCATENATION TEST]");
+   string test_1 = "hello";
+   string test_2 = "world";
+
+   string result_1 = test_1 + test_2;
+   print("\tValue of Result:\t", result_1);
+
+   result_1 = test_1 + " " + test_2;
+   print("\tValue of Result:\t", result_1);
+
+   result_1 = test_1 + " " + test_2 + " and Professor!";
+   print("\tValue of Result:\t", result_1);
+
+   print("\tString Concatenation Test Passed!\n");
+}
+
+void test_negation() {
+    print("[NEGATION TEST]");
+    int test_1 = -4;
+    print("\tLiteral Integer Negation:\t", test_1);
+
+    float test_3 = -5;
+    print("\tLiteral Float Negation:\t\t", test_3);
+    print("\tLitearl Negation Tests Passed!\n");
+
+
+    int test_2 = - test_1;
+    print("\tVariable Integer Negation:\t", test_2);
+
+    float test_4 = - test_3;
+    print("\tVariable Float Negation:\t", test_4);
+    print("\tVariable Negation Tests Passed!\n");
+}
+
+void test_link() {
+    print("[LINK TEST]");
+
+}
+
+void test_arrays() {
+    print("[ARRAY TEST]");
+    int[5] test_array;
+    test_array[0] = 1;
+    test_array[1] = 2;
+    test_array[2] = 3;
+    test_array[3] = 4;
+    test_array[4] = 5;
+    print("Int Array Initialization Test Passed!");
     
-    float a = 1;
-    int b = 1.2;
-    string q = 1;
-    bool c = 1.5;
+}
 
-    string test = z + " " + t;
+void test_dataset() {
+    print("[DATASET TEST]");
+
+}
+
+void test_functions() {
+    print("[FUNCTION TEST]");
+}
+
+int main(){
+
+    #~
+    Test 
+    ~#
+
+    print("[MAIN TEST]\tStart\n");
+
+    test_integer_decl();
+    test_float_decl();
+    test_string_decl();
+    test_bool_decl();
+    test_int_arithmetic();
+    test_float_arithmetic();
+    test_string_concatenation();
+    test_negation();
+    test_link();
+    test_array();
+    test_dataset();
+    test_functions();
+
+    print("[MAIN TESTS]\tStop");
 
 }
