@@ -29,7 +29,7 @@ sync_test.o: sync_test.cpp sync_test.h
 	$(CXX) -c sync_test.cpp $(CCFLAGS)
 
 tree_test: tree_test.o $(PARENT_OBJS)
-	$(CXX) tree_test.o $(PARENT_OBJS) -o tree_test $(CCFLAGS)
+	$(CXX) tree_test.o $(PARENT_OBJS) -o tree_test $(CCFLAGS) -lcurl
 
 tree_test.o: tree_test.cpp ../streamreader/keyboard_stream_reader.h
 	$(CXX) -c tree_test.cpp $(CCFLAGS)

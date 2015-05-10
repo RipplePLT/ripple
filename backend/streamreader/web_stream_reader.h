@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "stream_reader.h"
-#include "../curl/curl.h"
+#include <curl/curl.h>
 
 #define ERROR_BUF_SIZE 1024
 
