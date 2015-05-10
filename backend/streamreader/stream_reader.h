@@ -19,6 +19,10 @@ struct FuncPtr {
     typedef T (*f_ptr)(string argument);
 };
 
+/*
+ * Base class for StreamReaders that declares member variables that are
+ * used in the derived classes
+ */
 template <typename T>
 class StreamReader {
 public:
