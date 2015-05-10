@@ -1,0 +1,12 @@
+#~
+Converts temperatures from fahrenheit to celsius as they are typed into the keyboard.
+~#
+
+void (string x) {
+    if
+}
+
+void main() {
+    string deg_f;
+    link(deg_f <- str_to_int <- keyboard_stream()) then what_to_wear;
+}
