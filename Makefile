@@ -54,7 +54,7 @@ libbackend.a: backend/linked_var.o backend/expression_tree.o backend/link_val.o
 clean:
 	rm -f *.o *.hpp *.cpp *.c *.cc *.a rpl output
 	$(MAKE) -C frontend/symbol_table clean
-	$(MAKE) -C backend clean-all
+	$(MAKE) -C backend mrproper
 
 .PHONY: all
 all: clean default

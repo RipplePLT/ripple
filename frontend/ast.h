@@ -26,6 +26,7 @@
 #define BINARY_EXPRESSION_NODE_NAME "BINARY_EXPRESSION_NAME"
 #define EXPRESSION_NODE_NAME "EXPRESSION_NODE_NAME"
 
+#define UNARY_STRING_CAST_ERR LINE_ERR "cannot cast string to bool, int or float"
 #define INVAL_UNARY_NOT_ERR LINE_ERR "unary not error"
 #define INVAL_UNARY_MINUS_ERR LINE_ERR "unary minus error"
 #define INVAL_BINARY_PLUS_ERR LINE_ERR "binary plus error"
@@ -55,6 +56,7 @@
 #define ARR_ELEMENT_TYPE_ERR LINE_ERR "all elements in an array initialization must have the same type"
 #define ARR_UNARY_MINUS_ERR LINE_ERR "cannot perform negation on arrays"
 #define ARR_UNARY_NOT_ERR LINE_ERR "cannot perform boolean not on arrays"
+#define ARR_UNARY_CAST_ERR LINE_ERR "cannot cast array to any type"
 #define ARR_BINEXP_ERR LINE_ERR "cannot perform binary operations on arrays"
 #define ARR_VAR_ASSIGN_ERR LINE_ERR "cannot assign array to non-array variable"
 #define ARR_INT_SIZE_ERR LINE_ERR "array size must be int"
@@ -70,12 +72,11 @@
 #define COND_STMT_ERR LINE_ERR "expression in if statement must be boolean"
 #define LOOP_CONDITION_ERR LINE_ERR "condition expression in loop must be of type boolean"
 
-#define ASSIGN_ERR "left operand of assignment expression must be a variable"
 #define ASSIGN_ERR LINE_ERR "left operand of assignment expression must be a variable"
 
 #define ERROR "error"
-#define MAIN_FUNC_ERROR "all ripple programs need a main function"
-#define COMPILE_ERR "Unable to complete compilation due to errors in code. Get good"
+#define MAIN_FUNC_ERROR "All ripple programs need a main function."
+#define COMPILE_ERR "Unable to complete compilation due to errors in code. Get good."
 
 inline string VARIABLE_NODE(string arg){ return "new VariableNode( &" + arg + " )"; }
 inline string LITERAL_NODE(string arg){ return "new LiteralNode( " + arg + " )"; }
@@ -87,8 +88,8 @@ inline string BINARY_EXPRESSION(string arg1, string op, string arg2){ return  "n
 inline string EXPRESSION_NODE(string arg){ return  "new ExpressionNode( " + arg + " )"; }
 
 using namespace std;
-extern int line_no;
 
+/* Abstract Syntax Tree node classes */
 class Node;
 class ArrayInitNode;
 class ValueNode;
@@ -113,6 +114,7 @@ class StatementListNode;
 class DatasetNode;
 class FunctionNode;
 
+/* Helper functions that translate between enums and strings */
 enum e_op str_to_op(string op_string);
 enum e_type str_to_type(string type);
 enum e_jump str_to_jump(string type);
@@ -142,7 +144,6 @@ union operand {
     ValueNode *v_node;
 };
 
-
 union value {
     IDNode *id_val;
     LiteralNode *lit_val;
@@ -152,8 +153,6 @@ union value {
     ExpressionNode *expression_val;
     ArrayInitNode *a_init;
 };
-
-
 
 union statements {
     DeclarativeStatementNode *decl;
@@ -168,9 +167,13 @@ union program_section {
     DatasetNode *dataset;
 };
 
+
+/* This is the generic Node class.
+ * All other Nodes inherit from it, so it contains
+ * members that will be used by multiple classes. */
 class Node {
     public:
-        string code;
+         string code;
         string ds_name = ""; 
         int array_length;
         string link_code;
@@ -182,10 +185,10 @@ class Node {
         bool is_number();
         bool is_bool();
         bool is_string();
-        bool is_byte();
 };
 
-
+/* The names of Node classes are better understood
+ * when compared to the grammar */
 class ValueNode: public Node {
     public:
         union value val;
@@ -224,6 +227,7 @@ class FunctionCallNode: public Node {
     void seppuku();
 };
 
+
 class ArrayInitNode: public Node{
     public:
         int array_length;
@@ -234,6 +238,7 @@ class ArrayInitNode: public Node{
         void add_arg(ExpressionNode *arg);
         void seppuku();
 };
+
 
 class ArgsNode: public Node {
     public:
@@ -246,12 +251,14 @@ class ArgsNode: public Node {
         void seppuku();
 };
 
+
 class TypeNode: public Node {
     public:
         ValueNode *value;
         TypeNode(e_type t, string name);
         TypeNode(e_type t, ValueNode *val);
 };
+
 
 class DeclArgsNode: public Node {
     std::vector<IDNode *> decl_args_list;
@@ -277,7 +284,6 @@ class LiteralNode: public Node {
         LiteralNode(double d);
         LiteralNode(string *s);
         LiteralNode(bool b);
-        LiteralNode(char b);
         void seppuku();
 };
 
@@ -308,6 +314,7 @@ class UnaryExpressionNode: public Node {
         union operand right_operand;
 
         UnaryExpressionNode(UnaryExpressionNode *u, string _op);
+        UnaryExpressionNode(UnaryExpressionNode *u, TypeNode *t);
         UnaryExpressionNode(ValueNode *v);
         void seppuku();
 
@@ -353,6 +360,7 @@ class ExpressionNode: public Node {
         void typecheck(BinaryExpressionNode *expression, ValueNode *value);
 
 };
+
 
 class DeclarativeStatementNode: public Node {
     public:
@@ -400,6 +408,7 @@ class LoopStatementNode: public Node {
         void seppuku();
 };
 
+
 class LinkStatementNode: public Node {
     public:
         IDNode *id_node;
@@ -410,6 +419,7 @@ class LinkStatementNode: public Node {
         LinkStatementNode(IDNode *idn, ExpressionNode *expn, string func);
         void sepukku();
 };
+
 
 class StatementNode: public Node {
     public:
@@ -435,6 +445,7 @@ class StatementListNode: public Node {
         void seppuku();
 };
 
+
 class DatasetNode: public Node {
     public:
         string name;
@@ -443,6 +454,7 @@ class DatasetNode: public Node {
         DatasetNode(string s, DeclArgsNode *d);
         void seppuku();
 };
+
 
 class FunctionNode: public Node {
     public:
@@ -455,6 +467,7 @@ class FunctionNode: public Node {
         void seppuku();
 };
 
+
 class ProgramSectionNode: public Node {
     union program_section contents;
 
@@ -463,6 +476,7 @@ class ProgramSectionNode: public Node {
     ProgramSectionNode(DatasetNode *d);
     void seppuku();
 };
+
 
 class ProgramNode: public Node {
     public:

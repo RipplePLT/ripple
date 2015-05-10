@@ -1,0 +1,14 @@
+dataset foo {
+    int x,
+    int y
+}
+
+void main() {
+    dataset foo banana;
+    banana.x = 0;
+    int x2 = banana.x;
+    
+    int[] x3 = { 1, 2, 3, 4 }; 
+    
+    print(banana.x, banana.y, x3[2]);
+}

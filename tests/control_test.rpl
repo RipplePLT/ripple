@@ -1,4 +1,4 @@
-int main(){
+void main(){
 	
 	print("Should print true:");
 	if(true){

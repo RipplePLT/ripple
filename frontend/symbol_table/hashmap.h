@@ -14,26 +14,26 @@ using namespace std;
 class Entry {
     public:
 
-    string name;
-    enum e_type type;
-    int line_no;
-    string ds_name;
-    union literal val;
-    enum e_symbol_type symbol_type;
-    list<e_type> *args;
-    int array_length;
-    bool has_dependents = false;
+        string name;
+        enum e_type type;
+        int line_no;
+        string ds_name;
+        union literal val;
+        enum e_symbol_type symbol_type;
+        list<e_type> *args;
+        int array_length;
+        bool has_dependents = false;
 
-    Entry(string n, e_type v, int line, e_symbol_type s);
-    Entry(string n, int line);
+        Entry(string n, e_type v, int line, e_symbol_type s);
+        Entry(string n, int line);
 
-    void classify (e_symbol_type s);
-    void add_args (list<e_type> *l);
-    void add_length (int i);
+        void classify (e_symbol_type s);
+        void add_args (list<e_type> *l);
+        void add_length (int i);
 
-    bool operator==(string n);
-    
-    ~Entry();
+        bool operator==(string n);
+
+        ~Entry();
 };
 
 typedef array<list<Entry *>*, TABLE_SIZE> table;
@@ -42,13 +42,13 @@ class HashMap{
     table t;
 
     public:
-    HashMap();
-    ~HashMap();
-    
-    bool put(string word, e_type v, int line_no, e_symbol_type s);
+        HashMap();
+        ~HashMap();
 
-    bool contains(string word);
-    Entry *get(string word);
+        bool put(string word, e_type v, int line_no, e_symbol_type s);
+
+        bool contains(string word);
+        Entry *get(string word);
 };
 
 #endif

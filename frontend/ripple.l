@@ -12,14 +12,15 @@ void install_id();
 
 extern "C" int yywrap();
 
-int line_no = 1;
-bool error = false;
-string filename_cpp;
-string filename;
+int line_no = 1;        // line number counter
+bool error = false;     // program will not compile if this is true
+
+string filename_cpp;    // intermediate code file
+string filename;        // executable file
+
 string cpp_code;
 
 
-bool saw_type;
 bool saw_id;
 string last_id;
 e_type last_type;
@@ -60,7 +61,6 @@ int         {	db(yytext); saw_id = false; last_type = tINT; yylval.string = new 
 float       {	db(yytext); saw_id = false; last_type = tFLOAT; yylval.string = new std::string("FLOAT"); return TYPE;	}
 void        {	db(yytext); saw_id = false; last_type = tVOID; yylval.string = new std::string("VOID"); return TYPE;	}
 string      {	db(yytext); saw_id = false; last_type = tSTRING; yylval.string = new std::string("STRING"); return TYPE;	}
-byte        {	db(yytext); saw_id = false; last_type = tBYTE; yylval.string = new std::string("BYTE"); return TYPE;	}
 bool        {	db(yytext); saw_id = false; last_type = tBOOL; yylval.string = new std::string("BOOL"); return TYPE;	}
 true        {	db(yytext); saw_id = false; yylval.boolean = true; return TRUE;}
 false       {	db(yytext); saw_id = false; yylval.boolean = false; return FALSE;}
@@ -113,6 +113,7 @@ then        {   db(yytext); saw_id = false; return THEN; }
 
 int main(int argc, char **argv) {
 
+    /* Handle improper input */
 	if(argc < 2){
 		cout << "usage ./rpl <input_file> [output_file]" << endl;
 		exit(1);
@@ -128,21 +129,24 @@ int main(int argc, char **argv) {
     yyin = fopen(argv[1], "r");
     yyout = fopen(filename_cpp.c_str(), "w");
     yyparse();
-    
+
+    /* Detect if a main function has been specified.
+     * Program will not compile if it hasn't. */
     Entry *main_func = sym_table.get("main");
     if (!main_func || main_func->symbol_type != tFUNC) {
         cout << MAIN_FUNC_ERROR << endl;
         error = true;
     }
 
+
     if(error){
     	cout << COMPILE_ERR << endl;
     	return 1;
     }
+
     write_to_file(filename_cpp, cpp_code);
     string compile_cpp = string(CXX) + " " + filename_cpp + " -L. -o " + filename + " --std=" + CPP_STANDARD + " -lbackend";
     system(compile_cpp.c_str());
-   
 #ifndef DEBUG
     remove(filename_cpp.c_str());
 #endif

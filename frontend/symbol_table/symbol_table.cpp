@@ -104,19 +104,20 @@ bool SymbolTable::add_array(string name, e_type type, int line_no, int length) {
     return error;
 }
 
-bool SymbolTable::instantiate_dataset(string name, string ds_name, int line_no) {
+bool SymbolTable::instantiate_dataset(string instance_name, string ds_name, int line_no) {
     bool error = false;
-    if (contains_in_scope(name)) {
+    if (contains_in_scope(instance_name) && get(instance_name)->type != tNOTYPE) {
         error = true;
     } else {
-        put(name, tNOTYPE, line_no, tDSET);
-        add_dsname(name, ds_name);
+        add_dsname(instance_name, ds_name);
     }
     return error;
 }
 
 void SymbolTable::add_dsname(string name, string ds_name) {
-    get(name)->ds_name = ds_name;
+    Entry *entry = get(name);
+    entry->ds_name = ds_name;
+    entry->type = tDERIV;
 }
 
 void SymbolTable::new_dataset(int line_no, string name) {
@@ -159,7 +160,6 @@ void SymbolTable::add_length(string word, int l) {
     get(word)->add_length(l);
 }
 
-
 bool SymbolTable::contains(string word) {
     SymbolTableNode *n = current;
     while(n) {
@@ -174,8 +174,7 @@ bool SymbolTable::contains_in_scope(string word){
     return current->hashmap->contains(word);
 }
 
-Entry *SymbolTable::get(string word) {
-    
+Entry *SymbolTable::get(string word) {    
     SymbolTableNode *n = current;
     while(n) {
         if (n->hashmap->contains(word))
@@ -186,5 +185,4 @@ Entry *SymbolTable::get(string word) {
 }
 
 SymbolTable::~SymbolTable() {
-    //delete start;
 }

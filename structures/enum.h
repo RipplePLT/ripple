@@ -8,7 +8,8 @@ enum e_type {
     tFLOAT,
     tSTRING,
     tBYTE,
-    tVOID
+    tVOID,
+    tDERIV,
 };
 
 enum e_symbol_type {
@@ -47,6 +48,7 @@ enum e_op {
     GE,
     LE,
     SIZE,
+    CAST,
     NONE
 };
 
