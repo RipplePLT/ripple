@@ -23,6 +23,7 @@ linked_var::linked_var(void *var, ExpressionNode *exp) {
 	this->address = var;
 	this->expression = *exp;
 	this->value = exp->evaluate();
+	this->has_aux = false;
 
 	// Put references into dependency tree
 	if (exp->dependencies != NULL)
@@ -65,6 +66,9 @@ void linked_var::update() {
 	int i;
 	this->value = this->expression.evaluate();
 	this->update_cpp_var();
+	
+	if (this->has_aux)
+		this->call_aux(&this->value.value);
 
 	// Recursively update children
 	if (references[this->address] != NULL)
@@ -115,4 +119,44 @@ void linked_var::update_nonlinked_var (void *var) {
  */
 void linked_var::reset_refs () {
 	references.clear();
+}
+
+void linked_var::call_aux (void *arg) {
+	switch(this->value.type) {
+	case (ltINT) :
+		this->aux.int_fn(*(int *)arg);
+		break;
+	case (ltDOUBLE) :
+		this->aux.double_fn(*(double *)arg);
+		break;
+	case (ltBOOL) :
+		this->aux.bool_fn(*(bool *)arg);
+		break;
+	case (ltSTR) :
+		this->aux.str_fn(*(string **)arg);
+		break;
+	default :
+		return;
+	}
+}
+
+void linked_var::assign_aux_fn (void *fn) {
+	this->has_aux = true;
+
+	switch(this->value.type) {
+	case (ltINT) :
+		this->aux.int_fn = (void (*)(int))fn;
+		break;
+	case (ltDOUBLE) :
+		this->aux.double_fn = (void (*)(double))fn;
+		break;
+	case (ltBOOL) :
+		this->aux.bool_fn = (void (*)(bool))fn;
+		break;
+	case (ltSTR) :
+		this->aux.str_fn = (void (*)(string *))fn;
+		break;
+	default :
+		return;
+	}
 }

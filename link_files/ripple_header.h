@@ -12,4 +12,7 @@
 
 using namespace std;
 
+// Used for short-term manipulation of linked vars
+linked_var *universal_linked_var_ptr;
+
 #endif

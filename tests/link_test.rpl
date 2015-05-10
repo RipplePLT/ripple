@@ -1,12 +1,12 @@
+void print_int(int a) {
+    print(a);
+}
+
 int main(){
 	int x;
 	int y = 3;
 	int z = 4;
-	link(x <- (y + z) * 2/2 + 3 * 7);
-	print(x);
-
+    link(x <- (y + z) + 2) then print_int;
 	y = 5;
-	print(x);
 	z = 5;
-	print(x);
 }

@@ -1028,7 +1028,7 @@ TypeNode::TypeNode(e_type t, ValueNode *val) {
         error = true;
         cout << UNKNOWN_TYPE_ERR << endl;
     }
-    
+
     if(val){
         sym = tARR;
         array_length = val->array_length;
@@ -1159,7 +1159,53 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn){
             cout << UNDECLARED_ERROR << endl;
         }
     }
-    code += "linked_var *asd = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");\n";
+    code += "universal_linked_var_ptr = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");\n";
+}
+
+LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn, string func){
+    id_node = idn;
+    expression_node = expn;
+    auxiliary = func;
+
+    if(!expression_node->is_linkable){
+        error = true;
+        cout << UNLINKABLE_EXPRESSION_ERR << endl;
+    }
+
+    if(expression_node->linked_vars.size() == 0){
+        error = true;
+        cout << UNLINKABLE_NO_VAR_ERR << endl;
+    }
+
+    code = "linked_var::register_cpp_var(&" + idn->code + ");\n";
+    for(vector<string *>::iterator it = expression_node->linked_vars.begin(); it != expression_node->linked_vars.end(); it++) {
+        code += "linked_var::register_cpp_var(&" + **it + ");\n";
+        Entry *linked_entry = sym_table.get(**it);
+        if (linked_entry) {
+            linked_entry->has_dependents = true;
+        } else {
+            error = true;
+            cout << UNDECLARED_ERROR << endl;
+        }
+    }
+
+    code += "universal_linked_var_ptr = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");\n";
+    Entry *entry = sym_table.get(auxiliary);
+    if (!entry) {
+        cout << UNDECLARED_ERROR << endl;
+    } else {
+        if (entry->symbol_type != tFUNC || entry->type != tVOID) {
+            error = true;
+            cout << INVAL_FUNC_CALL_ERR << endl;
+        } else  {
+            if (entry->args->size() != 1 || entry->args->front() != id_node->type) {
+                error = true;
+                cout << INVAL_FUNC_ARGS_ERR << endl;
+            } else {
+                code += "universal_linked_var_ptr->assign_aux_fn((void *)" + auxiliary + ");";
+            }
+        }
+    }
 }
 
 /* StatementNode */
