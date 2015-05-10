@@ -1,12 +1,20 @@
 #~
 Converts temperatures from fahrenheit to celsius as they are typed into the keyboard.
 ~#
-
-void (string x) {
-    if
+ 
+void what_to_wear(int x) {
+    if (x < 30) {
+        print("Bundle up, it's cold outside!");
+    } else { if (x < 70) {
+         print("Maybe put on a sweater?");
+    } else {
+         print("Put on shorts and flip flops!");
+    }
+    }
 }
 
 void main() {
-    string deg_f;
+    int deg_f;
     link(deg_f <- str_to_int <- keyboard_stream()) then what_to_wear;
+    stop;
 }

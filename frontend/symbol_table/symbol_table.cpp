@@ -76,8 +76,8 @@ void SymbolTable::insert_standard_functions() {
     add_function("get_node_text", tINT, 0, new list<e_type>({ tSTRING, tSTRING }));
 
     /* conversions */
-    add_function("str_to_int", tINT, 0, new list<e_type>({ tSTRING });
-    add_function("str_to_float", tFLOAT, 0, new list<e_type>({ tSTRING });
+    add_function("str_to_int", tINT, 0, new list<e_type>({ tSTRING }));
+    add_function("str_to_float", tFLOAT, 0, new list<e_type>({ tSTRING }));
 }
 
 
