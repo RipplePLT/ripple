@@ -1369,7 +1369,17 @@ StreamReaderNode::StreamReaderNode(string n, ArgsNode *args){
             cout << INVALID_KEYBOARD_SR_ERR << cout;
         }
     } else if (name.compare("WebStreamReader") == 0){
-
+        if(arg_list->args_list->size() != 3){
+            error = true;
+            cout << INVALID_WEB_SR_ERR << endl;
+        } else {
+            if(arg_list->args_list->at(0)->type != tSTRING &&
+                arg_list->args_list->at(1)->type != tINT && 
+                arg_list->args_list->at(2)->type != tINT){
+                error = true;
+                cout << INVALID_WEB_SR_TYPES_ERR << endl;
+            }
+        }
     }
 }
 
