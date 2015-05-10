@@ -1,7 +1,4 @@
-#include <cmath>
-#include <iostream>
 #include "hashmap.h"
-#include "../../structures/enum.h"
 
 using namespace std;
 
@@ -13,6 +10,7 @@ bool list_contains(list<Entry *> l, string word) {
     }
     return false;
 }
+
 
 int hashCode(const string word) {
 
@@ -28,6 +26,7 @@ int hashCode(const string word) {
     return (int) std::abs((float) h);
 }
 
+
 int isPrime(int num){
 
     if(num < 4)
@@ -41,6 +40,7 @@ int isPrime(int num){
     return 1;
 }
 
+
 /* HashMap */
 HashMap::HashMap() {
     for (int i = 0; i < TABLE_SIZE; i++) {
@@ -48,16 +48,19 @@ HashMap::HashMap() {
     }
 }
 
+
 HashMap::~HashMap() {
     for(int i = 0; i < TABLE_SIZE; i++) {
         delete t[i];
     }
 }
 
+
 bool HashMap::contains(string word) {
     int pos = hashCode(word) % TABLE_SIZE;
     return list_contains(*t[pos], word);
 }
+
 
 bool HashMap::put(string word, e_type v, int line_no, e_symbol_type s = tNOSTYPE){
     int pos = hashCode(word) % TABLE_SIZE;
@@ -69,6 +72,7 @@ bool HashMap::put(string word, e_type v, int line_no, e_symbol_type s = tNOSTYPE
     t[pos]->push_back(new_entry);
     return true;
 }
+
 
 Entry *HashMap::get(string word) {
     int pos = hashCode(word) % TABLE_SIZE;
@@ -82,12 +86,14 @@ Entry *HashMap::get(string word) {
     return nullptr;
 }
 
+
 Entry::Entry(string n, e_type v, int line, e_symbol_type s = tNOSTYPE) {
     name = n;
     type = v;
     line_no = line;
     symbol_type = s;
 }
+
 
 Entry::Entry(string n, int line) {
     name = n;
@@ -96,20 +102,25 @@ Entry::Entry(string n, int line) {
     symbol_type = tNOSTYPE;
 }
 
+
 void Entry::classify(e_symbol_type s) {
     symbol_type = s;
 }
+
 
 void Entry::add_args(list<e_type> *a) {
     args = a;
 }
 
+
 void Entry::add_length(int l) {
     array_length = l;
 }
 
+
 bool Entry::operator==(string n) {
     return name.compare(n) == 0;
 }
+
 
 Entry::~Entry() {}
