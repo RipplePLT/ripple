@@ -47,6 +47,7 @@ enum e_op {
     GE,
     LE,
     SIZE,
+    CAST,
     NONE
 };
 

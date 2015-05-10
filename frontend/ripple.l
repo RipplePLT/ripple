@@ -129,7 +129,6 @@ int main(int argc, char **argv) {
     yyin = fopen(argv[1], "r");
     yyout = fopen(filename_cpp.c_str(), "w");
     yyparse();
-    
 
     /* Detect if a main function has been specified.
      * Program will not compile if it hasn't. */
@@ -139,14 +138,15 @@ int main(int argc, char **argv) {
         error = true;
     }
 
+
     if(error){
     	cout << COMPILE_ERR << endl;
     	return 1;
     }
+
     write_to_file(filename_cpp, cpp_code);
     string compile_cpp = string(CXX) + " " + filename_cpp + " -L. -o " + filename + " --std=" + CPP_STANDARD + " -lbackend";
     system(compile_cpp.c_str());
-   
 #ifndef DEBUG
     remove(filename_cpp.c_str());
 #endif

@@ -272,7 +272,7 @@ exp_expression : unary_expression                        { $$ = new BinaryExpres
 unary_expression : value                       { $$ = new UnaryExpressionNode($1); d("unary_expression");};	
                  | tMINUS unary_expression     { $$ = new UnaryExpressionNode($2, "-");  d("unary_expression -"); }
                  | tSIZE unary_expression      { $$ = new UnaryExpressionNode($2, "@");  d("unary_expression @"); }
-                 | tL_PAREN dtype tR_PAREN unary_expression { /*TODO FIX */}
+                 | tL_PAREN dtype tR_PAREN unary_expression { $$ = new UnaryExpressionNode($4, $2); d("unary cast"); }
                  | NOT unary_expression        { $$ = new UnaryExpressionNode($2, "not");  d("unary_expression not"); }
                  ;
 
