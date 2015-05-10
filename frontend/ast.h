@@ -58,6 +58,12 @@
 #define VARIABLE_REDECL_ERR LINE_ERR "variable redeclaration"
 #define UNDECLARED_ERROR LINE_ERR "undeclared identifier"
 
+#define INVALID_FILE_SR_TYPES_ERR LINE_ERR "invlaid types for file_stream"
+#define INVALID_KEYBOARD_SR_ERR LINE_ERR "incorrect number of arguments for keyboard_stream error"
+#define INVALID_FILE_SR_ERR LINE_ERR "incorrect number of arguments for file_stream"
+#define INVALID_WEB_SR_ERR LINE_ERR "incorrect number of arguments for web_stream"
+#define INVALID_WEB_SR_TYPES_ERR LINE_ERR "invalid types for web_stream"
+
 #define ARR_ELEMENT_TYPE_ERR LINE_ERR "all elements in an array initialization must have the same type"
 #define ARR_UNARY_MINUS_ERR LINE_ERR "cannot perform negation on arrays"
 #define ARR_UNARY_NOT_ERR LINE_ERR "cannot perform boolean not on arrays"
@@ -115,6 +121,7 @@ class ExpressionNode;
 class ValueNode;
 class ArgsNode;
 class DeclArgsNode;
+class StreamReaderNode;
 class ConditionalStatementNode;
 class DeclarativeStatementNode;
 class JumpStatementNode;
@@ -435,15 +442,30 @@ class LoopStatementNode: public Node {
         void seppuku();
 };
 
+class StreamReaderNode: public Node {
+public:
+    string name;
+    ArgsNode *arg_list;
+
+    StreamReaderNode(string n, ArgsNode *args_list);
+    string generate_code(e_type type);
+};
+
 
 class LinkStatementNode: public Node {
     public:
-        IDNode *id_node;
+        IDNode *id_node, *filter;
         ExpressionNode *expression_node;
+        StreamReaderNode *stream_reader_node;
         string auxiliary = "";
 
         LinkStatementNode(IDNode *idn, ExpressionNode *expn);
         LinkStatementNode(IDNode *idn, ExpressionNode *expn, string func);
+        LinkStatementNode(IDNode *idn, StreamReaderNode *srn);
+        LinkStatementNode(IDNode *idn, StreamReaderNode *srn, string func);
+        LinkStatementNode(IDNode *idn, IDNode *filt, StreamReaderNode *srn);
+        LinkStatementNode(IDNode *idn, IDNode *filt, StreamReaderNode *srn, string func);
+
         void sepukku();
 };
 

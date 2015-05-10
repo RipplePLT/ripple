@@ -5,6 +5,9 @@
 #include "../expression_tree.h"
 #include "../link_val.h"
 #include "../linked_var.h"
+#include "../streamreader/keyboard_stream_reader.h"
+#include "../streamreader/file_stream_reader.h"
+#include "../streamreader/web_stream_reader.h"
 
 /* Spaghetti */
 
@@ -24,16 +27,184 @@ public:
 	static void test_nested_expressions();
 	static void test_string_concatenation();
 	static void test_string_int_concatenation();
-	static void test_streamreader_expressions();
+	static void test_aux_fn_expressions();
+	static void test_streamreader_int_expressions();
+	static void test_streamreader_string_expressions();
+	static void test_filestream_reader();
+	static void test_webstream_reader();
 	static void run_all_unit_tests();
 	static void run_all_integration_tests();
 };
 
 void test_aux_fn (int n) {
-	assert(n == 102);
+	cerr << "[AUX_FN] " << n << endl;
 }
 
-void TreeTest::test_streamreader_expressions() {
+void test_aux_str_fn (string n) {
+	cerr << "[AUX_FN] " << n << endl;
+}
+
+int rpl_str_to_int (string msg) {
+	return atoi(msg.c_str());
+}
+
+string default_rpl_str_str (string msg) {
+	return msg;
+}
+
+void TreeTest::test_filestream_reader() {
+	string *prefix = new string("Ripple is ");
+	string *suffix = new string();
+	string *sentence = new string();
+
+	linked_var::register_cpp_var(prefix);
+	linked_var::register_cpp_var(suffix);
+	linked_var::register_cpp_var(sentence);
+
+	// link (sentence <- prefix + suffix)
+	//		test_aux_str_fn(sentence);
+	linked_var *sentence_var = new linked_var(sentence, new ExpressionNode(
+		new BinaryExpressionNode(
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode((string **)prefix)))), "+",
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode((string **)suffix)))))));
+	sentence_var->assign_aux_fn((void *)&test_aux_str_fn);
+
+	// link (suffix <- str_to_str <- KSR());
+	string *stream = new string();
+	linked_var::register_cpp_var(stream);
+	FuncPtr<string>::f_ptr f = &default_rpl_str_str;
+	FileStreamReader<string> *sr = new FileStreamReader<string>(suffix, f, "buzzwords.txt", 5, ",");
+	linked_var *suffix_var = new linked_var(suffix, new ExpressionNode (
+		new BinaryExpressionNode(
+		new UnaryExpressionNode(
+		new ValueNode(
+		new VariableNode((string **)stream))))));
+
+	sr->start_thread();
+	while (1) {}
+}
+
+void TreeTest::test_webstream_reader() {
+	string *prefix = new string("Ripple is ");
+	string *suffix = new string();
+	string *sentence = new string();
+
+	linked_var::register_cpp_var(prefix);
+	linked_var::register_cpp_var(suffix);
+	linked_var::register_cpp_var(sentence);
+
+	// link (sentence <- prefix + suffix)
+	//		test_aux_str_fn(sentence);
+	linked_var *sentence_var = new linked_var(sentence, new ExpressionNode(
+		new BinaryExpressionNode(
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode((string **)prefix)))), "+",
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode((string **)suffix)))))));
+	sentence_var->assign_aux_fn((void *)&test_aux_str_fn);
+
+	// link (suffix <- str_to_str <- KSR());
+	string *stream = new string();
+	linked_var::register_cpp_var(stream);
+	FuncPtr<string>::f_ptr f = &default_rpl_str_str;
+	WebStreamReader<string> *sr = new WebStreamReader<string>(suffix, f, "www.reddit.com", 80, 5);
+	linked_var *suffix_var = new linked_var(suffix, new ExpressionNode (
+		new BinaryExpressionNode(
+		new UnaryExpressionNode(
+		new ValueNode(
+		new VariableNode((string **)stream))))));
+
+	sr->start_thread();
+	while (1) {}
+}
+
+void TreeTest::test_streamreader_int_expressions() {
+	cerr << "y <- x + 2" << endl;
+	cerr << "Enter x." << endl;
+
+	int y, x = 2;
+	linked_var::register_cpp_var(&x);
+	linked_var::register_cpp_var(&y);
+
+	// link (y <- x + 2)
+	//     text_aux_fn(y);
+	linked_var *y_var = new linked_var(&y, new ExpressionNode (
+		new BinaryExpressionNode(
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode(&x)))), "+",
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new LiteralNode(2)))))));
+	y_var->assign_aux_fn((void *)&test_aux_fn);
+
+	// link (x <- str_to_int <- KSR());
+	int stream;
+	linked_var::register_cpp_var(&stream);
+	FuncPtr<int>::f_ptr f = &rpl_str_to_int; 
+	KeyboardStreamReader<int> *sr = new KeyboardStreamReader<int>(&stream, f);
+
+	linked_var *sr_var = new linked_var(&x, new ExpressionNode (
+		new BinaryExpressionNode(
+		new UnaryExpressionNode(
+		new ValueNode(
+		new VariableNode(&stream))))));
+
+	sr->start_thread();
+	while (1) {}
+}
+
+void TreeTest::test_streamreader_string_expressions() {
+	string *prefix = new string("Ripple is ");
+	string *suffix = new string();
+	string *sentence = new string();
+
+	linked_var::register_cpp_var(prefix);
+	linked_var::register_cpp_var(suffix);
+	linked_var::register_cpp_var(sentence);
+
+	// link (sentence <- prefix + suffix)
+	//		test_aux_str_fn(sentence);
+	linked_var *sentence_var = new linked_var(sentence, new ExpressionNode(
+		new BinaryExpressionNode(
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode((string **)prefix)))), "+",
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode((string **)suffix)))))));
+	sentence_var->assign_aux_fn((void *)&test_aux_str_fn);
+
+	// link (suffix <- str_to_str <- KSR());
+	string *stream = new string();
+	linked_var::register_cpp_var(stream);
+	FuncPtr<string>::f_ptr f = &default_rpl_str_str;  // @TODO !!! default
+	KeyboardStreamReader<string> *sr = new KeyboardStreamReader<string>(suffix, f);
+	linked_var *suffix_var = new linked_var(suffix, new ExpressionNode (
+		new BinaryExpressionNode(
+		new UnaryExpressionNode(
+		new ValueNode(
+		new VariableNode((string **)stream))))));
+
+	sr->start_thread();
+	while (1) {}
+}
+
+void TreeTest::test_aux_fn_expressions() {
 	int y, x = 2;
 	linked_var::register_cpp_var(&x);
 	linked_var::register_cpp_var(&y);
@@ -120,7 +291,7 @@ void TreeTest::test_string_int_concatenation() {
 		new BinaryExpressionNode(suffix_unode);
 	BinaryExpressionNode *num_bnode = 
 		new BinaryExpressionNode(num_unode);
-	
+
 	ExpressionNode *num_enode =
 		new ExpressionNode(num_bnode);
 	linked_var *num_var = new linked_var (&num, num_enode);
@@ -130,16 +301,18 @@ void TreeTest::test_string_int_concatenation() {
 	BinaryExpressionNode *high_link =
 		new BinaryExpressionNode(low_link, "+", suffix_bnode);
 	
-	string *despair;
+	string *despair = new string();
 	linked_var::register_cpp_var(&despair);
 	ExpressionNode *despair_enode =
 		new ExpressionNode(high_link);
 	linked_var *despair_var =
-		new linked_var (&despair, despair_enode);
+		new linked_var (despair, despair_enode);
 
 	for (num = 4; num >= 0; num--) {
 		linked_var::update_nonlinked_var(&num);
 		cerr << despair_var->get_value().value.strval->c_str() << endl;
+		assert (!strcmp(despair_var->get_value().value.strval->c_str(),
+			despair->c_str()));
 	}
 
 	cerr << "[TREE_TEST] String-int concatenation passed, but satisfying Aho failed." << endl;
@@ -149,8 +322,8 @@ void TreeTest::test_string_concatenation() {
 	// Make variable node
 	// [rpl] string predicate = "a problem.";
 	string *predicate = new string ("a problem.");
-	linked_var::register_cpp_var(&predicate);
-	VariableNode *predicate_varnode = new VariableNode(&predicate);
+	linked_var::register_cpp_var(predicate);
+	VariableNode *predicate_varnode = new VariableNode((string **)predicate);
 	ValueNode *predicate_valnode = new ValueNode (predicate_varnode);
 	UnaryExpressionNode *predicate_unode =
 		new UnaryExpressionNode (predicate_valnode);
@@ -159,15 +332,14 @@ void TreeTest::test_string_concatenation() {
 	ExpressionNode *predicate_enode =
 		new ExpressionNode (predicate_bnode);
 	linked_var *predicate_var =
-		new linked_var (&predicate, predicate_enode);
-
+		new linked_var (predicate, predicate_enode);
 
 	assert(predicate_var->get_value().type == ltSTR_PTR);
-	assert(!strcmp((*(string **)predicate_var->get_value().value.ptr)->c_str(), "a problem."));
+	assert(!strcmp((*(string *)predicate_var->get_value().value.ptr).c_str(), "a problem."));
 
 	// [rpl] link (string sentence <- "Amar says: we have " + predicate);
 	string *sentence = new string();
-	linked_var::register_cpp_var(&sentence);
+	linked_var::register_cpp_var(sentence);
 
 	LiteralNode *prefix_litnode = new LiteralNode("Amar says: we have ");
 	ValueNode *prefix_valnode = new ValueNode(prefix_litnode);
@@ -181,18 +353,18 @@ void TreeTest::test_string_concatenation() {
 	ExpressionNode *sentence_enode =
 		new ExpressionNode (sentence_bnode);
 	linked_var *sentence_var =
-		new linked_var (&sentence, sentence_enode);
+		new linked_var (sentence, sentence_enode);
 
 	assert(sentence_var->get_value().type == ltSTR);
-	assert(!strcmp(sentence_var->get_value().value.strval->c_str(), "Amar says: we have a problem."));
+	assert(!strcmp((*(string *)(sentence_var->get_value().value.ptr)).c_str(), "Amar says: we have a problem."));
 
 	// Change suffix
 	// [rpl] predicate = "no problem.";
 	predicate = new string ("no problem.");
-	linked_var::update_nonlinked_var(&predicate);
+	linked_var::update_nonlinked_var(predicate);
 
-	assert(!strcmp(sentence_var->get_value().value.strval->c_str(), "Amar says: we have no problem."));
-	assert(strcmp(sentence_var->get_value().value.strval->c_str(), "Amar says: we have a problem."));
+	assert(!strcmp((*(string *)(sentence_var->get_value().value.ptr)).c_str(), "Amar says: we have a problem."));
+	assert(strcmp((*(string *)(sentence_var->get_value().value.ptr)).c_str(), "Amar says: we have no problem."));
 
 	linked_var::reset_refs();
 }
@@ -584,11 +756,16 @@ void TreeTest::run_all_integration_tests() {
 	test_nested_expressions();
 	cerr << "[TREE_TEST] Nested expression tests passed." << endl;
 	linked_var::reset_refs();
-	test_streamreader_expressions();
-	cerr << "[TREE_TEST] StreamReader expression tests passed." << endl;
+	test_aux_fn_expressions();
+	cerr << "[TREE_TEST] Auxiliary link function tests passed." << endl;
+	linked_var::reset_refs();
+	//test_streamreader_int_expressions();
+	//test_streamreader_string_expressions();
+	test_webstream_reader();
+	linked_var::reset_refs();
 }
 
-int main() {
+int main(int c, char **argv) {
     TreeTest::run_all_unit_tests();
 	cerr << "[TREE_TEST] All unit tests passed." << endl;
     TreeTest::run_all_integration_tests();

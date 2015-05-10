@@ -13,7 +13,7 @@ LEX=flex
 YACC=bison
 CXXFLAGS= -std=c++11 -w $(INCLUDES) $(MODE)
 LDLIBS= -L./frontend/symbol_table/ -L./backend/lib/
-INCLUDES= -I./link_files/
+INCLUDES= -I./link_files/ -I./backend/streamreader/
 YFLAGS= -Wnone 
 LFLAGS= 
 MISCFLAGS= 

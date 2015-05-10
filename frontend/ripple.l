@@ -7,7 +7,7 @@
 
 #define CXX "clang++"
 #define CPP_STANDARD "c++11"
-#define LIBS "-L./backend/lib/ -lbackend -lfile -lhtml -lxml"
+#define LIBS "-L./backend/lib/ -lbackend -lfile -lhtml -lxml -pthread"
 
 void install_id();
 
@@ -76,6 +76,10 @@ and         {   db(yytext); saw_id = false; return AND; }
 or          {   db(yytext); saw_id = false; return OR; }
 then        {   db(yytext); saw_id = false; return THEN; }
 final       {   db(yytext); saw_id = false; return FINAL; }
+web_stream  {   db(yytext); saw_id = false; yylval.string = new string("WebStreamReader"); return tSTREAM_READER; }
+keyboard_stream  {   db(yytext); saw_id = false; yylval.string = new string("KeyboardStreamReader"); return tSTREAM_READER; }
+file_stream  {   db(yytext); saw_id = false; yylval.string = new string("FileStreamReader"); return tSTREAM_READER; }
+
 
 {id}        {	db(yytext); 
 				yylval.string = new std::string(yytext);
@@ -158,7 +162,7 @@ int main(int argc, char **argv) {
     }
 
     write_to_file(filename_cpp, cpp_code);
-    string compile_cpp = string(CXX) + " " + filename_cpp + " -L. -o " + filename 
+    string compile_cpp = string(CXX) + " " + filename_cpp + " -L. -I./backend/streamreader/ -o " + filename 
                         + " --std=" + CPP_STANDARD + " " + LIBS;
     system(compile_cpp.c_str());
 #ifndef DEBUG

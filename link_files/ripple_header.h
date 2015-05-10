@@ -12,6 +12,9 @@
 #include "link_val.h"
 #include "linked_var.h"
 #include "xml_lib.h"
+#include "keyboard_stream_reader.h"
+#include "web_stream_reader.h"
+#include "file_stream_reader.h"
 
 using namespace ripple;
 
@@ -24,6 +27,8 @@ namespace ripple {
         return x;
     }
 }
+
+string default_rpl_str_str(string x){ return x; }
 
 // Used for short-term manipulation of linked vars
 linked_var *universal_linked_var_ptr;
