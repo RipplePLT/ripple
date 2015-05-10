@@ -1,7 +1,6 @@
 #ifndef FILE_STREAM_READER_H
 #define FILE_STREAM_READER_H
 
-#include <string>
 #include <fstream> 
 #include <sstream>
 #include "stream_reader.h"
@@ -10,77 +9,95 @@ template <typename T>
 class FileStreamReader : StreamReader<T>{
 
     public:
-        FileStreamReader<T>(string file_path, typename FuncPtr<T>::f_ptr f = NULL, int interval=0, const string delim = "\0"){
+        FileStreamReader<T>(string file_path, typename FuncPtr<T>::f_ptr f = NULL, int interval=0, const string delim = "\0") {
             this->file_path = file_path;
             this->interval = interval;
             this->aux_func_ptr = f;
             this->delimiter = delim;
         }
 
-        FileStreamReader<T>(string file_path, int interval=0, const string delim = "\0") {
-            this->file_path = file_path;
-            this->interval = interval;
-            this->delimiter = delim;
-        }
+       ~FileStreamReader<T>() {};
 
-        FileStreamReader<T>(string file_path, const string delim){
-            this->file_path = file_path;
-            this->delimiter = delim;
-        }
-
-       ~FileStreamReader<T>(){};
-
-        void start_thread(){
-            pthread_create(&(this->stream_thread), NULL, this->run_stream_thread_proxy, this);
+        /*
+         *Public accessor function used to begin running the instantiated WebStreamReader.
+         */
+        void start_thread() {
+            if (pthread_create(&(this->stream_thread), NULL, this->run_stream_thread_proxy, this)) {
+                cerr << "Could not create StreamReader" << endl;
+                exit(1);
+            }
         }
 
     protected:
-        //Proxy function to allow pthread to run on member variable
-        static void* run_stream_thread_proxy(void *p){
+
+        /*
+         *This function is called from start_thred(), as p_threads in c++ 
+         *cannot be called directly on member functions due to their implicit 
+         *this-> accessor. Declarating this function as static acts as workaround 
+         *that enables the ability to call the non-static function run_stream_thread.
+         */
+        static void* run_stream_thread_proxy(void *p) {
             static_cast<FileStreamReader*>(p)->run_stream_thread();
             return NULL;
         }
 
-        void run_stream_thread(){
+        /*
+         *Function that does work of the thread. Work done in a permanent while loop that will
+         *continuously update a linked variable. 
+         *
+         *File and file i/o errors cause the process to exit. Depending on arguments of function,
+         *either entire file or character-delimited strings will be read from a file. 
+         */
+        void run_stream_thread() {
             
             string read_buffer;
 
-            while(1){
-                if(this->stop_stream)
+            while(1) {
+                if (this->stop_stream)
                     break;
                 
                 file_stream.open(file_path, ios::in | ios::binary);
 
                 //File failed to open, die
-                if(!file_stream.is_open()){
-                    cout<< "File not opened properly" << endl;
-                    break;
+                if (!file_stream.is_open()) {
+                    cerr << "File not opened properly" << endl;
+                    exit(1);
                 }
 
-                if(delimiter == "\0"){
+                if (delimiter == "\0") {
                     file_stream.seekg(0, ios::end);
                     read_buffer.resize(file_stream.tellg());
                     file_stream.seekg(0, ios::beg);
                     file_stream.read(&read_buffer[0], read_buffer.size());
                     file_stream.close();
 
-                    if(this->aux_func_ptr){
+                    if (file_stream.fail()) {
+                        cerr << "File I/O error" << endl;
+                        exit(1);
+                    }
+
+                    if (this->aux_func_ptr) {
                         /*update*/this->aux_func_ptr(read_buffer);
-                    }else{
+                    } else {
                         //update(read_buffer);
                     }
-                }else{
-                    while(getline(file_stream, read_buffer, *delimiter.c_str())){
-                        if(this->aux_func_ptr){
+                } else {
+                    while(getline(file_stream, read_buffer, *delimiter.c_str())) {
+
+                        if (file_stream.fail()) {
+                            cerr << "File I/O error" << endl;
+                            exit(1);
+                        }
+
+                        if (this->aux_func_ptr) {
                             /*update*/this->aux_func_ptr(read_buffer);
-                        }else{
+                        } else {
                             cout << read_buffer << endl;
                             //update(read_buffer);
                         }
                     }
                 }
-
-                if(this->interval)
+                if (this->interval)
                     sleep(this->interval);
             }
         }
