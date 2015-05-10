@@ -71,6 +71,7 @@ extern e_type last_type;
 %token <integer> CONTINUE
 %token <integer> BREAK
 %token <integer> THEN
+%token <integer> STOP
 
 /***************
       TYPES 
@@ -209,6 +210,7 @@ jump_statement : RETURN expression tSEMI        { $$ = new JumpStatementNode("re
                | RETURN tSEMI                   { $$ = new JumpStatementNode("return"); d("jump -return"); }
                | CONTINUE tSEMI                 { $$ = new JumpStatementNode("continue"); d("jump - continue"); }
                | BREAK tSEMI                    { $$ = new JumpStatementNode("break"); d("jump - break"); }
+               | STOP tSEMI                     { $$ = new JumpStatementNode("stop"); d("jump - break"); }
                ;
 
 

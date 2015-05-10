@@ -58,6 +58,7 @@ dataset     {	db(yytext); saw_id = false; return DATASET;	}
 return      {	db(yytext); saw_id = false; return RETURN;	}
 continue    {   db(yytext); saw_id = false; return CONTINUE; }
 break 		{   db(yytext); saw_id = false; return BREAK; }
+stop        {   db(yytext); saw_id = false; return STOP; }
 int         {	db(yytext); saw_id = false; last_type = tINT; 
                 yylval.string = new std::string("INT"); return TYPE;	}
 float       {	db(yytext); saw_id = false; last_type = tFLOAT; 

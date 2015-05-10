@@ -68,6 +68,8 @@ enum e_jump str_to_jump(const std::string type){
         return tBREAK;
     else if (type.compare("continue") == 0)
         return tCONTINUE;
+    else if (type.compare("stop") == 0)
+        return tSTOP;
 }
 
 /* Does the inverse of str_to_type */
@@ -1190,7 +1192,11 @@ JumpStatementNode::JumpStatementNode(string _type){
         cout << RETURN_TYPE_ERROR << endl;
     }
     en = nullptr;
-    code = _type + ";\n";
+    if (type == tSTOP) {
+        code = "while(1);\n";
+    } else {
+        code = _type + ";";
+    }
 }
 
 

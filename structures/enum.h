@@ -55,7 +55,8 @@ enum e_op {
 enum e_jump {
     tRETURN,
     tCONTINUE,
-    tBREAK
+    tBREAK,
+    tSTOP
 };
 
 #endif
