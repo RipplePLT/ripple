@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
-#include "link_val.hpp"
+#include "link_val.h"
 
 bool link_val::is_bool_op(const char *op) {
 	return (!strcmp(op, ">") ||

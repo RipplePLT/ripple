@@ -1,12 +1,11 @@
-#ifndef XML_PARSE_TEST_HPP
-#define XML_PARSE_TEST_HPP
+#ifndef __HTML_PARSE_TEST_H__
+#define __HTML_PARSE_TEST_H__
 
 #include <assert.h>
 #include <iostream>
 #include <string>
-#include <vector>
 
-#include "xml_lib.hpp"
+#include "html_lib.h"
 
 using namespace std;
 
@@ -16,11 +15,12 @@ void test_contains_word(string line);
 void test_does_not_contain_tag(string line);
 void test_does_not_contain_word(string line);
 
+void test_get_body(string line);
 void test_get_collection(string line);
-void test_get_node(string line);
-void test_get_node_text(string line);
-void test_get_num_nodes(string line);
+void test_get_head(string line);
+void test_get_num_tags(string line);
+void test_get_tag(string line);
 
-void test_line_size(string line);
+void test_size(string line);
 
 #endif
