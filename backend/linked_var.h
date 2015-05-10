@@ -1,10 +1,13 @@
-#ifndef __LINKED_VAR_HPP__
-#define __LINKED_VAR_HPP__
+#ifndef __LINKED_VAR_H__
+#define __LINKED_VAR_H__
 
-#include <vector>
+#include <iostream>
 #include <unordered_map>
-#include "expression_tree.hpp"
-#include "link_val.hpp"
+#include <vector>
+
+#include "expression_tree.h"
+#include "link_val.h"
+#include "linked_var.h"
 
 using namespace std;
 

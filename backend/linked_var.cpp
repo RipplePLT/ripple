@@ -1,9 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include "expression_tree.hpp"
-#include "linked_var.hpp"
-#include "link_val.hpp"
+#include "linked_var.h"
 
 /*
  * Global hash map from memory address to list of linked_vars

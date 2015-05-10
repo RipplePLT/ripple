@@ -11,13 +11,13 @@ default: objects libs
 .PHONY: objects
 objects: $(OBJS)
 
-file_lib.o: file_lib.hpp file_lib.cpp
+file_lib.o: file_lib.h file_lib.cpp
 	$(CXX) -c file_lib.cpp $(CCFLAGS)
 
-html_lib.o: html_lib.hpp html_lib.cpp
+html_lib.o: html_lib.h html_lib.cpp
 	$(CXX) -c html_lib.cpp $(CCFLAGS)
 
-xml_lib.o: xml_lib.hpp xml_lib.cpp
+xml_lib.o: xml_lib.h xml_lib.cpp
 	$(CXX) -c xml_lib.cpp $(CCFLAGS)
 
 .PHONY: libs

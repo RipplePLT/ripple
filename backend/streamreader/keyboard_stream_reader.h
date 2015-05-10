@@ -1,5 +1,5 @@
-#ifndef KEYBOARD_STREAM_READER_H
-#define KEYBOARD_STREAM_READER_H
+#ifndef __KEYBOARD_STREAM_READER_H__
+#define __KEYBOARD_STREAM_READER_H__
 
 #include <fstream> 
 #include <sstream>
@@ -10,7 +10,7 @@ class KeyboardStreamReader : StreamReader<T>{
 
     public:
 
-        KeyboardStreamReader<T>(typename FuncPtr<T>::f_ptr f = NULL) {
+        KeyboardStreamReader<T>(typename FuncPtr<T>::f_ptr f = nullptr) {
             this->aux_func_ptr = f;
         }
 

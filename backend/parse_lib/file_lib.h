@@ -1,5 +1,5 @@
-#ifndef FILE_LIB_HPP
-#define FILE_LIB_HPP
+#ifndef __FILE_LIB_H__
+#define __FILE_LIB_H__
 
 #include <iostream>
 #include <stack>

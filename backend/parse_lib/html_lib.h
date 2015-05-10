@@ -1,5 +1,5 @@
-#ifndef HTML_LIB_HPP
-#define HTML_LIB_HPP
+#ifndef __HTML_LIB_H__
+#define __HTML_LIB_H__
 
 #include <iostream>
 #include <sstream>

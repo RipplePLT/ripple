@@ -1,11 +1,11 @@
-#ifndef FILE_PARSE_TEST_HPP
-#define FILE_PARSE_TEST_HPP
+#ifndef __FILE_PARSE_TEST_H__
+#define __FILE_PARSE_TEST_H__
 
 #include <assert.h>
 #include <iostream>
 #include <string>
 
-#include "file_lib.hpp"
+#include "file_lib.h"
 
 using namespace std;
 

@@ -1,12 +1,14 @@
-#ifndef __VAR_TREE_HPP__
-#define __VAR_TREE_HPP__
+#ifndef __EXPRESSION_TREE_H__
+#define __EXPRESSION_TREE_H__
 
+#include <algorithm>
+#include <iostream>
 #include <string>
 #include <string.h>
-#include <iostream>
 #include <vector>
+
 #include "../structures/enum.h"
-#include "link_val.hpp"
+#include "link_val.h"
 
 /*
  * The nodes defined in this file are used at runtime to construct
