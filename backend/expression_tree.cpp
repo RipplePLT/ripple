@@ -288,7 +288,7 @@ link_val VariableNode::evaluate() {
 	return this->val;
 }
 
-StreamReaderNode::StreamReaderNode() {
+StreamReaderNode::StreamReaderNode(enum link_val_type t) {
 	this->val.type = t;
 	this->dependencies = new vector<void *>();
 	this->dependencies->push_back(&this->val.value);
