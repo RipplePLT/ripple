@@ -49,7 +49,7 @@ string link_val::get_str_val() const {
 		return *value.strval;
 		break;
 	case (ltSTR_PTR) :
-		return **(string **)value.ptr;
+		return *(string *)value.ptr;
 		break;
 	case (ltDOUBLE) :
 		return to_string(value.doubleval);
@@ -127,8 +127,9 @@ T link_val::generic_op(T a, T b, const char *op) {
 
 link_val link_val::link_val_op(link_val a, link_val b, const char *op) {
 	if (a.type == ltSTR || b.type == ltSTR ||
-			a.type == ltSTR_PTR || b.type == ltSTR_PTR)
+			a.type == ltSTR_PTR || b.type == ltSTR_PTR) {
 		return str_op(a, b, op);
+	}
 	if (a.type == ltBOOL || b.type == ltBOOL ||
 			a.type == ltBOOL_PTR || b.type == ltBOOL_PTR)
 		return bool_op(a, b, op);

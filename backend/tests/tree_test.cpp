@@ -96,28 +96,28 @@ void TreeTest::test_streamreader_string_expressions() {
 
 	// link (sentence <- prefix + suffix)
 	//		test_aux_str_fn(sentence);
-	linked_var *sentence_var = new linked_var(&sentence, new ExpressionNode(
+	linked_var *sentence_var = new linked_var(sentence, new ExpressionNode(
 		new BinaryExpressionNode(
 			new BinaryExpressionNode(
 				new UnaryExpressionNode(
 				new ValueNode(
-				new VariableNode(prefix)))), "+",
+				new VariableNode((string **)prefix)))), "+",
 			new BinaryExpressionNode(
 				new UnaryExpressionNode(
 				new ValueNode(
-				new VariableNode(suffix)))))));
+				new VariableNode((string **)suffix)))))));
 	sentence_var->assign_aux_fn((void *)&test_aux_str_fn);
 
 	// link (suffix <- str_to_str <- KSR());
 	string *stream = new string();
-	linked_var::register_cpp_var(&stream);
+	linked_var::register_cpp_var(stream);
 	FuncPtr<string>::f_ptr f = &default_rpl_str_str;  // @TODO !!! default
 	KeyboardStreamReader<string> *sr = new KeyboardStreamReader<string>(suffix, f);
-	linked_var *suffix_var = new linked_var(&suffix, new ExpressionNode (
+	linked_var *suffix_var = new linked_var(suffix, new ExpressionNode (
 		new BinaryExpressionNode(
 		new UnaryExpressionNode(
 		new ValueNode(
-		new VariableNode(stream))))));
+		new VariableNode((string **)stream))))));
 
 	sr->start_thread();
 	while (1) {}
@@ -210,7 +210,7 @@ void TreeTest::test_string_int_concatenation() {
 		new BinaryExpressionNode(suffix_unode);
 	BinaryExpressionNode *num_bnode = 
 		new BinaryExpressionNode(num_unode);
-	
+
 	ExpressionNode *num_enode =
 		new ExpressionNode(num_bnode);
 	linked_var *num_var = new linked_var (&num, num_enode);
@@ -220,16 +220,18 @@ void TreeTest::test_string_int_concatenation() {
 	BinaryExpressionNode *high_link =
 		new BinaryExpressionNode(low_link, "+", suffix_bnode);
 	
-	string *despair;
+	string *despair = new string();
 	linked_var::register_cpp_var(&despair);
 	ExpressionNode *despair_enode =
 		new ExpressionNode(high_link);
 	linked_var *despair_var =
-		new linked_var (&despair, despair_enode);
+		new linked_var (despair, despair_enode);
 
 	for (num = 4; num >= 0; num--) {
 		linked_var::update_nonlinked_var(&num);
 		cerr << despair_var->get_value().value.strval->c_str() << endl;
+		assert (!strcmp(despair_var->get_value().value.strval->c_str(),
+			despair->c_str()));
 	}
 
 	cerr << "[TREE_TEST] String-int concatenation passed, but satisfying Aho failed." << endl;
@@ -239,8 +241,8 @@ void TreeTest::test_string_concatenation() {
 	// Make variable node
 	// [rpl] string predicate = "a problem.";
 	string *predicate = new string ("a problem.");
-	linked_var::register_cpp_var(&predicate);
-	VariableNode *predicate_varnode = new VariableNode(&predicate);
+	linked_var::register_cpp_var(predicate);
+	VariableNode *predicate_varnode = new VariableNode((string **)predicate);
 	ValueNode *predicate_valnode = new ValueNode (predicate_varnode);
 	UnaryExpressionNode *predicate_unode =
 		new UnaryExpressionNode (predicate_valnode);
@@ -249,15 +251,14 @@ void TreeTest::test_string_concatenation() {
 	ExpressionNode *predicate_enode =
 		new ExpressionNode (predicate_bnode);
 	linked_var *predicate_var =
-		new linked_var (&predicate, predicate_enode);
-
+		new linked_var (predicate, predicate_enode);
 
 	assert(predicate_var->get_value().type == ltSTR_PTR);
-	assert(!strcmp((*(string **)predicate_var->get_value().value.ptr)->c_str(), "a problem."));
+	assert(!strcmp((*(string *)predicate_var->get_value().value.ptr).c_str(), "a problem."));
 
 	// [rpl] link (string sentence <- "Amar says: we have " + predicate);
 	string *sentence = new string();
-	linked_var::register_cpp_var(&sentence);
+	linked_var::register_cpp_var(sentence);
 
 	LiteralNode *prefix_litnode = new LiteralNode("Amar says: we have ");
 	ValueNode *prefix_valnode = new ValueNode(prefix_litnode);
@@ -271,18 +272,18 @@ void TreeTest::test_string_concatenation() {
 	ExpressionNode *sentence_enode =
 		new ExpressionNode (sentence_bnode);
 	linked_var *sentence_var =
-		new linked_var (&sentence, sentence_enode);
+		new linked_var (sentence, sentence_enode);
 
 	assert(sentence_var->get_value().type == ltSTR);
-	assert(!strcmp(sentence_var->get_value().value.strval->c_str(), "Amar says: we have a problem."));
+	assert(!strcmp((*(string *)(sentence_var->get_value().value.ptr)).c_str(), "Amar says: we have a problem."));
 
 	// Change suffix
 	// [rpl] predicate = "no problem.";
 	predicate = new string ("no problem.");
-	linked_var::update_nonlinked_var(&predicate);
+	linked_var::update_nonlinked_var(predicate);
 
-	assert(!strcmp(sentence_var->get_value().value.strval->c_str(), "Amar says: we have no problem."));
-	assert(strcmp(sentence_var->get_value().value.strval->c_str(), "Amar says: we have a problem."));
+	assert(!strcmp((*(string *)(sentence_var->get_value().value.ptr)).c_str(), "Amar says: we have a problem."));
+	assert(strcmp((*(string *)(sentence_var->get_value().value.ptr)).c_str(), "Amar says: we have no problem."));
 
 	linked_var::reset_refs();
 }

@@ -51,6 +51,13 @@ void linked_var::update_cpp_var() {
 		break;
 	case (ltDOUBLE_PTR):
 		*(double *)(this->address) = *(double *)this->value.value.ptr;
+		break;
+	case (ltSTR):
+		 *(string *)this->address = *(new string(*(this->value.value.strval)));
+		break;
+	case (ltSTR_PTR):
+		*(string *)(this->address) = *(string *)this->value.value.ptr;
+		break;
 	default:
 		break;
 	}
