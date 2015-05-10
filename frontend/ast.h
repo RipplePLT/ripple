@@ -74,6 +74,7 @@
 #define ASSIGN_ERR LINE_ERR "left operand of assignment expression must be a variable"
 
 #define ERROR "error"
+#define MAIN_FUNC_ERROR "all ripple programs need a main function"
 #define COMPILE_ERR "Unable to complete compilation due to errors in code. Get good"
 
 inline string VARIABLE_NODE(string arg){ return "new VariableNode( &" + arg + " )"; }
