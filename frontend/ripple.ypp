@@ -292,8 +292,8 @@ decl_args : decl_args tCOMMA dtype var   { $1->add_arg($3, $4); d("decl arg adde
           |                              { $$ = new DeclArgsNode(); d("empty decl arg"); }
           ;
 
-array_opt : tL_BRACKET value tR_BRACKET { $$ = $2; saw_type = true; d("array_opt"); }
-          | tL_BRACKET tR_BRACKET       { $$ = new ValueNode(new LiteralNode(-1)); $$->type = tINT; $$->code = ""; $$->sym = tVAR; saw_type = true; d("empty array opt");}
+array_opt : tL_BRACKET value tR_BRACKET { $$ = $2; d("array_opt"); }
+          | tL_BRACKET tR_BRACKET       { $$ = new ValueNode(new ArrayInitNode()); $$->type = tINT; $$->code = ""; $$->sym = tVAR; d("empty array opt");}
           |                             { $$ = nullptr; }
           ;
 
@@ -316,9 +316,8 @@ var : ID { Entry *entry = sym_table.get(*yylval.string);
             }
           }
 
-dtype : TYPE {  $$ = new TypeNode(last_type); d("type: " + *yylval.string); }
+dtype : TYPE array_opt {  $$ = new TypeNode(last_type, $2); d("type: "); }
       | DATASET ID  { $$ = new TypeNode(last_type); d("dataset: " + *yylval.string); }
-      | TYPE tL_BRACKET INTEGER tR_BRACKET { $$ = new TypeNode(last_type, $3); d("array: " + *yylval.string); }
       ;
 
 literal : INTEGER                 { $$ = new LiteralNode($1); $$->code = to_string(yylval.integer); d("literal - INT");}	

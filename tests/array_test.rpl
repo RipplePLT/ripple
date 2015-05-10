@@ -27,4 +27,9 @@ void main() {
 	float[] f5 = {1,2.0,3};
 	string[] s5 = {"hello", "world"};
 
+	bool[1] b6 = {true, true, false};
+	int[1] i6 = {1,2,3};
+	float[1] f6 = {1,2.0,3};
+	string[1] s6 = {"hello", "world"};
+
 }

@@ -130,6 +130,7 @@ ValueNode::ValueNode(LiteralNode *l) {
     code = l->code;
     link_code = VALUE_NODE(LITERAL_NODE(code));
     is_linkable = true;
+    array_length = l->array_length;
 }
 
 ValueNode::ValueNode(FunctionCallNode *f) {
@@ -171,7 +172,7 @@ ValueNode::ValueNode(ArrayInitNode *a) {
     type = a->type;
     sym = tARR;
     code = "{ " + a->code + " }";
-    array_length = a->array_length;
+    array_length = a->has_elements ? a->array_length : -1;
     is_linkable = false;
 }
 
@@ -290,6 +291,7 @@ string FunctionCallNode::generate_std_rpl_function(){
 ArrayInitNode::ArrayInitNode() {
     args_list = new vector<ExpressionNode *>(); 
     sym = tARR;
+    has_elements = false;
     code = "";
     array_length = 0;
 }
@@ -297,7 +299,7 @@ ArrayInitNode::ArrayInitNode() {
 ArrayInitNode::ArrayInitNode(ExpressionNode *arg) {
     type = arg->type;
     sym = tARR;
-
+    has_elements = true;
     args_list->push_back(arg);
     code = arg->code;
     array_length = 1;
@@ -306,6 +308,7 @@ ArrayInitNode::ArrayInitNode(ExpressionNode *arg) {
 void ArrayInitNode::add_arg(ExpressionNode *arg) {
     args_list->push_back(arg);
     sym = tARR;
+    has_elements = true;
     if(type == 0 || (type == tINT && arg->type == tFLOAT)){
         type = arg->type;
     } else if(type == tFLOAT && arg->type == tINT){}
@@ -421,6 +424,7 @@ void DeclArgsNode::seppuku(){
 LiteralNode::LiteralNode(int i) {
     sym = tVAR;
     val.int_lit = i;
+    array_length = i;
     type = tINT;
 }
 
@@ -904,7 +908,6 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
     }  
 
     typecheck();
-
     Entry *entry = sym_table.get(expression_node->value->code);
     switch(sym) {
         case tVAR:
@@ -917,10 +920,17 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
             code += type_to_str(type) + " " + expression_node->code + ";\n";
             break;
         case tARR:
-            if(expression_node->sym != tARR) {
+
+            if(expression_node->sym != tARR && expression_node->sym != tNOSTYPE) {
                 error = true;
                 cout << ARR_ASSIGN_ERR << endl;
             }
+
+            if( array_length == -1 && !expression_node->bin_exp) {
+                error = true;
+                cout << ARR_UNKNOWN_INIT_ERR << endl;
+            }
+
             if(array_length != -1 && array_length < expression_node->array_length) { 
                 error = true;
                 cout << ARR_SMALL_SIZE_ERR << endl;
@@ -931,7 +941,7 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
                 cout <<  VARIABLE_REDECL_ERR << endl;
             }
 
-            code += expression_node->value->code + "[" + to_string(array_length) + "]";
+            code += type_to_str(type) + " " + expression_node->value->code + "[" + t->value->code + "]";
             if (expression_node->bin_exp) {
                 code += "=" + expression_node->bin_exp->code;
             }
@@ -974,7 +984,12 @@ DeclarativeStatementNode::DeclarativeStatementNode(ExpressionNode *expression_no
 void DeclarativeStatementNode::typecheck() { 
     if (!en->bin_exp || type == tFLOAT && en->type == tINT){
     } else if (en->type != type){
-        INVAL_ASSIGN_ERR(type_to_str(type), type_to_str(en->type));
+        if(en->sym == tARR || sym == tARR){
+            INVAL_ASSIGN_ERR(type_to_str(type) + "[]", type_to_str(en->type) + "[]");
+        }
+        else{
+            INVAL_ASSIGN_ERR(type_to_str(type), type_to_str(en->type));
+        }
         error = true;
     }
 }
@@ -1002,17 +1017,30 @@ TypeNode::TypeNode(e_type t){
     } else {
         sym = tVAR;
     }
+
+    value = nullptr;
+
 }
 
-TypeNode::TypeNode(e_type t, int i) {
+TypeNode::TypeNode(e_type t, ValueNode *val) {
     type = t;
+    value = val;
+
     if (type == tNOTYPE) {
         error = true;
         cout << UNKNOWN_TYPE_ERR << endl;
-    } else {
-        array_length = i;
     }
-    sym = tARR;
+    
+    if(val){
+        sym = tARR;
+        array_length = val->array_length;
+        if(val->type != tINT){
+            cout << ARR_INT_SIZE_ERR << endl;
+            error = true;
+        }
+    } else {
+        sym = tVAR;
+    }
 }
 
 /* ConditionalStatementNode */
