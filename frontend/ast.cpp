@@ -1345,6 +1345,13 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, StreamReaderNode *srn){
     id_node = idn;
     stream_reader_node = srn;
 
+
+    Entry *ent = sym_table.get(idn->code);
+    if(ent && ent->type == tNOTYPE){
+        error = true;
+        cout << UNDECLARED_ERROR << endl;
+    }
+
 	if (idn->type == tSTRING)
 		code = type_to_str(idn->type) + " *" + stream + to_string(num) + " = new string();\n";
 	else
@@ -1370,6 +1377,11 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, StreamReaderNode *srn, string 
     stream_reader_node = srn;
     auxiliary = func;
 
+    Entry *ent = sym_table.get(idn->code);
+    if(ent && ent->type == tNOTYPE){
+        error = true;
+        cout << UNDECLARED_ERROR << endl;
+    }
 
 	if (idn->type == tSTRING)
 		code = type_to_str(idn->type) + " *" + stream + to_string(num) + " = new string();\n";
@@ -1398,6 +1410,12 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, IDNode *filt, StreamReaderNode
     stream_reader_node = srn;
 	filter = filt;
 
+    Entry *ent = sym_table.get(idn->code);
+    if(ent && ent->type == tNOTYPE){
+        error = true;
+        cout << UNDECLARED_ERROR << endl;
+    }
+
 	if (idn->type == tSTRING)
 		code = type_to_str(idn->type) + " *" + stream + to_string(num) + " = new string();\n";
 	else
@@ -1424,6 +1442,12 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, IDNode *filt, StreamReaderNode
     filter = filt;
     stream_reader_node = srn;
     auxiliary = func;
+
+    Entry *ent = sym_table.get(idn->code);
+    if(ent && ent->type == tNOTYPE){
+        error = true;
+        cout << UNDECLARED_ERROR << endl;
+    }
 
 	if (idn->type == tSTRING)
 		code = type_to_str(idn->type) + " *" + stream + to_string(num) + " = new string();\n";
