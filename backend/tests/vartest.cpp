@@ -2,7 +2,6 @@
 
 #include "../linked_var.h"
 #include "../expression_tree.h"
-#include "../sync_queue.h"
 
 /*
  * This test is an example of the intermediate code that link

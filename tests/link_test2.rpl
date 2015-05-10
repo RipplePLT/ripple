@@ -1,13 +1,13 @@
 void printline(string str){
-print(str);
+	print(str);
 }
 
 int str_to_int(string str2){
-return 0;
+	return 0;
 }
 
 void main(){
-int s;
-link(s <- str_to_int <- file_stream("hello.txt", 0)) then printline;
-link(s <- str_to_int <- file_stream("hello.txt", "hello", '\0')) then printline;
+	string s;
+	link(s <- file_stream("hello.txt", 5, ",")) then printline;
+	while(true) { }
 }

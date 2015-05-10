@@ -2,7 +2,7 @@ void print_int(int a) {
     print(a);
 }
 
-int main(){
+void main(){
 	int x;
 	int y = 3;
 	int z = 4;

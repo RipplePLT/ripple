@@ -7,7 +7,7 @@
 
 #define CXX "clang++"
 #define CPP_STANDARD "c++11"
-#define LIBS "-L./backend/lib/ -lbackend -lfile -lhtml -lxml"
+#define LIBS "-L./backend/lib/ -lbackend -lfile -lhtml -lxml -pthread"
 
 void install_id();
 
@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
     }
 
     write_to_file(filename_cpp, cpp_code);
-    string compile_cpp = string(CXX) + " " + filename_cpp + " -L. -o " + filename 
+    string compile_cpp = string(CXX) + " " + filename_cpp + " -L. -I./backend/streamreader/ -o " + filename 
                         + " --std=" + CPP_STANDARD + " " + LIBS;
     system(compile_cpp.c_str());
 #ifndef DEBUG

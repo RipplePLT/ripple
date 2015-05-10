@@ -1284,7 +1284,7 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, StreamReaderNode *srn){
     code += "FuncPtr<" + type_to_str(idn->type) + ">::f_ptr " + function_pointer + to_string(num) + " = &default_rpl_str_str;\n";
     code += srn->generate_code(idn->type);
     code += "universal_linked_var_ptr = new linked_var(&" + idn->code + ", " +
-            EXPRESSION_NODE(BINARY_EXPRESSION(UNARY_EXPRESSION(VALUE_NODE(VARIABLE_NODE("&" + stream + to_string(num)))))) + ";\n";
+            EXPRESSION_NODE(BINARY_EXPRESSION(UNARY_EXPRESSION(VALUE_NODE(VARIABLE_NODE(stream + to_string(num)))))) + ");\n";
     code += stream_reader_name + to_string(num) + "->start_thread();\n";
 
     num++;
@@ -1297,12 +1297,20 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, StreamReaderNode *srn, string 
     auxiliary = func;
 
 
-    code = type_to_str(idn->type) + " " + stream + to_string(num) + ";\n";
-    code += "linked_var::register_cpp_var(&" + stream + to_string(num) + ");\n";
+	if (idn->type == tSTRING)
+		code = type_to_str(idn->type) + " *" + stream + to_string(num) + " = new string();\n";
+	else
+		code = type_to_str(idn->type) + " " + stream + to_string(num) + ";\n";
+	code += "linked_var::register_cpp_var(&" + stream + to_string(num) + ");\n";
     code += "FuncPtr<" + type_to_str(idn->type) + ">::f_ptr " + function_pointer + to_string(num) + " = &default_rpl_str_str;\n";
     code += srn->generate_code(idn->type);
-    code += "universal_linked_var_ptr = new linked_var(&" + idn->code + ", " +
-            EXPRESSION_NODE(BINARY_EXPRESSION(UNARY_EXPRESSION(VALUE_NODE(VARIABLE_NODE("&" + stream + to_string(num)))))) + ";\n";
+	if (idn->type == tSTRING) {
+		code += "universal_linked_var_ptr = new linked_var(&" + idn->code + ", " +
+				EXPRESSION_NODE(BINARY_EXPRESSION(UNARY_EXPRESSION(VALUE_NODE("new VariableNode ((string **)&" + stream + to_string(num))))) + "));\n";
+	} else {
+		code += "universal_linked_var_ptr = new linked_var(&" + idn->code + ", " +
+				EXPRESSION_NODE(BINARY_EXPRESSION(UNARY_EXPRESSION(VALUE_NODE(VARIABLE_NODE(stream + to_string(num)))))) + ");\n";
+	}
     code += "universal_linked_var_ptr->assign_aux_fn((void *)" + auxiliary + ");\n";
     code += stream_reader_name + to_string(num) + "->start_thread();\n";
 
@@ -1316,12 +1324,15 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, IDNode *filt, StreamReaderNode
     filter = filt;
     stream_reader_node = srn;
 
-    code = type_to_str(idn->type) + " " + stream + to_string(num) + ";\n";
+	if (idn->type == tSTRING)
+		code = type_to_str(idn->type) + " *" + stream + to_string(num) + " = new string();\n";
+	else
+		code = type_to_str(idn->type) + " " + stream + to_string(num) + ";\n";
     code += "linked_var::register_cpp_var(&" + stream + to_string(num) + ");\n";
     code += "FuncPtr<" + type_to_str(idn->type) + ">::f_ptr " + function_pointer + to_string(num) + " = &" + idn->code + ";\n";
     code += srn->generate_code(idn->type);
     code += "universal_linked_var_ptr = new linked_var(&" + idn->code + ", " +
-            EXPRESSION_NODE(BINARY_EXPRESSION(UNARY_EXPRESSION(VALUE_NODE(VARIABLE_NODE("&" + stream + to_string(num)))))) + ";\n";
+            EXPRESSION_NODE(BINARY_EXPRESSION(UNARY_EXPRESSION(VALUE_NODE(VARIABLE_NODE(stream + to_string(num)))))) + ");\n";
     code += stream_reader_name + to_string(num) + "->start_thread();\n";
 
     num++;
@@ -1340,7 +1351,7 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, IDNode *filt, StreamReaderNode
     code += "FuncPtr<" + type_to_str(idn->type) + ">::f_ptr " + function_pointer + to_string(num) + " = &" + filter->code + ";\n";
     code += srn->generate_code(idn->type);
     code += "universal_linked_var_ptr = new linked_var(&" + idn->code + ", " +
-            EXPRESSION_NODE(BINARY_EXPRESSION(UNARY_EXPRESSION(VALUE_NODE(VARIABLE_NODE("&" + stream + to_string(num)))))) + ";\n";
+            EXPRESSION_NODE(BINARY_EXPRESSION(UNARY_EXPRESSION(VALUE_NODE(VARIABLE_NODE(stream + to_string(num)))))) + ");\n";
     code += "universal_linked_var_ptr->assign_aux_fn((void *)" + auxiliary + ");\n";
     code += stream_reader_name + to_string(num) + "->start_thread();\n";
 
@@ -1384,8 +1395,24 @@ StreamReaderNode::StreamReaderNode(string n, ArgsNode *args){
 }
 
 string StreamReaderNode::generate_code(e_type type){
-    string s = name + "<" + type_to_str(type) + "> * " + stream_reader_name + to_string(num) + 
-        " = new " + name + "<" + type_to_str(type) + ">(&" + stream + to_string(num) + ", " + function_pointer + to_string(num) + ", " + arg_list->code + ");\n";
+	string s;
+	if (type != tSTRING) {
+		if (arg_list->args_list->size() == 0) {
+			s = name + "<" + type_to_str(type) + "> * " + stream_reader_name + to_string(num) + 
+				" = new " + name + "<" + type_to_str(type) + ">(&" + stream + to_string(num) + ", " + function_pointer + to_string(num) + ");\n";
+		} else {
+			s = name + "<" + type_to_str(type) + "> * " + stream_reader_name + to_string(num) + 
+				" = new " + name + "<" + type_to_str(type) + ">(&" + stream + to_string(num) + ", " + function_pointer + to_string(num) + ", " + arg_list->code + ");\n";
+		}
+	} else {
+		if (arg_list->args_list->size() == 0) {
+			s = name + "<" + type_to_str(type) + "> * " + stream_reader_name + to_string(num) + 
+				" = new " + name + "<" + type_to_str(type) + ">(&" + stream + to_string(num) + ", " + function_pointer + to_string(num) + ");\n";
+		} else {
+			s = name + "<" + type_to_str(type) + "> * " + stream_reader_name + to_string(num) + 
+				" = new " + name + "<" + type_to_str(type) + ">(&" + stream + to_string(num) + ", " + function_pointer + to_string(num) + ", " + arg_list->code + ");\n";
+		}
+	}
     return s;
 }
 
