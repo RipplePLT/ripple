@@ -75,9 +75,6 @@ and         {   db(yytext); saw_id = false; return AND; }
 or          {   db(yytext); saw_id = false; return OR; }
 then        {   db(yytext); saw_id = false; return THEN; }
 final       {   db(yytext); saw_id = false; return FINAL; }
-web_stream  {   db(yytext); saw_id = false; yylval.string = new string(WEB_STREAM_NAME); return STREAM_READER; }
-keyboard_stream  {   db(yytext); saw_id = false; yylval.string = new string(KEYBOARD_STREAM_NAME); return STREAM_READER; }
-file_stream  {   db(yytext); saw_id = false; yylval.string = new string(FILE_STREAM_NAME); return STREAM_READER; }
 
 {id}        {	db(yytext); 
 				yylval.string = new std::string(yytext);
