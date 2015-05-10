@@ -1,4 +1,24 @@
+int test_func() {
+    return 5;
+}
+
+float test_func_2() {
+    return 1.00;
+}
+
+string test_func_3() {
+    return "hello";
+}
+
+bool test_func_4() {
+    return true;
+}
+
 int main(){
+
+    #*
+    Test 
+    *#
 
     print("[MAIN TEST]\tStart\n");
 
@@ -45,21 +65,33 @@ int main(){
     # int result_3 = var_1 * var_2;
     # result_3 = var_1 / var_2;
     # result_3 = var_1 ^ var_2;
+    print("[INT ARITH TEST]");
 
     # Float Arithmetic
+    print("[FLOAT ARITH TEST]");
 
     # String Concatenation
+    print("[STRING CONCAT TEST]");
 
     # Negation Tests
+    print("[NEGATION TEST]");
 
     # Looping Tests
+    print("[LOOP TESTS");
 
     # Conditional Tests
+    print("COND TESTS]");
 
     # Link Tests
+    print("[LINK TESTS]");
 
     # Dataset Tests
+    print("[DATASET TESTS]");
 
-    print("[MAIN TEST]\tStop");
+    # Function Tests
+    print("[FUNC TESTS]");
+    test_func();
+
+    print("[MAIN TESTS]\tStop");
 
 }
