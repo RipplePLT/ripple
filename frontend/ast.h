@@ -66,6 +66,8 @@
 #define ARR_SMALL_SIZE_ERR LINE_ERR "size of array declared is too small"
 #define ARR_ASSIGN_ERR LINE_ERR "can't assign array to non-array variable"
 
+#define FINAL_MUST_INITIALIZE LINE_ERR "must initialize a final variable"
+#define FINAL_REDECL_ERR LINE_ERR "cannot change a final variable"
 #define UNLINKABLE_NO_VAR_ERR LINE_ERR "linked expression must have variables"
 #define UNLINKABLE_EXPRESSION_ERR LINE_ERR "expression provided cannot be linked"
 #define INVAL_FUNC_ARGS_ERR LINE_ERR \
@@ -170,6 +172,7 @@ union statements {
 union program_section {
     FunctionNode *function;
     DatasetNode *dataset;
+    DeclarativeStatementNode *decl;
 };
 
 
@@ -480,6 +483,7 @@ class ProgramSectionNode: public Node {
     public:
     ProgramSectionNode(FunctionNode *f);
     ProgramSectionNode(DatasetNode *d);
+    ProgramSectionNode(DeclarativeStatementNode *dsn);
     void seppuku();
 };
 
