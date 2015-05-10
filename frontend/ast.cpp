@@ -114,7 +114,7 @@ ValueNode::ValueNode(IDNode *i) {
     sym = i->sym;
     code = i->code;
     link_code = VALUE_NODE(VARIABLE_NODE(code));
-    linked_var = new string(code);
+    linked_vars.push_back(new string(code));
     is_linkable = true;
 }
 
@@ -153,7 +153,9 @@ ValueNode::ValueNode(ExpressionNode *e) {
     type = e->type;
     sym = e->sym;
     code = "( " + e->code + " )";
-    is_linkable = false;
+    linked_vars.insert(linked_vars.end(), e->linked_vars.begin(), e->linked_vars.end());
+    link_code = VALUE_NODE(e->link_code);
+    is_linkable = true;
 }
 ValueNode::ValueNode(ArrayInitNode *a) {
     val.a_init = a;
@@ -406,7 +408,7 @@ UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op) {
             break;
     }
     link_code = UNARY_EXPRESSION(u->link_code, _op);
-    linked_var = u->linked_var;
+    linked_vars.insert(linked_vars.end(), u->linked_vars.begin(), u->linked_vars.end());
     is_linkable = u->is_linkable;
 }
 
@@ -418,7 +420,7 @@ UnaryExpressionNode::UnaryExpressionNode(ValueNode *v){
     sym = v->sym;
     code = v->code;
     link_code = UNARY_EXPRESSION(v->link_code);
-    linked_var = v->linked_var;
+    linked_vars.insert(linked_vars.end(), v->linked_vars.begin(), v->linked_vars.end());;
     is_linkable = v->is_linkable;
 }
 
@@ -470,10 +472,8 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     
     code = gen_binary_code(bl->code, op, br->code, bl->type, br->type);
     link_code = BINARY_EXPRESSION(bl->link_code, _op, br->link_code);
-    if(bl->linked_var != nullptr)
-        linked_vars.push_back(bl->linked_var);
-    if(br->linked_var != nullptr)
-        linked_vars.push_back(br->linked_var);
+    linked_vars.insert(linked_vars.end(), bl->linked_vars.begin(), bl->linked_vars.end());
+    linked_vars.insert(linked_vars.end(), br->linked_vars.begin(), br->linked_vars.end());
     is_linkable = bl->is_linkable && br->is_linkable;
 }
 
@@ -488,10 +488,8 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
 
     code = gen_binary_code(bl->code, op, ur->code, bl->type, ur->type);
     link_code = BINARY_EXPRESSION(bl->link_code, _op, ur->link_code);
-    if(bl->linked_var != nullptr)
-        linked_vars.push_back(bl->linked_var);
-    if(ur->linked_var != nullptr)
-        linked_vars.push_back(ur->linked_var);
+    linked_vars.insert(linked_vars.end(), bl->linked_vars.begin(), bl->linked_vars.end());
+    linked_vars.insert(linked_vars.end(), ur->linked_vars.begin(), ur->linked_vars.end());
     is_linkable = bl->is_linkable && ur->is_linkable;
 }
 
@@ -505,8 +503,8 @@ BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
     op = NONE;
 
     link_code = BINARY_EXPRESSION(ul->link_code);
-    linked_var = ul->linked_var;
     is_linkable = ul->is_linkable;
+    linked_vars.insert(linked_vars.end(), ul->linked_vars.begin(), ul->linked_vars.end());
 }
 
 void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){

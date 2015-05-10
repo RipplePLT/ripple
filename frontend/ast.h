@@ -155,7 +155,8 @@ class Node {
 public:
     string code;
     string link_code;
-    string *linked_var = nullptr;
+    //string *linked_var = nullptr;
+    std::vector<string *> linked_vars;
     bool is_linkable;
     e_type type = tNOTYPE;
     e_symbol_type sym;
@@ -297,7 +298,6 @@ public:
     enum e_op op;
     bool left_is_binary;
     bool right_is_binary;
-    std::vector<string *> linked_vars;
 
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br);
     BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur);
