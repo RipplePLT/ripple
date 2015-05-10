@@ -10,7 +10,7 @@ template <typename T>
 class KeyboardStreamReader : StreamReader<T> {
 public:
 
-    KeyboardStreamReader<T> (typename FuncPtr<T>::f_ptr f = nullptr, void *to_update) {
+    KeyboardStreamReader<T> (typename FuncPtr<T>::f_ptr f = nullptr, void *to_update = nullptr) {
         this->filter_func_ptr = f;
         this->to_update = (T *)to_update;
     }
@@ -62,7 +62,7 @@ protected:
                 *this->to_update = this->filter_func_ptr(line);
                 linked_var::update_nonlinked_var(this->to_update);
             } else {
-                *this->to_update = line;
+                //*this->to_update = line;
                 linked_var::update_nonlinked_var(this->to_update); 
             }
         }

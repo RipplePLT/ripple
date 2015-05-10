@@ -63,7 +63,7 @@ void TreeTest::test_streamreader_expressions() {
 	// link (x <- str_to_int <- KSR());
 	void *dummy;
 	FuncPtr<int>::f_ptr f = &rpl_str_to_int; 
-	StreamReader<int> sr = new StreamReader<int>(f, dummy);
+	KeyboardStreamReader<int> *sr = new KeyboardStreamReader<int>(f, dummy);
 	linked_var::register_cpp_var(&dummy);
 	linked_var *sr_var = new linked_var(&dummy, new ExpressionNode (
 		new BinaryExpressionNode(

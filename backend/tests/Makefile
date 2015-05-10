@@ -29,7 +29,7 @@ sync_test.o: sync_test.cpp sync_test.h
 	$(CXX) -c sync_test.cpp $(CCFLAGS)
 
 tree_test: tree_test.o $(PARENT_OBJS)
-	$(CXX) tree_test.o $(PARENT_OBJS) -o tree_test
+	$(CXX) tree_test.o $(PARENT_OBJS) -o tree_test $(CCFLAGS)
 
 tree_test.o: tree_test.cpp
 	$(CXX) -c tree_test.cpp $(CCFLAGS)
