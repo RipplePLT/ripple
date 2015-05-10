@@ -26,7 +26,7 @@ bool saw_id;
 string last_id;
 e_type last_type;
 void db(std::string m){
-//	cout << m << endl;
+	cout << m << endl;
 }
 
 SymbolTable sym_table;
@@ -75,6 +75,10 @@ and         {   db(yytext); saw_id = false; return AND; }
 or          {   db(yytext); saw_id = false; return OR; }
 then        {   db(yytext); saw_id = false; return THEN; }
 final       {   db(yytext); saw_id = false; return FINAL; }
+web_stream  {   db(yytext); saw_id = false; yylval.string = new string("WebStreamReader"); return tSTREAM_READER; }
+keyboard_stream  {   db(yytext); saw_id = false; yylval.string = new string("KeyboardStreamReader"); return tSTREAM_READER; }
+file_stream  {   db(yytext); saw_id = false; yylval.string = new string("FileStreamReader"); return tSTREAM_READER; }
+
 
 {id}        {	db(yytext); 
 				yylval.string = new std::string(yytext);

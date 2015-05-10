@@ -39,7 +39,7 @@ extern e_type last_type;
     ExpressionNode *expr;
     BinaryExpressionNode *bin_expr;
     UnaryExpressionNode *un_expr;
-    
+    StreamReaderNode *str_read;
     ArrayAccessNode *arr_acc;
     DatasetAccessNode *ds_acc;
     FunctionCallNode *fn_call;
@@ -82,6 +82,7 @@ extern e_type last_type;
 %token <integer> STRING 
 %token <integer> DATASET
 %token <integer> VOID
+%token <integer> tSTREAM_READER
 
 /***************
     IDIABLES 
@@ -133,6 +134,8 @@ extern e_type last_type;
 %type <stmt_list> statement_list statement_block else_statement
 %type <func> function
 %type <decl_args> decl_args
+%type <string> stream_reader_name
+%type <str_read> stream_reader
 
 /*********************
     ASSOCIATIVITY
@@ -237,7 +240,13 @@ link_statement : LINK tL_PAREN var tARROW expression tR_PAREN tSEMI         { $$
                                                                                     d("link statement!"); }
                | LINK tL_PAREN var tARROW expression tR_PAREN THEN ID tSEMI { $$ = new LinkStatementNode($3, $5, *$8); 
                                                                               d("link statement with then!"); }
+               | LINK tL_PAREN var tARROW stream_reader tR_PAREN tSEMI      { $$ = new LinkStatementNode($3, $5); d("link stream"); }
+               | LINK tL_PAREN var tARROW stream_reader tL_PAREN THEN ID tSEMI { $$ = new LinkStatementNode($3, $5, *$8); }
                ;
+
+stream_reader : stream_reader_name tL_PAREN args tR_PAREN { $$ = new StreamReaderNode(*$1, $3); d("stream_reader"); }
+
+stream_reader_name : tSTREAM_READER { $$ = yylval.string; }
 
 opt_expression : expression            { $$ = $1; d("opt_expression"); }
                |                               { $$ = nullptr; d("no opt_expression");}

@@ -2,6 +2,11 @@
 #include <string>
 #include "../misc/debug_tools.h"
 
+string stream = "stream_name";
+string function_pointer = "func_pointer";
+string stream_reader_name = "stream_reader_name";
+int num = 0;
+
 /* Takes in a string corresponding to an operator,
  * returns the corresponding enum e_op */
 enum e_op str_to_op(const std::string op_string) {
@@ -1266,6 +1271,42 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn, string f
                 code += "universal_linked_var_ptr->assign_aux_fn((void *)" + auxiliary + ");";
             }
         }
+    }
+}
+
+LinkStatementNode::LinkStatementNode(IDNode *idn, StreamReaderNode *srn){
+
+    id_node = idn;
+    stream_reader_node = srn;
+
+    code = type_to_str()
+
+}
+
+LinkStatementNode::LinkStatementNode(IDNode *idn, StreamReaderNode *srn, string func){
+    
+    id_node = idn;
+    stream_reader_node = srn;
+    auxiliary = func;
+
+}
+
+StreamReaderNode::StreamReaderNode(string n, ArgsNode *args){
+    name = n;
+    arg_list = args;
+
+    if(name.compare("FileStreamReader") == 0){
+        if(arg_list->args_list->size() < 1 || arg_list->args_list->size() < 4){
+            error = true;
+            cout << INVALID_FILE_SR_ERR << cout;
+        }
+    } else if (name.compare("KeyboardStreamReader") == 0){
+        if(arg_list->args_list->size() != 0) {
+            error = true;
+            cout << INVALID_KEYBOARD_SR_ERR << cout;
+        }
+    } else if (name.compare("WebStreamReader") == 0){
+
     }
 }
 
