@@ -4,6 +4,7 @@ using namespace std;
 
 static stack<string> parse_stack;
 
+
 static void empty_stack() {
 
     while (!parse_stack.empty()) {
@@ -11,14 +12,17 @@ static void empty_stack() {
     }
 }
 
+
 string ripple::trim(string line) {
     int index = line.find_first_not_of(" ");
     return line.substr(index);
 }
 
+
 bool ripple::contains_tag(string line, string tag) {
     return line.find(tag) != string::npos ? true : false;
 }
+
 
 int ripple::get_num_tags(string line, string tag) {
     empty_stack();
@@ -43,9 +47,11 @@ int ripple::get_num_tags(string line, string tag) {
     return count;
 }
 
+
 int ripple::size(string line) {
     return line.size();
 }
+
 
 string ripple::get_body(string line) {
     string body_open_tag = "<body>";
@@ -59,6 +65,7 @@ string ripple::get_body(string line) {
     return result;
 }
 
+
 string ripple::get_head(string line) {
     string head_open_tag = "<head>";
     string head_close_tag = "</head>";
@@ -70,6 +77,7 @@ string ripple::get_head(string line) {
     string result = line.substr(start_index, head_size);
     return result;
 }
+
 
 string ripple::get_tag(string line, string tag) {
     empty_stack();
