@@ -31,7 +31,7 @@ sync_test.o: sync_test.cpp sync_test.h
 tree_test: tree_test.o $(PARENT_OBJS)
 	$(CXX) tree_test.o $(PARENT_OBJS) -o tree_test $(CCFLAGS)
 
-tree_test.o: tree_test.cpp
+tree_test.o: tree_test.cpp ../streamreader/keyboard_stream_reader.h
 	$(CXX) -c tree_test.cpp $(CCFLAGS)
 
 vartest: vartest.o $(PARENT_OBJS)

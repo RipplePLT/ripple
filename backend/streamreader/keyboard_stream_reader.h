@@ -10,7 +10,7 @@ template <typename T>
 class KeyboardStreamReader : StreamReader<T> {
 public:
 
-    KeyboardStreamReader<T> (void *to_update = nullptr, typename FuncPtr<T>::f_ptr f = nullptr, ) {
+    KeyboardStreamReader<T> (void *to_update = nullptr, typename FuncPtr<T>::f_ptr f = nullptr) {
         this->to_update = (T *)to_update;
         this->filter_func_ptr = f;
     }
@@ -57,8 +57,6 @@ protected:
             
             string line; 
             getline(cin, line);
-
-            cout << "before function ptr" << endl;
 
             *this->to_update = this->filter_func_ptr(line);
             linked_var::update_nonlinked_var(this->to_update);

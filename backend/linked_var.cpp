@@ -51,6 +51,13 @@ void linked_var::update_cpp_var() {
 		break;
 	case (ltDOUBLE_PTR):
 		*(double *)(this->address) = *(double *)this->value.value.ptr;
+		break;
+	case (ltSTR):
+		 *(string *)this->address = *(new string(*(this->value.value.strval)));
+		break;
+	case (ltSTR_PTR):
+		*(string *)(this->address) = *(string *)this->value.value.ptr;
+		break;
 	default:
 		break;
 	}
@@ -66,7 +73,7 @@ void linked_var::update() {
 	int i;
 	this->value = this->expression.evaluate();
 	this->update_cpp_var();
-	
+
 	if (this->has_aux)
 		this->call_aux(&this->value.value);
 
@@ -109,9 +116,11 @@ void linked_var::register_cpp_var (void *var) {
  */
 void linked_var::update_nonlinked_var (void *var) {
 	int i;
-	if (references[var] != NULL)
-		for (i = 0; i < references[var]->size(); i++)
+	if (references[var] != NULL) {
+		for (i = 0; i < references[var]->size(); i++) {
 			(*references[var])[i]->update();
+		}
+	}
 }
 
 /*
