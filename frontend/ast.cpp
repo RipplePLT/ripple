@@ -261,6 +261,7 @@ FunctionCallNode::FunctionCallNode(string f, ArgsNode *a) {
 
     if(IS_STD_RPL_FUNCTION(func_id)){
         code = generate_std_rpl_function();
+        typecheck();
     } else {
         typecheck();
         code = f + "( " + a->code + " )";
@@ -275,6 +276,7 @@ FunctionCallNode::FunctionCallNode(string f) {
 
     if(IS_STD_RPL_FUNCTION(func_id)){
         code = generate_std_rpl_function();
+        typecheck();
     } else {
         typecheck();
         code = f + "()";

@@ -54,7 +54,8 @@ SymbolTable::SymbolTable(){
 void SymbolTable::insert_standard_functions() {
     /* Print */
     add_function(RPL_STD_OUTPUT_FUNCTION, tVOID, 0, nullptr);
-    
+    add_function(RPL_STD_INPUT_FUNCTION, tSTRING, 0, new list<e_type>({ tSTRING }));
+
     /* Files */
     add_function("contains_word", tBOOL, 0,  new list<e_type>({ tSTRING, tSTRING }));  
     add_function("length", tINT, 0, new list<e_type>({ tSTRING }));
@@ -67,8 +68,7 @@ void SymbolTable::insert_standard_functions() {
     add_function("size", tINT, 0, new list<e_type>({ tSTRING }));
     add_function("get_body", tSTRING, 0, new list<e_type>({ tSTRING }));
     add_function("get_head", tSTRING, 0, new list<e_type>({ tSTRING }));
-    add_function("get_tag", tSTRING, 0, new list<e_type>({ tSTRING, tSTRING }));
-    
+    add_function("get_tag", tSTRING, 0, new list<e_type>({ tSTRING, tSTRING })); 
 
     /* XML */
     add_function("get_num_nodes", tINT, 0, new list<e_type>({ tSTRING, tSTRING }));
