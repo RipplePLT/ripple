@@ -7,8 +7,11 @@
 #include <string>
 
 #include "expression_tree.h"
+#include "file_lib.h"
+#include "html_lib.h"
 #include "link_val.h"
 #include "linked_var.h"
+#include "xml_lib.h"
 
 using namespace std;
 
