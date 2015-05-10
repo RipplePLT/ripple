@@ -26,15 +26,6 @@
 #define BINARY_EXPRESSION_NODE_NAME "BINARY_EXPRESSION_NAME"
 #define EXPRESSION_NODE_NAME "EXPRESSION_NODE_NAME"
 
-inline string VARIABLE_NODE(string arg){ return "new VariableNode( &" + arg + " )"; }
-inline string LITERAL_NODE(string arg){ return "new LiteralNode( " + arg + " )"; }
-inline string VALUE_NODE(string arg){ return  "new ValueNode( " + arg + " )"; }
-inline string UNARY_EXPRESSION(string arg){ return  "new UnaryExpressionNode( " + arg + " )"; }
-inline string UNARY_EXPRESSION(string arg, string op){ return  "new UnaryExpressionNode( " + arg + ", \"" + op + "\" )"; }
-inline string BINARY_EXPRESSION(string arg1){ return  "new BinaryExpressionNode( " + arg1 + " )"; }
-inline string BINARY_EXPRESSION(string arg1, string op, string arg2){ return  "new BinaryExpressionNode( " + arg1 + ", \"" + op + "\", " + arg2 + " )"; }
-inline string EXPRESSION_NODE(string arg){ return  "new ExpressionNode( " + arg + " )"; }
-
 #define INVAL_UNARY_NOT_ERR LINE_ERR "unary not error"
 #define INVAL_UNARY_MINUS_ERR LINE_ERR "unary minus error"
 #define INVAL_BINARY_PLUS_ERR LINE_ERR "binary plus error"
@@ -72,6 +63,7 @@ inline string EXPRESSION_NODE(string arg){ return  "new ExpressionNode( " + arg 
 #define ARR_SMALL_SIZE_ERR LINE_ERR "size of array declared is too small"
 #define ARR_ASSIGN_ERR LINE_ERR "can't assign array to non-array variable"
 
+#define UNLINKABLE_NO_VAR_ERR LINE_ERR "linked expression must have variables"
 #define UNLINKABLE_EXPRESSION_ERR LINE_ERR "expression provided cannot be linked"
 #define NOT_A_FUNC_ERR LINE_ERR "attempt to call a non function identifier"
 #define COND_STMT_ERR LINE_ERR "expression in if statement must be boolean"
@@ -82,6 +74,15 @@ inline string EXPRESSION_NODE(string arg){ return  "new ExpressionNode( " + arg 
 
 #define ERROR "error"
 #define COMPILE_ERR "Unable to complete compilation due to errors in code. Get good"
+
+inline string VARIABLE_NODE(string arg){ return "new VariableNode( &" + arg + " )"; }
+inline string LITERAL_NODE(string arg){ return "new LiteralNode( " + arg + " )"; }
+inline string VALUE_NODE(string arg){ return  "new ValueNode( " + arg + " )"; }
+inline string UNARY_EXPRESSION(string arg){ return  "new UnaryExpressionNode( " + arg + " )"; }
+inline string UNARY_EXPRESSION(string arg, string op){ return  "new UnaryExpressionNode( " + arg + ", \"" + op + "\" )"; }
+inline string BINARY_EXPRESSION(string arg1){ return  "new BinaryExpressionNode( " + arg1 + " )"; }
+inline string BINARY_EXPRESSION(string arg1, string op, string arg2){ return  "new BinaryExpressionNode( " + arg1 + ", \"" + op + "\", " + arg2 + " )"; }
+inline string EXPRESSION_NODE(string arg){ return  "new ExpressionNode( " + arg + " )"; }
 
 using namespace std;
 extern int line_no;
@@ -172,7 +173,7 @@ class Node {
         int array_length;
         string link_code;
         std::vector<string *> linked_vars;
-        bool is_linkable;
+        bool is_linkable = false;
         e_type type = tNOTYPE;
         e_type get_type();
         e_symbol_type sym;

@@ -585,11 +585,11 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     left_operand.b_exp = bl;
     right_operand.b_exp = br;
     left_is_binary = right_is_binary = true;
-    
+
     op = str_to_op(_op);
-    
+
     typecheck(bl, br, op);
-    
+
     code = gen_binary_code(bl->code, op, br->code, bl->type, br->type);
     link_code = BINARY_EXPRESSION(bl->link_code, _op, br->link_code);
     linked_vars.insert(linked_vars.end(), bl->linked_vars.begin(), bl->linked_vars.end());
@@ -862,7 +862,6 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
 }
 
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
-
     bin_exp = b;
     value = v;
     typecheck(b, v);
@@ -954,6 +953,22 @@ DeclarativeStatementNode::DeclarativeStatementNode(ExpressionNode *expression_no
     en = expression_node;
     a_size = nullptr;
     code = expression_node->code + ";\n";
+
+    ValueNode *val_node = expression_node->value;
+    if (val_node) {
+        if (val_node->val_type == IDENT) {
+            Entry *entry = sym_table.get(val_node->code);
+            if (entry) {
+                if (entry->type == tNOTYPE) {
+                    error = true;
+                    cout << UNDECLARED_ERROR << endl;
+                }
+                if (entry->has_dependents) {
+                    code += "linked_var::update_nonlinked_var(&" + entry->name + ");\n";
+                }
+            }
+        }
+    }
 }
 
 void DeclarativeStatementNode::typecheck() { 
@@ -1104,12 +1119,20 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn){
 
     if(expression_node->linked_vars.size() == 0){
         error = true;
-        cout << UNLINKABLE_EXPRESSION_ERR << endl;
+        cout << UNLINKABLE_NO_VAR_ERR << endl;
     }
 
     code = "linked_var::register_cpp_var(&" + idn->code + ");\n";
-    for(int i = 0; i < expression_node->linked_vars.size(); i++)
-        code += "linked_var::register_cpp_var(&" + *expression_node->linked_vars[i] + ");\n";
+    for(vector<string *>::iterator it = expression_node->linked_vars.begin(); it != expression_node->linked_vars.end(); it++) {
+        code += "linked_var::register_cpp_var(&" + **it + ");\n";
+        Entry *linked_entry = sym_table.get(**it);
+        if (linked_entry) {
+            linked_entry->has_dependents = true;
+        } else {
+            error = true;
+            cout << UNDECLARED_ERROR << endl;
+        }
+    }
     code += "linked_var *asd = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");\n";
 }
 
