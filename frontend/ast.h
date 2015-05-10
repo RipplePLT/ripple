@@ -65,6 +65,7 @@
 
 #define UNLINKABLE_NO_VAR_ERR LINE_ERR "linked expression must have variables"
 #define UNLINKABLE_EXPRESSION_ERR LINE_ERR "expression provided cannot be linked"
+#define INVAL_FUNC_ARGS_ERR LINE_ERR "an auxiliary function may only have one argument of the same type as the linked variable"
 #define NOT_A_FUNC_ERR LINE_ERR "attempt to call a non function identifier"
 #define COND_STMT_ERR LINE_ERR "expression in if statement must be boolean"
 #define LOOP_CONDITION_ERR LINE_ERR "condition expression in loop must be of type boolean"
@@ -73,6 +74,7 @@
 #define ASSIGN_ERR LINE_ERR "left operand of assignment expression must be a variable"
 
 #define ERROR "error"
+#define MAIN_FUNC_ERROR "all ripple programs need a main function"
 #define COMPILE_ERR "Unable to complete compilation due to errors in code. Get good"
 
 inline string VARIABLE_NODE(string arg){ return "new VariableNode( &" + arg + " )"; }
@@ -247,7 +249,7 @@ class ArgsNode: public Node {
 class TypeNode: public Node {
     public:
         ValueNode *value;
-        TypeNode(e_type t);
+        TypeNode(e_type t, string name);
         TypeNode(e_type t, ValueNode *val);
 };
 
@@ -402,8 +404,10 @@ class LinkStatementNode: public Node {
     public:
         IDNode *id_node;
         ExpressionNode *expression_node;
+        string auxiliary = "";
 
         LinkStatementNode(IDNode *idn, ExpressionNode *expn);
+        LinkStatementNode(IDNode *idn, ExpressionNode *expn, string func);
         void sepukku();
 };
 

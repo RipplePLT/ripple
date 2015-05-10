@@ -24,9 +24,40 @@ public:
 	static void test_nested_expressions();
 	static void test_string_concatenation();
 	static void test_string_int_concatenation();
+	static void test_streamreader_expressions();
 	static void run_all_unit_tests();
 	static void run_all_integration_tests();
 };
+
+void test_aux_fn (int n) {
+	assert(n == 102);
+}
+
+void TreeTest::test_streamreader_expressions() {
+	int y, x = 2;
+	linked_var::register_cpp_var(&x);
+	linked_var::register_cpp_var(&y);
+
+	// link (y <- x + 2)
+	//     text_aux_fn(y);
+	linked_var *y_var = new linked_var(&y, new ExpressionNode (
+		new BinaryExpressionNode(
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode(&x)))), "+",
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new LiteralNode(2)))))));
+	y_var->assign_aux_fn((void *)&test_aux_fn);
+
+	// x = 100;
+	x = 100;
+	linked_var::update_nonlinked_var(&x);
+
+	assert(y == 102);
+}
 
 void TreeTest::test_nested_expressions() {
 	int z, x = 1;
@@ -129,6 +160,7 @@ void TreeTest::test_string_concatenation() {
 		new ExpressionNode (predicate_bnode);
 	linked_var *predicate_var =
 		new linked_var (&predicate, predicate_enode);
+
 
 	assert(predicate_var->get_value().type == ltSTR_PTR);
 	assert(!strcmp((*(string **)predicate_var->get_value().value.ptr)->c_str(), "a problem."));
@@ -552,6 +584,8 @@ void TreeTest::run_all_integration_tests() {
 	test_nested_expressions();
 	cerr << "[TREE_TEST] Nested expression tests passed." << endl;
 	linked_var::reset_refs();
+	test_streamreader_expressions();
+	cerr << "[TREE_TEST] StreamReader expression tests passed." << endl;
 }
 
 int main() {

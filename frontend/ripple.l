@@ -46,7 +46,7 @@ float	    {digit}+\.{digit}*
 %%
 
 {nl}		{   line_no++;  }
-{ws}        {   /* don't do anything for whitespace */	}
+{ws}        {   string str = yytext; size_t s = count(str.begin(), str.end(), '\n'); line_no += s;	}
 if          {	db(yytext); saw_id = false; return IF;	}
 else        {	db(yytext); saw_id = false; return ELSE;	}
 while       {	db(yytext); saw_id = false; return WHILE;	}
@@ -67,6 +67,7 @@ false       {	db(yytext); saw_id = false; yylval.boolean = false; return FALSE;}
 not         {   db(yytext); saw_id = false; return NOT; }
 and         {   db(yytext); saw_id = false; return AND; }
 or          {   db(yytext); saw_id = false; return OR; }
+then        {   db(yytext); saw_id = false; return THEN; }
 
 {id}        {	db(yytext); 
 				yylval.string = new std::string(yytext);
@@ -128,6 +129,12 @@ int main(int argc, char **argv) {
     yyout = fopen(filename_cpp.c_str(), "w");
     yyparse();
     
+    Entry *main_func = sym_table.get("main");
+    if (!main_func || main_func->symbol_type != tFUNC) {
+        cout << MAIN_FUNC_ERROR << endl;
+        error = true;
+    }
+
     if(error){
     	cout << COMPILE_ERR << endl;
     	return 1;

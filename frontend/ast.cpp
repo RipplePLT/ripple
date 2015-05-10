@@ -183,7 +183,9 @@ void ValueNode::seppuku(){
 
 DatasetNode::DatasetNode(string s, DeclArgsNode *d) {
     name = s;
-    decl_args = d; 
+    decl_args = d;
+    replace( decl_args->code.begin(), decl_args->code.end(), ',', ';');
+    code = "struct " + s + "{\n" + decl_args->code + ";\n};";
 }
 
 void DatasetNode::seppuku(){ 
@@ -194,7 +196,7 @@ void DatasetNode::seppuku(){
 /* IDNode */
 IDNode::IDNode(Entry *ent) {
     entry = ent;
-    if (ent) {
+    if (entry) {
         type = ent->type;
         code = ent->name;
         sym = ent->symbol_type;
@@ -464,6 +466,7 @@ ArrayAccessNode::ArrayAccessNode(ValueNode *val, ExpressionNode *exp) {
     en = exp;
     type = val->type;
     sym = val->sym;
+    code = val->code + "[" + exp->code + "]";
 }
 
 void ArrayAccessNode::seppuku(){ 
@@ -478,14 +481,15 @@ DatasetAccessNode::DatasetAccessNode(string c, string i) {
     Entry *entry = sym_table.get(c);
     if (!entry) {
         error = true;
-        cout << "Use of undeclared variable" << c << endl;
+        cout << LINE_ERR "use of undeclared variable" << c << endl;
     }
 
     Entry *member_entry = sym_table.get_dataset_member(entry->ds_name, i);
     if (!member_entry) {
         error = true;
-        cout << "Dataset " << c << " of type " << entry->ds_name << "does not contain a member named " << i << endl;
+        cout << LINE_ERR "dataset " << c << " of type " << entry->ds_name << "does not contain a member named " << i << endl;
     } else {
+        cout << "here" << endl;
         entry = member_entry;
         type = member_entry->type;
         sym = member_entry->symbol_type;
@@ -906,7 +910,6 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
         error = true;
         cout << INVALID_DECL_ERR << endl;
     }  
-
     typecheck();
     Entry *entry = sym_table.get(expression_node->value->code);
     switch(sym) {
@@ -920,7 +923,12 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
             code += type_to_str(type) + " " + expression_node->code + ";\n";
             break;
         case tARR:
-
+            if (entry->type != tNOTYPE) {
+                error = true;
+                cout << VARIABLE_REDECL_ERR << endl;
+            } else {
+                entry->type = type;
+            }
             if(expression_node->sym != tARR && expression_node->sym != tNOSTYPE) {
                 error = true;
                 cout << ARR_ASSIGN_ERR << endl;
@@ -953,7 +961,7 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
                 cout << VARIABLE_REDECL_ERR << endl;
             }
 
-            code += "struct " + ds_name + " " + expression_node->value->code + ";";
+            code += "struct ds " + expression_node->value->code + ";\n";
             break;
     }
 }
@@ -1003,20 +1011,10 @@ void DeclarativeStatementNode::seppuku(){
 }
 
 /* TypeNode */
-TypeNode::TypeNode(e_type t){
+TypeNode::TypeNode(e_type t, string name){
     type = t;
-    if (type == tNOTYPE) {
-        if (sym_table.get_dataset(type_to_str(t))) {
-            sym = tDSET;
-            ds_name = t;
-        } else {
-            error = true;
-            cout << UNKNOWN_TYPE_ERR << endl;
-            sym = tNOSTYPE;
-        }
-    } else {
-        sym = tVAR;
-    }
+    sym = tDSET;
+    ds_name = name;
 
     value = nullptr;
 
@@ -1030,7 +1028,7 @@ TypeNode::TypeNode(e_type t, ValueNode *val) {
         error = true;
         cout << UNKNOWN_TYPE_ERR << endl;
     }
-    
+
     if(val){
         sym = tARR;
         array_length = val->array_length;
@@ -1161,7 +1159,53 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn){
             cout << UNDECLARED_ERROR << endl;
         }
     }
-    code += "linked_var *asd = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");\n";
+    code += "universal_linked_var_ptr = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");\n";
+}
+
+LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn, string func){
+    id_node = idn;
+    expression_node = expn;
+    auxiliary = func;
+
+    if(!expression_node->is_linkable){
+        error = true;
+        cout << UNLINKABLE_EXPRESSION_ERR << endl;
+    }
+
+    if(expression_node->linked_vars.size() == 0){
+        error = true;
+        cout << UNLINKABLE_NO_VAR_ERR << endl;
+    }
+
+    code = "linked_var::register_cpp_var(&" + idn->code + ");\n";
+    for(vector<string *>::iterator it = expression_node->linked_vars.begin(); it != expression_node->linked_vars.end(); it++) {
+        code += "linked_var::register_cpp_var(&" + **it + ");\n";
+        Entry *linked_entry = sym_table.get(**it);
+        if (linked_entry) {
+            linked_entry->has_dependents = true;
+        } else {
+            error = true;
+            cout << UNDECLARED_ERROR << endl;
+        }
+    }
+
+    code += "universal_linked_var_ptr = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");\n";
+    Entry *entry = sym_table.get(auxiliary);
+    if (!entry) {
+        cout << UNDECLARED_ERROR << endl;
+    } else {
+        if (entry->symbol_type != tFUNC || entry->type != tVOID) {
+            error = true;
+            cout << INVAL_FUNC_CALL_ERR << endl;
+        } else  {
+            if (entry->args->size() != 1 || entry->args->front() != id_node->type) {
+                error = true;
+                cout << INVAL_FUNC_ARGS_ERR << endl;
+            } else {
+                code += "universal_linked_var_ptr->assign_aux_fn((void *)" + auxiliary + ");";
+            }
+        }
+    }
 }
 
 /* StatementNode */
