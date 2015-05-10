@@ -5,6 +5,7 @@
 #include "../link_val.h"
 #include "../linked_var.h"
 #include "../streamreader/keyboard_stream_reader.h"
+#include "../streamreader/file_stream_reader.h"
 
 /* Spaghetti */
 
@@ -27,6 +28,7 @@ public:
 	static void test_aux_fn_expressions();
 	static void test_streamreader_int_expressions();
 	static void test_streamreader_string_expressions();
+	static void test_filestream_reader();
 	static void run_all_unit_tests();
 	static void run_all_integration_tests();
 };
@@ -45,6 +47,45 @@ int rpl_str_to_int (string msg) {
 
 string default_rpl_str_str (string msg) {
 	return msg;
+}
+
+void TreeTest::test_filestream_reader() {
+	string *prefix = new string("Ripple is ");
+	string *suffix = new string();
+	string *sentence = new string();
+
+	linked_var::register_cpp_var(prefix);
+	linked_var::register_cpp_var(suffix);
+	linked_var::register_cpp_var(sentence);
+
+	// link (sentence <- prefix + suffix)
+	//		test_aux_str_fn(sentence);
+	linked_var *sentence_var = new linked_var(sentence, new ExpressionNode(
+		new BinaryExpressionNode(
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode((string **)prefix)))), "+",
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode((string **)suffix)))))));
+	sentence_var->assign_aux_fn((void *)&test_aux_str_fn);
+
+	// link (suffix <- str_to_str <- KSR());
+	string *stream = new string();
+	linked_var::register_cpp_var(stream);
+	FuncPtr<string>::f_ptr f = &default_rpl_str_str;  // @TODO !!! default
+	//FileStreamReader<string> *sr = new FileStreamReader<string>(suffix, f, "buzzwords.txt", 5, ",");
+	FileStreamReader<string> *sr = new FileStreamReader<string>(suffix, f, "new_fifo", 5, "\n");
+	linked_var *suffix_var = new linked_var(suffix, new ExpressionNode (
+		new BinaryExpressionNode(
+		new UnaryExpressionNode(
+		new ValueNode(
+		new VariableNode((string **)stream))))));
+
+	sr->start_thread();
+	while (1) {}
 }
 
 void TreeTest::test_streamreader_int_expressions() {
@@ -71,15 +112,14 @@ void TreeTest::test_streamreader_int_expressions() {
 
 	// link (x <- str_to_int <- KSR());
 	int stream;
+	linked_var::register_cpp_var(&stream);
 	FuncPtr<int>::f_ptr f = &rpl_str_to_int; 
 	KeyboardStreamReader<int> *sr = new KeyboardStreamReader<int>(&stream, f);
-	linked_var::register_cpp_var(&stream);
 	linked_var *sr_var = new linked_var(&x, new ExpressionNode (
 		new BinaryExpressionNode(
 		new UnaryExpressionNode(
 		new ValueNode(
 		new VariableNode(&stream))))));
-
 
 	sr->start_thread();
 	while (1) {}
@@ -678,12 +718,13 @@ void TreeTest::run_all_integration_tests() {
 	test_aux_fn_expressions();
 	cerr << "[TREE_TEST] Auxiliary link function tests passed." << endl;
 	linked_var::reset_refs();
-	//test_streamreader_int_expressions();
-	test_streamreader_string_expressions();
+	// test_streamreader_int_expressions();
+	// test_streamreader_string_expressions();
+	test_filestream_reader();
 	linked_var::reset_refs();
 }
 
-int main() {
+int main(int c, char **argv) {
     TreeTest::run_all_unit_tests();
 	cerr << "[TREE_TEST] All unit tests passed." << endl;
     TreeTest::run_all_integration_tests();
