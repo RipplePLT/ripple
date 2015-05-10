@@ -6,12 +6,14 @@ using namespace std;
 
 static stack<string> parse_stack;
 
+
 static void empty_stack() {
 
     while (!parse_stack.empty()) {
         parse_stack.pop();
     }
 }
+
 
 int ripple::get_num_nodes(string line, string tag) {
     empty_stack();
@@ -36,9 +38,11 @@ int ripple::get_num_nodes(string line, string tag) {
     return count;
 }
 
+
 int locate_word(string line, string word) {
     return line.find(word);
 }
+
 
 string ripple::get_node(string line, string tag) {
     empty_stack();
@@ -67,6 +71,7 @@ string ripple::get_node(string line, string tag) {
 
     return ripple::trim(result + " " + end_tag);
 }
+
 
 string ripple::get_node_text(string line, string tag) {
     empty_stack();

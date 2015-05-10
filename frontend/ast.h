@@ -7,10 +7,12 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
+
 #include "symbol_table/hashmap.h"
 #include "symbol_table/symbol_table.h"
 #include "../structures/enum.h"
 #include "../structures/union.h"
+#include "../mis/debug_tools.h"
 
 #define LINE_ERR "Error on line number " + to_string(line_no) + ": " <<
 

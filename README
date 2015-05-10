@@ -15,6 +15,7 @@ To compile the Ripple compiler:
 To compile a Ripple program:
 ./rpl <input_filename> [output_filename]
 
-If you don't provide the output_filename, the output file will be simply called output.
+If you don't provide the output_filename, the output file will be 
+simply called output.
 
 Enjoy!

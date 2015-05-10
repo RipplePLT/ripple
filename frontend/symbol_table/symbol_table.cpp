@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <iostream>
-
 #include "symbol_table.h"
 
 SymbolTableNode::SymbolTableNode() {
@@ -13,6 +8,7 @@ SymbolTableNode::SymbolTableNode() {
     parent = nullptr;
 }
 
+
 SymbolTableNode::SymbolTableNode(string n) {
     name = n;
     hashmap = new HashMap();
@@ -21,6 +17,7 @@ SymbolTableNode::SymbolTableNode(string n) {
     parent = nullptr;
 }
 
+
 e_type SymbolTableNode::get_type(string n) {
     Entry *found;
     if ((found = hashmap->get(n)))
@@ -28,6 +25,7 @@ e_type SymbolTableNode::get_type(string n) {
     else
         return tNOTYPE;
 }
+
 
 SymbolTableNode::~SymbolTableNode() {
     delete child;
@@ -51,6 +49,7 @@ SymbolTable::SymbolTable(){
     current = main;
     insert_standard_functions();
 }
+
 
 void SymbolTable::insert_standard_functions() {
     /* Print */
@@ -77,6 +76,7 @@ void SymbolTable::insert_standard_functions() {
     add_function("get_node_text", tINT, 0, new list<e_type>({ tSTRING, tSTRING }));
 }
 
+
 void SymbolTable::scope_in(int line_no) {
     SymbolTableNode *node = new SymbolTableNode;
     if (!start) {
@@ -90,6 +90,7 @@ void SymbolTable::scope_in(int line_no) {
     current = node;
 }
 
+
 void SymbolTable::scope_out(int line_no) {
     if (current->parent){
         current = current->parent;
@@ -101,6 +102,7 @@ void SymbolTable::scope_out(int line_no) {
     current->sibling = node;
     current = node;
 }
+
 
 bool SymbolTable::add_function(string name, e_type type, int line_no, list<e_type> *args) {
     bool error = false;
@@ -114,6 +116,7 @@ bool SymbolTable::add_function(string name, e_type type, int line_no, list<e_typ
     return error;
 }
 
+
 bool SymbolTable::add_array(string name, e_type type, int line_no, int length) {
     bool error = false;
     if (contains_in_scope(name)) {
@@ -125,6 +128,7 @@ bool SymbolTable::add_array(string name, e_type type, int line_no, int length) {
     return error;
 }
 
+
 bool SymbolTable::instantiate_dataset(string instance_name, string ds_name, int line_no) {
     bool error = false;
     if (contains_in_scope(instance_name) && get(instance_name)->type != tNOTYPE) {
@@ -135,11 +139,13 @@ bool SymbolTable::instantiate_dataset(string instance_name, string ds_name, int 
     return error;
 }
 
+
 void SymbolTable::add_dsname(string name, string ds_name) {
     Entry *entry = get(name);
     entry->ds_name = ds_name;
     entry->type = tDERIV;
 }
+
 
 void SymbolTable::new_dataset(int line_no, string name) {
     SymbolTableNode *node = new SymbolTableNode(name);
@@ -149,6 +155,7 @@ void SymbolTable::new_dataset(int line_no, string name) {
     current->child = node;
     current = node;
 }
+
 
 SymbolTableNode *SymbolTable::get_dataset(string name) {
     SymbolTableNode *node;
@@ -160,26 +167,32 @@ SymbolTableNode *SymbolTable::get_dataset(string name) {
     return nullptr;
 }
 
+
 Entry *SymbolTable::get_dataset_member(string name, string member_name) {
     SymbolTableNode *node = get_dataset(name);
     return node->hashmap->get(member_name);
 }
 
+
 bool SymbolTable::put(string word, e_type v, int line_no, e_symbol_type s = tNOSTYPE) {
     return current->hashmap->put(word, v, line_no, s);
 }
+
 
 void SymbolTable::classify(string word, e_symbol_type s) {
     get(word)->classify(s);
 }
 
+
 void SymbolTable::add_args(string word, list<e_type> *l) {
     get(word)->add_args(l);
 }
 
+
 void SymbolTable::add_length(string word, int l) {
     get(word)->add_length(l);
 }
+
 
 bool SymbolTable::contains(string word) {
     SymbolTableNode *n = current;
@@ -191,9 +204,11 @@ bool SymbolTable::contains(string word) {
     return false;
 }
 
+
 bool SymbolTable::contains_in_scope(string word){
     return current->hashmap->contains(word);
 }
+
 
 Entry *SymbolTable::get(string word) {    
     SymbolTableNode *n = current;
@@ -204,6 +219,7 @@ Entry *SymbolTable::get(string word) {
     }
     return nullptr;
 }
+
 
 SymbolTable::~SymbolTable() {
 }

@@ -37,6 +37,7 @@ enum e_op str_to_op(const std::string op_string) {
 		return NONE;
 };
 
+
 /* UnaryExpressionNode */
 UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op)
 {
@@ -44,12 +45,16 @@ UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op)
     right_operand.u_exp = u;
 	dependencies = u->dependencies;
 }
+
+
 UnaryExpressionNode::UnaryExpressionNode(ValueNode *v)
 {
     op = NONE;
     right_operand.v_node = v;
 	dependencies = v->dependencies;
 }
+
+
 link_val UnaryExpressionNode::evaluate() {
 	link_val result = (op == NONE) ? this->right_operand.v_node->evaluate() :
 		(op == bNOT) ? !this->right_operand.u_exp->evaluate() :
@@ -59,6 +64,7 @@ link_val UnaryExpressionNode::evaluate() {
 	return result;
 }
 
+
 /* BinaryExpressionNode */
 BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,BinaryExpressionNode *br) {
     left_operand.b_exp = bl;
@@ -67,6 +73,8 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     left_is_binary = right_is_binary = true;
 	dependencies = ExpressionNode::dep_union(bl->dependencies, br->dependencies);
 }
+
+
 BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur) {
     left_operand.b_exp = bl;
     right_operand.u_exp = ur;
@@ -82,11 +90,14 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
 	else
 		dependencies = ExpressionNode::dep_union(bl->dependencies, ur->dependencies);
 }
+
+
 BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
     left_operand.u_exp = ul;
     op = NONE;
 	dependencies = ul->dependencies;
 }
+
 
 link_val BinaryExpressionNode::evaluate() {
 	link_val result, left_value, right_value;
@@ -146,6 +157,7 @@ link_val BinaryExpressionNode::evaluate() {
 	return result;
 }
 
+
 /* ExpressionNode */
 ExpressionNode::ExpressionNode() { }
 ExpressionNode::~ExpressionNode() { }
@@ -154,9 +166,13 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     value = NULL;
 	dependencies = b->dependencies;
 }
+
+
 link_val ExpressionNode::evaluate() {
 	return this->bin_exp->evaluate();
 }
+
+
 vector<void *> *ExpressionNode::dep_union(vector<void *> *r1, vector<void *> *r2) {
 	int i;
 	if (r1 == NULL && r2 == NULL)
@@ -182,6 +198,7 @@ vector<void *> *ExpressionNode::dep_union(vector<void *> *r1, vector<void *> *r2
 	return r1;
 }
 
+
 /* ValueNode */
 ValueNode::ValueNode(LiteralNode *l) {
 	this->is_literal = true;
@@ -191,6 +208,8 @@ ValueNode::ValueNode(LiteralNode *l) {
 	
 	this->dependencies = NULL;
 }
+
+
 ValueNode::ValueNode(VariableNode *v) {
 	this->is_literal = false;
 	this->is_expression = false;
@@ -199,6 +218,8 @@ ValueNode::ValueNode(VariableNode *v) {
 
 	this->dependencies = v->dependencies;
 }
+
+
 ValueNode::ValueNode(ExpressionNode *e) {
 	this->is_literal = false;
 	this->is_expression = true;
@@ -207,6 +228,8 @@ ValueNode::ValueNode(ExpressionNode *e) {
 
 	this->dependencies = e->dependencies;
 }
+
+
 ValueNode::ValueNode(StreamReaderNode *s) {
 	this->is_literal = false;
 	this->is_expression = false;
@@ -215,6 +238,8 @@ ValueNode::ValueNode(StreamReaderNode *s) {
 
 	this->dependencies = s->dependencies;
 }
+
+
 link_val ValueNode::evaluate() {
 	return is_literal ? lit_node->evaluate() :
 		is_expression? expr_node->evaluate() :
@@ -222,27 +247,36 @@ link_val ValueNode::evaluate() {
 		var_node->evaluate();
 }
 
+
 /* LiteralNode */
 LiteralNode::LiteralNode(int i) {
 	this->val.type = ltINT;
 	this->val.value.intval = i;
 	this->dependencies = NULL;
 }
+
+
 LiteralNode::LiteralNode(double d) {
 	this->val.type = ltDOUBLE;
 	this->val.value.doubleval = d;
 	this->dependencies = NULL;
 }
+
+
 LiteralNode::LiteralNode(bool b) {
 	this->val.type = ltBOOL;
 	this->val.value.boolval = b;
 	this->dependencies = NULL;
 }
+
+
 LiteralNode::LiteralNode(const char *s) {
 	this->val.type = ltSTR;
 	this->val.value.strval = new string(s);
 	this->dependencies = NULL;
 }
+
+
 link_val LiteralNode::evaluate() {
 	return this->val;
 }
@@ -256,6 +290,8 @@ VariableNode::VariableNode(int *var) {
 	this->dependencies = new vector<void *>();
 	this->dependencies->push_back(this->val.value.ptr);
 }
+
+
 VariableNode::VariableNode(double *var) {
 	this->var = var;
 	this->val.type = ltDOUBLE_PTR;
@@ -264,6 +300,8 @@ VariableNode::VariableNode(double *var) {
 	this->dependencies = new vector<void *>();
 	this->dependencies->push_back(this->val.value.ptr);
 }
+
+
 VariableNode::VariableNode(bool *var) {
 	this->var = var;
 	this->val.type = ltBOOL_PTR;
@@ -272,6 +310,8 @@ VariableNode::VariableNode(bool *var) {
 	this->dependencies = new vector<void *>();
 	this->dependencies->push_back(this->val.value.ptr);
 }
+
+
 VariableNode::VariableNode(string **s) {
 	this->var = s;
 	this->val.type = ltSTR_PTR;
@@ -280,15 +320,20 @@ VariableNode::VariableNode(string **s) {
 	this->dependencies = new vector<void *>();
 	this->dependencies->push_back(this->val.value.ptr);
 }
+
+
 link_val VariableNode::evaluate() {
 	return this->val;
 }
+
 
 StreamReaderNode::StreamReaderNode(enum link_val_type t) {
 	this->val.type = t;
 	this->dependencies = new vector<void *>();
 	this->dependencies->push_back(&this->val.value);
 }
+
+
 link_val StreamReaderNode::evaluate () {
 	return this->val;
 }

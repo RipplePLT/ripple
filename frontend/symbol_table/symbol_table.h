@@ -1,9 +1,14 @@
-#ifndef __SYMBOL_TABLE__
-#define __SYMBOL_TABLE__
+#ifndef __SYMBOL_TABLE_H__
+#define __SYMBOL_TABLE_H__
 
 #include <cstdio>
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
+#include <string.h>
 #include <vector>
+
 #include "hashmap.h"
 #include "../../structures/enum.h"
 
@@ -24,12 +29,12 @@
 using namespace std;
 
 class SymbolTableNode {
-    public:
-	HashMap *hashmap;
+public:
+    HashMap *hashmap;
     string name;
-	SymbolTableNode *sibling;
-	SymbolTableNode *child;
-	SymbolTableNode *parent;
+    SymbolTableNode *sibling;
+    SymbolTableNode *child;
+    SymbolTableNode *parent;
 
     SymbolTableNode();
     SymbolTableNode(string n);
@@ -44,12 +49,12 @@ class SymbolTable {
 
     void insert_standard_functions();
 
-    public:
+public:
     SymbolTable();
     ~SymbolTable();
     void scope_in(int line_no);
     void scope_out(int line_no);
-    
+
     void new_dataset(int line_no, string name);
     SymbolTableNode *get_dataset(string name);
     Entry *get_dataset_member(string c, string i);

@@ -1,40 +1,44 @@
-#ifndef _HASHMAP_
-#define _HASHMAP_
+#ifndef __HASHMAP_H__
+#define __HASHMAP_H__
+
+#include <array>
+#include <cmath>
+#include <iostream>
 #include <list>
 #include <string>
-#include <array>
+
 #include "../../structures/enum.h"
 #include "../../structures/union.h"
-#define HASH_PRIME 31
 
+#define HASH_PRIME 31
 #define TABLE_SIZE 29
 
 using namespace std;
 
 class Entry {
-    public:
+public:
 
-        string name;
-        enum e_type type;
-        int line_no;
-        string ds_name;
-        union literal val;
-        enum e_symbol_type symbol_type;
-        list<e_type> *args;
-        int array_length;
-        bool has_dependents = false;
-        bool is_final = false;
+    string name;
+    enum e_type type;
+    int line_no;
+    string ds_name;
+    union literal val;
+    enum e_symbol_type symbol_type;
+    list<e_type> *args;
+    int array_length;
+    bool has_dependents = false;
+    bool is_final = false;
 
-        Entry(string n, e_type v, int line, e_symbol_type s);
-        Entry(string n, int line);
+    Entry(string n, e_type v, int line, e_symbol_type s);
+    Entry(string n, int line);
 
-        void classify (e_symbol_type s);
-        void add_args (list<e_type> *l);
-        void add_length (int i);
+    void classify (e_symbol_type s);
+    void add_args (list<e_type> *l);
+    void add_length (int i);
 
-        bool operator==(string n);
+    bool operator==(string n);
 
-        ~Entry();
+    ~Entry();
 };
 
 typedef array<list<Entry *>*, TABLE_SIZE> table;
@@ -42,14 +46,14 @@ typedef array<list<Entry *>*, TABLE_SIZE> table;
 class HashMap{
     table t;
 
-    public:
-        HashMap();
-        ~HashMap();
+public:
+    HashMap();
+    ~HashMap();
 
-        bool put(string word, e_type v, int line_no, e_symbol_type s);
+   bool put(string word, e_type v, int line_no, e_symbol_type s);
 
-        bool contains(string word);
-        Entry *get(string word);
+    bool contains(string word);
+    Entry *get(string word);
 };
 
 #endif
