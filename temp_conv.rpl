@@ -1,0 +1,15 @@
+final float FACTOR = 9//5;
+
+void print_temp_c(int temp_f){
+    float tc = (temp_f - 32) // FACTOR;
+    print("Temperature in C: ", tc);
+}
+
+void main(){
+
+    int tf;
+    link(tf <- str_to_int <- keyboard_stream()) then print_temp_c;
+
+    stop;
+
+}
