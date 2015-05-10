@@ -20,7 +20,8 @@ sync_queue.o: sync_queue.cpp sync_queue.hpp
 
 .PHONY: clean-subdirs
 clean-subdirs:
-	cd ./parse_lib; make clean; cd ../tests; make clean;
+	$(MAKE) -C parse_lib clean
+	$(MAKE) -C tests clean
 
 .PHONY: clean
 clean:
@@ -31,11 +32,14 @@ clean-all: clean clean-subdirs
 
 .PHONY: subdirs
 subdirs:
-	cd ./parse_lib; make all; cd ../tests; make all;
+	$(MAKE) -C parse_lib all
+	$(MAKE) -C tests all
 
 .PHONY: all
 all: clean objects subdirs
 
 .PHONY: mrproper
 mrproper:
-	make clean; make clean-subdirs; rm -rf lib;
+	$(MAKE) clean
+	$(MAKE) clean-subdirs
+	rm -r lib
