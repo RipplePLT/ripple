@@ -58,14 +58,12 @@ protected:
             string line; 
             getline(cin, line);
 
-            if (this->filter_func_ptr)
+            if (this->filter_func_ptr){
                 to_update = filter_func_ptr(line);
                 linked_var::update_nonlinked_var(to_update);
-                //this->filter_func_ptr(line);
-
             } else {
-                
-
+                to_update = line;
+                linked_var::update_nonlinked_var(to_update); 
             }
         }
     }
