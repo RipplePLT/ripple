@@ -186,7 +186,6 @@ vector<void *> *ExpressionNode::dep_union(vector<void *> *r1, vector<void *> *r2
 ValueNode::ValueNode(LiteralNode *l) {
 	this->is_literal = true;
 	this->is_expression = false;
-	this->is_stream = false;
 	this->lit_node = l;
 	
 	this->dependencies = NULL;
@@ -194,7 +193,6 @@ ValueNode::ValueNode(LiteralNode *l) {
 ValueNode::ValueNode(VariableNode *v) {
 	this->is_literal = false;
 	this->is_expression = false;
-	this->is_stream = false;
 	this->var_node = v;
 
 	this->dependencies = v->dependencies;
@@ -202,23 +200,13 @@ ValueNode::ValueNode(VariableNode *v) {
 ValueNode::ValueNode(ExpressionNode *e) {
 	this->is_literal = false;
 	this->is_expression = true;
-	this->is_stream = false;
 	this->expr_node = e;
 
 	this->dependencies = e->dependencies;
 }
-ValueNode::ValueNode(StreamReaderNode *s) {
-	this->is_literal = false;
-	this->is_expression = false;
-	this->is_stream = true;
-	this->sr_node = s;
-
-	this->dependencies = s->dependencies;
-}
 link_val ValueNode::evaluate() {
 	return is_literal ? lit_node->evaluate() :
 		is_expression? expr_node->evaluate() :
-		is_stream ? sr_node->evaluate() :
 		var_node->evaluate();
 }
 
@@ -281,14 +269,5 @@ VariableNode::VariableNode(string **s) {
 	this->dependencies->push_back(this->val.value.ptr);
 }
 link_val VariableNode::evaluate() {
-	return this->val;
-}
-
-StreamReaderNode::StreamReaderNode(enum link_val_type t) {
-	this->val.type = t;
-	this->dependencies = new vector<void *>();
-	this->dependencies->push_back(&this->val.value);
-}
-link_val StreamReaderNode::evaluate () {
 	return this->val;
 }

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "stream_reader.h"
-#include "../curl/curl.h"
+#include <curl/curl.h>
 
 #define ERROR_BUF_SIZE 1024
 
@@ -17,12 +17,13 @@ private:
     CURLcode curl_result;
 
 public:
-    WebStreamReader(string URL, int interval = 0, unsigned int port = 80,
-                    typename FuncPtr<T>::f_ptr f = nullptr) {
+    WebStreamReader(void *to_update, typename FuncPtr<T>::f_ptr f = nullptr, 
+                string URL = nullptr, unsigned int port = 80, int interval = 0) {
+        this->to_update = (T *)to_update; 
+        this->filter_func_ptr = f;
         this->URL = URL;
         this->port = port;
         this->interval = interval;
-        this->aux_func_ptr = f;
     }
 
     ~WebStreamReader() {}
@@ -84,19 +85,15 @@ protected:
             }
             
             curl_easy_cleanup(curl);
-            cout << read_buffer << endl;
 
             //Result is set to something other than 0 - there was an error so print and exit program
             if (curl_result) {
                 cerr<<"Error from StreamReader " << URL << ": " <<  curl_easy_strerror(curl_result) << endl;
                 exit(1);
             }
-            //Runs update method on linked variable
-            if (this->aux_func_ptr) {
-                this->aux_func_ptr("Page Loaded and Printed");
-            } else {
-                //update with string
-            }
+                
+            *this->to_update = this->filter_func_ptr(read_buffer);
+            linked_var::update_nonlinked_var(this->to_update);
 
             if (this->interval)
                 sleep(this->interval);
