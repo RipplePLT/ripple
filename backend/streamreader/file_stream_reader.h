@@ -93,7 +93,7 @@ protected:
                         exit(1);
                     }
                     cout << read_buffer << endl;
-                    *this->to_update = this->filter_func_ptr(read_buffer)
+                    *this->to_update = this->filter_func_ptr(read_buffer);
                     linked_var::update_nonlinked_var(this->to_update);
                 }
             }
