@@ -98,7 +98,7 @@ T link_val::generic_op(T a, T b, const char *op) {
 	else if (!strcmp(op, "/"))
 		return a / b;
 	else if (!strcmp(op, "//"))
-		return a / b; // @TODO
+		return a / b;
 	else if (!strcmp(op, "^"))
 		return (T)pow(a, b);
 	else if (!strcmp(op, ">"))

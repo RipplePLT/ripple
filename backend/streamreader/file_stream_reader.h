@@ -75,7 +75,6 @@ protected:
                 read_buffer.resize(file_stream.tellg());
                 file_stream.seekg(0, ios::beg);
                 file_stream.read(&read_buffer[0], read_buffer.size());
-                file_stream.close();
 
                 if (file_stream.fail()) {
                     cerr << "File I/O error" << endl;
@@ -84,6 +83,9 @@ protected:
 
                 *this->to_update = this->filter_func_ptr(read_buffer);
                 linked_var::update_nonlinked_var(this->to_update);
+
+                if (this->interval)
+                    sleep(this->interval);
 
             } else {
                 while(getline(file_stream, read_buffer, *delimiter.c_str())) {
@@ -94,11 +96,11 @@ protected:
                     }
                     *this->to_update = this->filter_func_ptr(read_buffer);
                     linked_var::update_nonlinked_var(this->to_update);
+                    if(this->interval)
+                        sleep(this->interval);
                 }
-				file_stream.close();
             }
-            if (this->interval)
-                sleep(this->interval);
+	    file_stream.close();
         }
     }
 };
