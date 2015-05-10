@@ -176,7 +176,7 @@ class Node {
         bool is_linkable = false;
         e_type type = tNOTYPE;
         e_type get_type();
-        e_symbol_type sym;
+        e_symbol_type sym = tNOSTYPE;
         bool is_number();
         bool is_bool();
         bool is_string();
@@ -226,7 +226,7 @@ class ArrayInitNode: public Node{
     public:
         int array_length;
         std::vector<ExpressionNode *> *args_list;
-
+        bool has_elements;
         ArrayInitNode();
         ArrayInitNode(ExpressionNode *arg);
         void add_arg(ExpressionNode *arg);
@@ -246,8 +246,9 @@ class ArgsNode: public Node {
 
 class TypeNode: public Node {
     public:
+        ValueNode *value;
         TypeNode(e_type t);
-        TypeNode(e_type t, int l);
+        TypeNode(e_type t, ValueNode *val);
 };
 
 class DeclArgsNode: public Node {
