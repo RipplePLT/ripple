@@ -1,0 +1,13 @@
+void printline(string str){
+	print(str);
+}
+
+int str_to_int(string str2){
+	return 0;
+}
+
+void main(){
+	string s;
+	link(s <- file_stream("hello.txt", 5, ","));
+	while(true) {  }
+}
