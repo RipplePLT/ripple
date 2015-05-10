@@ -1,7 +1,7 @@
 #ifndef WEB_STREAM_READER_H
 #define WEB_STREAM_READER_H
 
-#include <curl/curl.h>
+#include "../curl/curl.h"
 #include <vector>
 #include "stream_reader.h"
 
@@ -58,6 +58,7 @@ class WebStreamReader : StreamReader<T>{
             string read_buffer;
             vector<char> error_buffer(ERROR_BUF_SIZE);
             int count = 0;
+            cout << "Ran web_stream" << endl;
 
             while(1) {
                 if (this->stop_stream)
@@ -79,6 +80,7 @@ class WebStreamReader : StreamReader<T>{
                 }
                 
                 curl_easy_cleanup(curl);
+                cout << read_buffer << endl;
 
                 //Result is set to something other than 0 - there was an error so print and exit program
                 if (curl_result) {
