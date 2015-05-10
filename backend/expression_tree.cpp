@@ -161,7 +161,7 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
 link_val ExpressionNode::evaluate() {
 	return this->bin_exp->evaluate();
 }
-vector<void*> *ExpressionNode::dep_union(vector<void*> *r1, vector<void*> *r2) {
+vector<void *> *ExpressionNode::dep_union(vector<void *> *r1, vector<void *> *r2) {
 	int i;
 	if (r1 == NULL && r2 == NULL)
 		return NULL;
@@ -190,6 +190,7 @@ vector<void*> *ExpressionNode::dep_union(vector<void*> *r1, vector<void*> *r2) {
 ValueNode::ValueNode(LiteralNode *l) {
 	this->is_literal = true;
 	this->is_expression = false;
+	this->is_stream = false;
 	this->lit_node = l;
 	
 	this->dependencies = NULL;
@@ -197,6 +198,7 @@ ValueNode::ValueNode(LiteralNode *l) {
 ValueNode::ValueNode(VariableNode *v) {
 	this->is_literal = false;
 	this->is_expression = false;
+	this->is_stream = false;
 	this->var_node = v;
 
 	this->dependencies = v->dependencies;
@@ -204,13 +206,23 @@ ValueNode::ValueNode(VariableNode *v) {
 ValueNode::ValueNode(ExpressionNode *e) {
 	this->is_literal = false;
 	this->is_expression = true;
+	this->is_stream = false;
 	this->expr_node = e;
 
 	this->dependencies = e->dependencies;
 }
+ValueNode::ValueNode(StreamReaderNode *s) {
+	this->is_literal = false;
+	this->is_expression = false;
+	this->is_stream = true;
+	this->sr_node = s;
+
+	this->dependencies = s->dependencies;
+}
 link_val ValueNode::evaluate() {
 	return is_literal ? lit_node->evaluate() :
 		is_expression? expr_node->evaluate() :
+		is_stream ? sr_node->evaluate() :
 		var_node->evaluate();
 }
 
@@ -245,7 +257,7 @@ VariableNode::VariableNode(int *var) {
 	this->val.type = ltINT_PTR;
 	this->val.value.ptr = (void *)var;
 
-	this->dependencies = new vector<void*>();
+	this->dependencies = new vector<void *>();
 	this->dependencies->push_back(this->val.value.ptr);
 }
 VariableNode::VariableNode(double *var) {
@@ -253,7 +265,7 @@ VariableNode::VariableNode(double *var) {
 	this->val.type = ltDOUBLE_PTR;
 	this->val.value.ptr = (void *)var;
 
-	this->dependencies = new vector<void*>();
+	this->dependencies = new vector<void *>();
 	this->dependencies->push_back(this->val.value.ptr);
 }
 VariableNode::VariableNode(bool *var) {
@@ -261,7 +273,7 @@ VariableNode::VariableNode(bool *var) {
 	this->val.type = ltBOOL_PTR;
 	this->val.value.ptr = (void *)var;
 
-	this->dependencies = new vector<void*>();
+	this->dependencies = new vector<void *>();
 	this->dependencies->push_back(this->val.value.ptr);
 }
 VariableNode::VariableNode(string **s) {
@@ -269,15 +281,18 @@ VariableNode::VariableNode(string **s) {
 	this->val.type = ltSTR_PTR;
 	this->val.value.ptr = (void *)s;
 
-	this->dependencies = new vector<void*>();
+	this->dependencies = new vector<void *>();
 	this->dependencies->push_back(this->val.value.ptr);
 }
 link_val VariableNode::evaluate() {
 	return this->val;
 }
 
-/* FunctionCallNode */
-/*
-FunctionCallNode::FunctionCall() {
+StreamReaderNode::StreamReaderNode() {
+	this->val.type = t;
+	this->dependencies = new vector<void *>();
+	this->dependencies->push_back(&this->val.value);
 }
-*/
+link_val StreamReaderNode::evaluate () {
+	return this->val;
+}
