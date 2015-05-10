@@ -42,4 +42,4 @@ all: clean objects subdirs
 mrproper:
 	$(MAKE) clean
 	$(MAKE) clean-subdirs
-	rm -r lib
+	rm -rf lib

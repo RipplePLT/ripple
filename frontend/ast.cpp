@@ -511,7 +511,7 @@ DatasetAccessNode::DatasetAccessNode(string c, string i) {
         cout << LINE_ERR "dataset " << c << " of type " << entry->ds_name << " does not contain a member named " << i << endl;
         type = tDERIV;
         sym = tVAR;
-    } else { 
+    } else {
         entry = member_entry;
         type = member_entry->type;
         sym = member_entry->symbol_type;
@@ -555,6 +555,22 @@ UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op) {
     is_linkable = u->is_linkable;
 }
 
+UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, TypeNode *t){
+    right_operand.u_exp = u;
+    sym = u->sym;
+    op = CAST;
+    type = t->type;
+    typecheck(CAST);
+    is_linkable = false;
+
+    if(type_to_str(type).compare("string") == 0){
+        code = "(" + type_to_str(type) + ")" + u->code;
+    } else {
+        code = "to_string(" + u->code + ")";
+    }
+}
+
+
 UnaryExpressionNode::UnaryExpressionNode(ValueNode *v){
     op = NONE;
     right_operand.v_node = v;
@@ -576,6 +592,8 @@ void UnaryExpressionNode::typecheck(e_op op){
             cout << ARR_UNARY_NOT_ERR << endl;
         else if(op == MINUS)
             cout << ARR_UNARY_MINUS_ERR << endl;
+        else if(op == CAST)
+            cout << ARR_UNARY_CAST_ERR << endl;
         return;
     }
 
@@ -596,6 +614,11 @@ void UnaryExpressionNode::typecheck(e_op op){
             else
                 type = child_type;
             break;
+        case CAST:
+            if(child_type == tSTRING && (type == tBOOL || type == tINT || type == tFLOAT)){
+                error = true;
+                cout << UNARY_STRING_CAST_ERR << endl;
+            }
         default:
             type = child_type;
     }

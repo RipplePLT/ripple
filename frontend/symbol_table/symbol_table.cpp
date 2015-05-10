@@ -185,5 +185,4 @@ Entry *SymbolTable::get(string word) {
 }
 
 SymbolTable::~SymbolTable() {
-//    delete start;
 }

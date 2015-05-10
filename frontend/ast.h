@@ -26,6 +26,7 @@
 #define BINARY_EXPRESSION_NODE_NAME "BINARY_EXPRESSION_NAME"
 #define EXPRESSION_NODE_NAME "EXPRESSION_NODE_NAME"
 
+#define UNARY_STRING_CAST_ERR LINE_ERR "cannot cast string to bool, int or float"
 #define INVAL_UNARY_NOT_ERR LINE_ERR "unary not error"
 #define INVAL_UNARY_MINUS_ERR LINE_ERR "unary minus error"
 #define INVAL_BINARY_PLUS_ERR LINE_ERR "binary plus error"
@@ -55,6 +56,7 @@
 #define ARR_ELEMENT_TYPE_ERR LINE_ERR "all elements in an array initialization must have the same type"
 #define ARR_UNARY_MINUS_ERR LINE_ERR "cannot perform negation on arrays"
 #define ARR_UNARY_NOT_ERR LINE_ERR "cannot perform boolean not on arrays"
+#define ARR_UNARY_CAST_ERR LINE_ERR "cannot cast array to any type"
 #define ARR_BINEXP_ERR LINE_ERR "cannot perform binary operations on arrays"
 #define ARR_VAR_ASSIGN_ERR LINE_ERR "cannot assign array to non-array variable"
 #define ARR_INT_SIZE_ERR LINE_ERR "array size must be int"
@@ -312,6 +314,7 @@ class UnaryExpressionNode: public Node {
         union operand right_operand;
 
         UnaryExpressionNode(UnaryExpressionNode *u, string _op);
+        UnaryExpressionNode(UnaryExpressionNode *u, TypeNode *t);
         UnaryExpressionNode(ValueNode *v);
         void seppuku();
 
