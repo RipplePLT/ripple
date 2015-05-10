@@ -67,7 +67,8 @@
 
 #define UNLINKABLE_NO_VAR_ERR LINE_ERR "linked expression must have variables"
 #define UNLINKABLE_EXPRESSION_ERR LINE_ERR "expression provided cannot be linked"
-#define INVAL_FUNC_ARGS_ERR LINE_ERR "an auxiliary function may only have one argument of the same type as the linked variable"
+#define INVAL_FUNC_ARGS_ERR LINE_ERR \
+                            "an auxiliary function may only have one argument of the same type as the linked variable"
 #define NOT_A_FUNC_ERR LINE_ERR "attempt to call a non function identifier"
 #define COND_STMT_ERR LINE_ERR "expression in if statement must be boolean"
 #define LOOP_CONDITION_ERR LINE_ERR "condition expression in loop must be of type boolean"
@@ -82,9 +83,11 @@ inline string VARIABLE_NODE(string arg){ return "new VariableNode( &" + arg + " 
 inline string LITERAL_NODE(string arg){ return "new LiteralNode( " + arg + " )"; }
 inline string VALUE_NODE(string arg){ return  "new ValueNode( " + arg + " )"; }
 inline string UNARY_EXPRESSION(string arg){ return  "new UnaryExpressionNode( " + arg + " )"; }
-inline string UNARY_EXPRESSION(string arg, string op){ return  "new UnaryExpressionNode( " + arg + ", \"" + op + "\" )"; }
+inline string UNARY_EXPRESSION(string arg, string op)
+            { return  "new UnaryExpressionNode( " + arg + ", \"" + op + "\" )"; }
 inline string BINARY_EXPRESSION(string arg1){ return  "new BinaryExpressionNode( " + arg1 + " )"; }
-inline string BINARY_EXPRESSION(string arg1, string op, string arg2){ return  "new BinaryExpressionNode( " + arg1 + ", \"" + op + "\", " + arg2 + " )"; }
+inline string BINARY_EXPRESSION(string arg1, string op, string arg2)
+            { return  "new BinaryExpressionNode( " + arg1 + ", \"" + op + "\", " + arg2 + " )"; }
 inline string EXPRESSION_NODE(string arg){ return  "new ExpressionNode( " + arg + " )"; }
 
 using namespace std;
@@ -125,10 +128,10 @@ void write_to_file(string filename, string code);
 extern SymbolTable sym_table;
 
 #define IS_STD_RPL_FUNCTION(f_name) (f_name).compare(RPL_STD_INPUT_FUNCTION) == 0    || \
-                                                                              (f_name).compare(RPL_STD_OUTPUT_FUNCTION) == 0   || \
-(f_name).compare(RPL_STD_OPEN_FUNCTION) == 0     || \
-(f_name).compare(RPL_STD_READ_FUNCTION) == 0     || \
-(f_name).compare(RPL_STD_CLOSE_FUNCTION) == 0
+                                    (f_name).compare(RPL_STD_OUTPUT_FUNCTION) == 0   || \
+                                    (f_name).compare(RPL_STD_OPEN_FUNCTION) == 0     || \
+                                    (f_name).compare(RPL_STD_READ_FUNCTION) == 0     || \
+                                    (f_name).compare(RPL_STD_CLOSE_FUNCTION) == 0
 
 #define INVAL_ASSIGN_ERR(val_type, expression_type) { cout << LINE_ERR \
     "invalid assignment between operands of type " <<  \
