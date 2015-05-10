@@ -28,8 +28,9 @@ namespace ripple {
     }
 }
 
-string default_rpl_str_str(string x){ return x; }
-
+string default_rpl_str_str(string xyzder){ return xyzder; }
+int str_to_int(str xyzder) { return stoi(xyzder); }
+float str_to_float(str xyzder) { return stof(xyzder); }
 // Used for short-term manipulation of linked vars
 linked_var *universal_linked_var_ptr;
 
