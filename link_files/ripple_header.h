@@ -18,7 +18,8 @@ using namespace ripple;
 namespace ripple {
 	string input(string p){
 		string x;
-		cout << p << endl;
+		cout << p;
+		cout.flush();
 		cin >> x;
 		return x;
 	}

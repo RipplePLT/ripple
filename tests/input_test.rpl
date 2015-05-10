@@ -1,0 +1,4 @@
+void main(){
+	string s = input("Enter a string");
+	print(s);
+}

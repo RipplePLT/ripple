@@ -240,11 +240,10 @@ FunctionCallNode::FunctionCallNode(string f, ArgsNode *a) {
     args_list = a;
     sym = tFUNC;
 
-    typecheck();
-
     if(IS_STD_RPL_FUNCTION(func_id)){
         code = generate_std_rpl_function();
     } else {
+        typecheck();
         code = f + "( " + a->code + " )";
     }   
 }
@@ -254,11 +253,10 @@ FunctionCallNode::FunctionCallNode(string f) {
     args_list = new ArgsNode();
     sym = tFUNC;
 
-    typecheck();
-
     if(IS_STD_RPL_FUNCTION(func_id)){
         code = generate_std_rpl_function();
     } else {
+        typecheck();
         code = f + "()";
     }   
 }
@@ -302,7 +300,13 @@ string FunctionCallNode::generate_std_rpl_function(){
         }
         code += "std::endl";
     } else if (func_name.compare(RPL_STD_INPUT_FUNCTION) == 0){
-
+        if(args_list->args_list->size() != 1 || args_list->args_list->at(0)->type != tSTRING){
+            error = true;
+            cout << RPL_STD_INPUT_FUNCTION_ERR << endl;
+        } else {
+            type = tSTRING;
+            code = "ripple::input(" + args_list->args_list->at(0)->code + ")";
+        }
     } else if (func_name.compare(RPL_STD_OPEN_FUNCTION) == 0){
 
     } else if (func_name.compare(RPL_STD_CLOSE_FUNCTION) == 0){
