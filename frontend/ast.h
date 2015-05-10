@@ -247,7 +247,7 @@ class ArgsNode: public Node {
 class TypeNode: public Node {
     public:
         ValueNode *value;
-        TypeNode(e_type t);
+        TypeNode(e_type t, string name);
         TypeNode(e_type t, ValueNode *val);
 };
 

@@ -183,7 +183,9 @@ void ValueNode::seppuku(){
 
 DatasetNode::DatasetNode(string s, DeclArgsNode *d) {
     name = s;
-    decl_args = d; 
+    decl_args = d;
+    replace( decl_args->code.begin(), decl_args->code.end(), ',', ';');
+    code = "struct " + s + "{\n" + decl_args->code + ";\n};";
 }
 
 void DatasetNode::seppuku(){ 
@@ -194,7 +196,7 @@ void DatasetNode::seppuku(){
 /* IDNode */
 IDNode::IDNode(Entry *ent) {
     entry = ent;
-    if (ent) {
+    if (entry) {
         type = ent->type;
         code = ent->name;
         sym = ent->symbol_type;
@@ -464,6 +466,7 @@ ArrayAccessNode::ArrayAccessNode(ValueNode *val, ExpressionNode *exp) {
     en = exp;
     type = val->type;
     sym = val->sym;
+    code = val->code + "[" + exp->code + "]";
 }
 
 void ArrayAccessNode::seppuku(){ 
@@ -478,14 +481,15 @@ DatasetAccessNode::DatasetAccessNode(string c, string i) {
     Entry *entry = sym_table.get(c);
     if (!entry) {
         error = true;
-        cout << "Use of undeclared variable" << c << endl;
+        cout << LINE_ERR "use of undeclared variable" << c << endl;
     }
 
     Entry *member_entry = sym_table.get_dataset_member(entry->ds_name, i);
     if (!member_entry) {
         error = true;
-        cout << "Dataset " << c << " of type " << entry->ds_name << "does not contain a member named " << i << endl;
+        cout << LINE_ERR "dataset " << c << " of type " << entry->ds_name << "does not contain a member named " << i << endl;
     } else {
+        cout << "here" << endl;
         entry = member_entry;
         type = member_entry->type;
         sym = member_entry->symbol_type;
@@ -906,7 +910,6 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
         error = true;
         cout << INVALID_DECL_ERR << endl;
     }  
-
     typecheck();
     Entry *entry = sym_table.get(expression_node->value->code);
     switch(sym) {
@@ -920,7 +923,12 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
             code += type_to_str(type) + " " + expression_node->code + ";\n";
             break;
         case tARR:
-
+            if (entry->type != tNOTYPE) {
+                error = true;
+                cout << VARIABLE_REDECL_ERR << endl;
+            } else {
+                entry->type = type;
+            }
             if(expression_node->sym != tARR && expression_node->sym != tNOSTYPE) {
                 error = true;
                 cout << ARR_ASSIGN_ERR << endl;
@@ -953,7 +961,7 @@ DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *
                 cout << VARIABLE_REDECL_ERR << endl;
             }
 
-            code += "struct " + ds_name + " " + expression_node->value->code + ";";
+            code += "struct ds " + expression_node->value->code + ";\n";
             break;
     }
 }
@@ -1003,20 +1011,10 @@ void DeclarativeStatementNode::seppuku(){
 }
 
 /* TypeNode */
-TypeNode::TypeNode(e_type t){
+TypeNode::TypeNode(e_type t, string name){
     type = t;
-    if (type == tNOTYPE) {
-        if (sym_table.get_dataset(type_to_str(t))) {
-            sym = tDSET;
-            ds_name = t;
-        } else {
-            error = true;
-            cout << UNKNOWN_TYPE_ERR << endl;
-            sym = tNOSTYPE;
-        }
-    } else {
-        sym = tVAR;
-    }
+    sym = tDSET;
+    ds_name = name;
 
     value = nullptr;
 
