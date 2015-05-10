@@ -56,8 +56,9 @@
 #define VARIABLE_REDECL_ERR LINE_ERR "variable redeclaration"
 #define UNDECLARED_ERROR LINE_ERR "undeclared identifier"
 
+#define INVALID_FILE_SR_TYPES_ERR LINE_ERR "invlaid types for file stream reader"
 #define INVALID_KEYBOARD_SR_ERR LINE_ERR "keyboard stream reader error"
-#define INVALID_FILE_SR_ERR LINE_ERR "file stream reader error"
+#define INVALID_FILE_SR_ERR LINE_ERR "incorrect number of arguments for file stream reader"
 
 #define ARR_ELEMENT_TYPE_ERR LINE_ERR "all elements in an array initialization must have the same type"
 #define ARR_UNARY_MINUS_ERR LINE_ERR "cannot perform negation on arrays"

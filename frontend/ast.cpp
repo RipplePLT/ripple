@@ -1352,9 +1352,16 @@ StreamReaderNode::StreamReaderNode(string n, ArgsNode *args){
     arg_list = args;
 
     if(name.compare("FileStreamReader") == 0){
-        if(arg_list->args_list->size() < 1 || arg_list->args_list->size() > 4){
+        if(arg_list->args_list->size() != 3){
             error = true;
-            cout << INVALID_FILE_SR_ERR << cout;
+            cout << INVALID_FILE_SR_ERR << endl;
+        } else {
+            if(arg_list->args_list->at(0)->type != tSTRING &&
+                arg_list->args_list->at(1)->type != tINT && 
+                arg_list->args_list->at(2)->type != tSTRING){
+                error = true;
+                cout << INVALID_FILE_SR_TYPES_ERR << endl;
+            }
         }
     } else if (name.compare("KeyboardStreamReader") == 0){
         if(arg_list->args_list->size() != 0) {
@@ -1367,8 +1374,8 @@ StreamReaderNode::StreamReaderNode(string n, ArgsNode *args){
 }
 
 string StreamReaderNode::generate_code(e_type type){
-    string s = "KeyboardStreamReader<" + type_to_str(type) + "> * " + stream_reader_name + to_string(num) + 
-        " = new KeyboardStreamReader<" + type_to_str(type) + ">(&" + stream + to_string(num) + ", " + function_pointer + to_string(num) + ");\n";
+    string s = name + "<" + type_to_str(type) + "> * " + stream_reader_name + to_string(num) + 
+        " = new " + name + "<" + type_to_str(type) + ">(&" + stream + to_string(num) + ", " + function_pointer + to_string(num) + ", " + arg_list->code + ");\n";
     return s;
 }
 
