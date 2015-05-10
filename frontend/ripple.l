@@ -157,7 +157,7 @@ int main(int argc, char **argv) {
     }
     
     write_to_file(filename_cpp, cpp_code);
-    string compile_cpp = CXX + filename_cpp + " -o " + filename + CPP_STANDARD;
+    string compile_cpp = CXX + filename_cpp + " -L. -o " + filename + CPP_STANDARD + " -lbackend";
     system(compile_cpp.c_str());
    
 
