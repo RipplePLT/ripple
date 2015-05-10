@@ -22,7 +22,7 @@ public:
         this->URL = URL;
         this->port = port;
         this->interval = interval;
-        this->aux_func_ptr = f;
+        this->filter_func_ptr = f;
     }
 
     ~WebStreamReader() {}
@@ -92,8 +92,9 @@ protected:
                 exit(1);
             }
             //Runs update method on linked variable
-            if (this->aux_func_ptr) {
-                this->aux_func_ptr("Page Loaded and Printed");
+            if (this->filter_func_ptr) {
+                
+                linked_var::update_nonlinked_var(this->filter_func_ptr("Page Loaded and Printed"));
             } else {
                 //update with string
             }

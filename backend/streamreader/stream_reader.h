@@ -8,14 +8,17 @@
 
 using namespace std;
 
+/*
+ * Template used to define a variable type function pointer.
+ * Used to pass what stream reads to be parsed
+ */
 template <typename T>
 struct FuncPtr {
-    typedef T (*f_ptr)(std::string a);
+    typedef T (*f_ptr)(string argument);
 };
 
 template <typename T>
 class StreamReader {
-
 public:
     StreamReader(){
         this->stop_stream = false;
@@ -29,7 +32,8 @@ public:
     virtual void start_thread()=0;
 
 protected:
-    typename FuncPtr<T>::f_ptr aux_func_ptr;
+    T* to_update;
+    typename FuncPtr<T>::f_ptr filter_func_ptr;
     pthread_t stream_thread;
     bool stop_stream;
     int interval;
