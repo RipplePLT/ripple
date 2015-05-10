@@ -109,3 +109,10 @@ void linked_var::update_nonlinked_var (void *var) {
 		for (i = 0; i < references[var]->size(); i++)
 			(*references[var])[i]->update();
 }
+
+/*
+ * Unregister all cpp vars. Used for testing.
+ */
+void linked_var::reset_refs () {
+	references.clear();
+}

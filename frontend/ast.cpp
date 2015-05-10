@@ -87,7 +87,7 @@ void write_to_file(string filename, string code){
 
     ofstream file;
     file.open(filename);
-    file << "#include \"link_files/ripple_header.h\"\n";
+    file << "#include \"link_files/ripple_header.h\"\n\n";
     file << code;
     file.close();
 }
@@ -117,20 +117,28 @@ ValueNode::ValueNode(IDNode *i) {
     type = i->type;
     sym = i->sym;
     code = i->code;
+    link_code = VALUE_NODE(VARIABLE_NODE(code));
+    linked_vars.push_back(new string(code));
+    is_linkable = true;
 }
+
 ValueNode::ValueNode(LiteralNode *l) {
     val_type = LIT;
     val.lit_val = l;
     type = l->type;
     sym = l->sym;
     code = l->code;
+    link_code = VALUE_NODE(LITERAL_NODE(code));
+    is_linkable = true;
 }
+
 ValueNode::ValueNode(FunctionCallNode *f) {
     val_type = FUNC_CALL;
     val.function_call_val = f;
     type = f->type;
     sym = f->sym;
     code = f->code;
+    is_linkable = false;
 } 
 ValueNode::ValueNode(ArrayAccessNode *a) {
     val_type = ARR_ACC;
@@ -138,6 +146,7 @@ ValueNode::ValueNode(ArrayAccessNode *a) {
     type = a->type;
     sym = a->sym;
     code = a->code;
+    is_linkable = false;
 }
 ValueNode::ValueNode(DatasetAccessNode *d) {
     val_type = DS_ACC;
@@ -145,6 +154,7 @@ ValueNode::ValueNode(DatasetAccessNode *d) {
     type = d->type;
     sym = d->sym;
     code = d->code;
+    is_linkable = false;
 }
 ValueNode::ValueNode(ExpressionNode *e) {
     val_type = EXPR;
@@ -152,6 +162,9 @@ ValueNode::ValueNode(ExpressionNode *e) {
     type = e->type;
     sym = e->sym;
     code = "( " + e->code + " )";
+    linked_vars.insert(linked_vars.end(), e->linked_vars.begin(), e->linked_vars.end());
+    link_code = VALUE_NODE(e->link_code);
+    is_linkable = true;
 }
 ValueNode::ValueNode(ArrayInitNode *a) {
     val.a_init = a;
@@ -159,6 +172,7 @@ ValueNode::ValueNode(ArrayInitNode *a) {
     sym = tARR;
     code = "{ " + a->code + " }";
     array_length = a->array_length;
+    is_linkable = false;
 }
 
 void ValueNode::seppuku(){ 
@@ -505,6 +519,9 @@ UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op) {
         default:
             break;
     }
+    link_code = UNARY_EXPRESSION(u->link_code, _op);
+    linked_vars.insert(linked_vars.end(), u->linked_vars.begin(), u->linked_vars.end());
+    is_linkable = u->is_linkable;
 }
 
 UnaryExpressionNode::UnaryExpressionNode(ValueNode *v){
@@ -514,6 +531,9 @@ UnaryExpressionNode::UnaryExpressionNode(ValueNode *v){
     type = v->type;
     sym = v->sym;
     code = v->code;
+    link_code = UNARY_EXPRESSION(v->link_code);
+    linked_vars.insert(linked_vars.end(), v->linked_vars.begin(), v->linked_vars.end());;
+    is_linkable = v->is_linkable;
 }
 
 void UnaryExpressionNode::typecheck(e_op op){
@@ -564,20 +584,33 @@ void UnaryExpressionNode::seppuku(){
 BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op, BinaryExpressionNode *br) {
     left_operand.b_exp = bl;
     right_operand.b_exp = br;
-    op = str_to_op(_op);
-    typecheck(bl, br, op);
-    code = gen_binary_code(bl->code, op, br->code, bl->type, br->type); 
     left_is_binary = right_is_binary = true;
+    
+    op = str_to_op(_op);
+    
+    typecheck(bl, br, op);
+    
+    code = gen_binary_code(bl->code, op, br->code, bl->type, br->type);
+    link_code = BINARY_EXPRESSION(bl->link_code, _op, br->link_code);
+    linked_vars.insert(linked_vars.end(), bl->linked_vars.begin(), bl->linked_vars.end());
+    linked_vars.insert(linked_vars.end(), br->linked_vars.begin(), br->linked_vars.end());
+    is_linkable = bl->is_linkable && br->is_linkable;
 }
 
 BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op, UnaryExpressionNode *ur) {
     left_operand.b_exp = bl;
     right_operand.u_exp = ur;
-    op = str_to_op(_op);
-    typecheck(bl, ur, op);
-    code = gen_binary_code(bl->code, op, ur->code, bl->type, ur->type);
     left_is_binary = true;
     right_is_binary = false;
+
+    op = str_to_op(_op);
+    typecheck(bl, ur, op);
+
+    code = gen_binary_code(bl->code, op, ur->code, bl->type, ur->type);
+    link_code = BINARY_EXPRESSION(bl->link_code, _op, ur->link_code);
+    linked_vars.insert(linked_vars.end(), bl->linked_vars.begin(), bl->linked_vars.end());
+    linked_vars.insert(linked_vars.end(), ur->linked_vars.begin(), ur->linked_vars.end());
+    is_linkable = bl->is_linkable && ur->is_linkable;
 }
 
 
@@ -590,6 +623,10 @@ BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
     code = ul->code;
     array_length = ul->array_length;
     op = NONE;
+
+    link_code = BINARY_EXPRESSION(ul->link_code);
+    is_linkable = ul->is_linkable;
+    linked_vars.insert(linked_vars.end(), ul->linked_vars.begin(), ul->linked_vars.end());
 }
 
 void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
@@ -819,6 +856,9 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
     type = b->type;
     code = b->code;
     array_length = b->array_length;
+    link_code = EXPRESSION_NODE(b->link_code);
+    linked_vars = b->linked_vars;
+    is_linkable = b->is_linkable;
 }
 
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
@@ -1054,6 +1094,25 @@ void LoopStatementNode::seppuku(){
     delete this;
 }
 
+LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn){
+    id_node = idn;
+    expression_node = expn;
+    if(!expression_node->is_linkable){
+        error = true;
+        cout << UNLINKABLE_EXPRESSION_ERR << endl;
+    }
+
+    if(expression_node->linked_vars.size() == 0){
+        error = true;
+        cout << UNLINKABLE_EXPRESSION_ERR << endl;
+    }
+
+    code = "linked_var::register_cpp_var(&" + idn->code + ");\n";
+    for(int i = 0; i < expression_node->linked_vars.size(); i++)
+        code += "linked_var::register_cpp_var(&" + *expression_node->linked_vars[i] + ");\n";
+    code += "linked_var *asd = new linked_var (&" + idn->code + ", " + expression_node->link_code + ");\n";
+}
+
 /* StatementNode */
 StatementNode::StatementNode(DeclarativeStatementNode *d){
     stmts.decl = d;
@@ -1075,6 +1134,11 @@ StatementNode::StatementNode(LoopStatementNode *l) {
 void StatementNode::seppuku(){ 
     stmts.decl->seppuku();
     delete this;
+}
+
+StatementNode::StatementNode(LinkStatementNode *l){
+    stmts.link = l;
+    code = l->code;
 }
 
 /* StatementListNode */

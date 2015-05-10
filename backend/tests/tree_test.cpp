@@ -20,11 +20,47 @@ public:
 	static linked_var *link_int_lit_op_double_var
 		(void *linked, int i, double *d, const char *op);
 	static void test_unary_ops();
+	static void test_nested_expressions();
 	static void test_string_concatenation();
 	static void test_string_int_concatenation();
 	static void run_all_unit_tests();
 	static void run_all_integration_tests();
 };
+
+void TreeTest::test_nested_expressions() {
+	int z, x = 1;
+	linked_var::register_cpp_var(&x);
+	linked_var::register_cpp_var(&z);
+
+	// link (z <- (2 + x) + 2)
+	linked_var *z_var = new linked_var(&z, new ExpressionNode (
+		new BinaryExpressionNode(
+			new BinaryExpressionNode(
+			new UnaryExpressionNode(
+			new ValueNode(
+			new ExpressionNode(
+				new BinaryExpressionNode(
+					new BinaryExpressionNode(
+						new UnaryExpressionNode(
+						new ValueNode(
+						new LiteralNode(2)))), "+",
+					new BinaryExpressionNode(
+						new UnaryExpressionNode(
+						new ValueNode(
+						new VariableNode(&x))))))))), "+",
+			new BinaryExpressionNode(
+			new UnaryExpressionNode(
+			new ValueNode(
+			new LiteralNode(2)))))));
+
+	assert(z == 5);
+
+	x = 100;
+	linked_var::update_nonlinked_var(&x);
+
+	assert(z == 104);
+	linked_var::reset_refs();
+}
 
 void TreeTest::test_string_int_concatenation() {
 	LiteralNode *prefix_litnode = new LiteralNode("We have ");
@@ -124,6 +160,8 @@ void TreeTest::test_string_concatenation() {
 
 	assert(!strcmp(sentence_var->get_value().value.strval->c_str(), "Amar says: we have no problem."));
 	assert(strcmp(sentence_var->get_value().value.strval->c_str(), "Amar says: we have a problem."));
+
+	linked_var::reset_refs();
 }
 
 void TreeTest::test_unary_ops() {
@@ -156,6 +194,8 @@ void TreeTest::test_unary_ops() {
 	assert(root_var->get_value().value.boolval == false);
 	assert(root2_var->get_value().type == ltBOOL);
 	assert(root2_var->get_value().value.boolval == true);
+
+	linked_var::reset_refs();
 }
 
 VariableNode *TreeTest::create_var_node(int *i) {
@@ -224,6 +264,8 @@ void TreeTest::run_all_unit_tests() {
     create_literal_node(c);
     create_literal_node(d);
     create_literal_node(e);
+
+	linked_var::reset_refs();
 }
 
 /* Link to one integer variable */
@@ -435,6 +477,8 @@ linked_var *TreeTest::link_bool_lit_op_bool_var(void *linked, bool i,
 }
 
 void TreeTest::run_all_integration_tests() {
+	assert(linked_var::references.size() == 0);
+
 	int a = 5;
 	link_int_var(&a);
 
@@ -496,16 +540,20 @@ void TreeTest::run_all_integration_tests() {
 
 	test_unary_ops();
 	cerr << "[TREE_TEST] All unary operation tests passed." << endl;
+	linked_var::reset_refs();
 
 	test_string_concatenation();
 	cerr << "[TREE_TEST] String-string concatenation test passed." << endl;
+	linked_var::reset_refs();
 	test_string_int_concatenation();
 	cerr << "[TREE_TEST] All string operation tests passed." << endl;
+	linked_var::reset_refs();
+	test_nested_expressions();
+	cerr << "[TREE_TEST] Nested expression tests passed." << endl;
+	linked_var::reset_refs();
 }
 
 int main() {
-	bool b = true;
-	cerr << to_string(b) << endl;
     TreeTest::run_all_unit_tests();
 	cerr << "[TREE_TEST] All unit tests passed." << endl;
     TreeTest::run_all_integration_tests();

@@ -170,9 +170,17 @@ vector<void*> *ExpressionNode::dep_union(vector<void*> *r1, vector<void*> *r2) {
 	else if (r2 == NULL)
 		return r1;
 
-	for (i = 0; i < r2->size(); i++)
-		if (std::find(r1->begin(), r1->end(), (*r2)[i]) != r1->end())
+	// Exclude duplicates from union
+	int j;
+	bool is_duplicate;
+	for (i = 0; i < r2->size(); i++) {
+		is_duplicate = false;
+		for (j = 0; j < r1->size(); j++)
+			if ((*r1)[j] == (*r2)[i])
+				is_duplicate = true;
+		if (!is_duplicate)
 			r1->push_back( (*r2)[i] );
+	}
 
 	free(r2);
 	return r1;
@@ -181,18 +189,29 @@ vector<void*> *ExpressionNode::dep_union(vector<void*> *r1, vector<void*> *r2) {
 /* ValueNode */
 ValueNode::ValueNode(LiteralNode *l) {
 	this->is_literal = true;
+	this->is_expression = false;
 	this->lit_node = l;
 	
 	this->dependencies = NULL;
 }
 ValueNode::ValueNode(VariableNode *v) {
 	this->is_literal = false;
+	this->is_expression = false;
 	this->var_node = v;
 
 	this->dependencies = v->dependencies;
 }
+ValueNode::ValueNode(ExpressionNode *e) {
+	this->is_literal = false;
+	this->is_expression = true;
+	this->expr_node = e;
+
+	this->dependencies = e->dependencies;
+}
 link_val ValueNode::evaluate() {
-	return is_literal ? lit_node->evaluate() : var_node->evaluate();
+	return is_literal ? lit_node->evaluate() :
+		is_expression? expr_node->evaluate() :
+		var_node->evaluate();
 }
 
 /* LiteralNode */

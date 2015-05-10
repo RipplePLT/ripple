@@ -17,7 +17,7 @@ YFLAGS= -Wnone
 LFLAGS= 
 MISCFLAGS= 
 
-rpl: ast.o ripple.tab.o lex.yy.o debug_tools.o libsym.a
+rpl: ast.o ripple.tab.o lex.yy.o debug_tools.o libsym.a libbackend.a
 	$(CXX) -o rpl ast.o ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o frontend/symbol_table/hashmap.o debug_tools.o $(LDLIBS) -lfl
 	rm -f *.o *.hpp *.cpp *.c *.cc
 
@@ -41,11 +41,16 @@ ripple.tab.cpp ripple.tab.hpp: ripple.ypp ast.h
 
 libsym.a: 
 	$(MAKE) -C frontend/symbol_table
+
+libbackend.a: backend/linked_var.o backend/expression_tree.o backend/link_val.o
+	ar rcs libbackend.a backend/linked_var.o backend/expression_tree.o backend/link_val.o
+	ranlib libbackend.a
 	
 .PHONY: clean
 clean:
-	rm -f *.o *.hpp *.cpp *.c *.cc rpl
+	rm -f *.o *.hpp *.cpp *.c *.cc *.a rpl
 	$(MAKE) -C frontend/symbol_table clean
+	$(MAKE) -C backend clean
 
 .PHONY: all
 all: clean default

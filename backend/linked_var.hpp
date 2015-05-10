@@ -25,6 +25,7 @@ public:
 
 	static void register_cpp_var (void *var);
 	static void update_nonlinked_var (void *var);
+	static void reset_refs ();
 	linked_var(void *var, ExpressionNode *exp); // Ctor
 	link_val get_value();
 	void update(link_val new_value); // Assignment

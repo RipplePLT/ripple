@@ -5,6 +5,9 @@
 #include "ripple.tab.hpp"
 #include "frontend/symbol_table/symbol_table.h"
 
+#define CXX "clang++"
+#define CPP_STANDARD "c++11"
+
 void install_id();
 
 extern "C" int yywrap();
@@ -15,12 +18,13 @@ string filename_cpp;
 string filename;
 string cpp_code;
 
+
 bool saw_type;
 bool saw_id;
 string last_id;
 e_type last_type;
 void db(std::string m){
-	cout << m << endl;
+//	cout << m << endl;
 }
 
 SymbolTable sym_table;
@@ -102,6 +106,7 @@ or          {   db(yytext); saw_id = false; return OR; }
 "}"			{	db(yytext); sym_table.scope_out(line_no); return tR_CURLY; }
 ";"         {   db(yytext); saw_id = false; return tSEMI;  }
 "\."        {  	db(yytext); saw_id = false; return tACCESS; }
+"<-"        {   db(yytext); saw_id = false; return tARROW; } 
 %%
 
 
@@ -128,7 +133,7 @@ int main(int argc, char **argv) {
     	return 1;
     }
     write_to_file(filename_cpp, cpp_code);
-    string compile_cpp = "clang++ " + filename_cpp + " -o " + filename + " --std=c++11";
+    string compile_cpp = string(CXX) + " " + filename_cpp + " -L. -o " + filename + " --std=" + CPP_STANDARD + " -lbackend";
     system(compile_cpp.c_str());
    
 #ifndef DEBUG
