@@ -2,7 +2,7 @@ int main(){
 	int x;
 	int y = 3;
 	int z = 4;
-	link(x <- (y + z) + 2);
+	link(x <- (y + z) * 2/2 + 3 * 7);
 	print(x);
 
 	y = 5;

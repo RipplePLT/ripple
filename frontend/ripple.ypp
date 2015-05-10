@@ -303,7 +303,7 @@ function_call : ID tL_PAREN args tR_PAREN { $$ = new FunctionCallNode(*($1), $3)
 array_access : value tL_BRACKET expression tR_BRACKET { $$ = new ArrayAccessNode($1, $3); d("Array access");}
              ;
 
-dataset_access : ID tACCESS ID { $$ = new DatasetAccessNode(*$1, *$3); d("Dataset access");}
+dataset_access : ID tACCESS var { $$ = new DatasetAccessNode(*$1, $3->entry->name); d("Dataset access");}
                ;
 
 var : ID { Entry *entry = sym_table.get(*yylval.string);
@@ -317,7 +317,7 @@ var : ID { Entry *entry = sym_table.get(*yylval.string);
           }
 
 dtype : TYPE array_opt {  $$ = new TypeNode(last_type, $2); d("type: "); }
-      | DATASET ID  { $$ = new TypeNode(last_type); d("dataset: " + *yylval.string); }
+      | DATASET ID  { $$ = new TypeNode(last_type, *$2); d("dataset: " + *yylval.string); }
       ;
 
 literal : INTEGER                 { $$ = new LiteralNode($1); $$->code = to_string(yylval.integer); d("literal - INT");}	

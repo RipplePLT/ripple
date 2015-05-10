@@ -59,4 +59,7 @@ int main(){
 	s = s2 + s2;
 	i = @s2;
 
+	int[10] a;
+	int i123 = a[0];
+
 }

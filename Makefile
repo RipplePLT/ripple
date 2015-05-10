@@ -16,10 +16,14 @@ LDLIBS= -L./frontend/symbol_table/
 YFLAGS= -Wnone 
 LFLAGS= 
 MISCFLAGS= 
+OBJS=ast.o ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o \
+     frontend/symbol_table/hashmap.o debug_tools.o
+BACKEND_OBJS=backend/linked_var.o backend/expression_tree.o backend/link_val.o
 
 rpl: ast.o ripple.tab.o lex.yy.o debug_tools.o libsym.a libbackend.a
-	$(CXX) -o rpl ast.o ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o frontend/symbol_table/hashmap.o debug_tools.o $(LDLIBS) -lfl
+	$(CXX) -o rpl $(OBJS) $(LDLIBS) -lfl
 	rm -f *.o *.hpp *.cpp *.c *.cc
+	$(MAKE) -C backend all
 
 ast.o: ast.cpp ast.h
 	$(CXX) -c frontend/ast.cpp $(CXXFLAGS)
@@ -43,14 +47,14 @@ libsym.a:
 	$(MAKE) -C frontend/symbol_table
 
 libbackend.a: backend/linked_var.o backend/expression_tree.o backend/link_val.o
-	ar rcs libbackend.a backend/linked_var.o backend/expression_tree.o backend/link_val.o
+	ar rcs libbackend.a $(BACKEND_OBJS)
 	ranlib libbackend.a
 	
 .PHONY: clean
 clean:
 	rm -f *.o *.hpp *.cpp *.c *.cc *.a rpl
 	$(MAKE) -C frontend/symbol_table clean
-	$(MAKE) -C backend clean
+	$(MAKE) -C backend clean-all
 
 .PHONY: all
 all: clean default
