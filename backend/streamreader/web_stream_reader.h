@@ -88,7 +88,7 @@ class WebStreamReader : StreamReader<T>{
                 //Runs update method on linked variable
                 if (this->aux_func_ptr) {
                     this->aux_func_ptr("Page Loaded and Printed");
-                { else {
+                } else {
                     //update with string
                 }
 

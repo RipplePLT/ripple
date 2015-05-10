@@ -14,6 +14,7 @@ class FileStreamReader : StreamReader<T>{
             this->interval = interval;
             this->aux_func_ptr = f;
             this->delimiter = delim;
+            cout << "this is called" << endl;
         }
 
        ~FileStreamReader<T>() {};
@@ -22,6 +23,8 @@ class FileStreamReader : StreamReader<T>{
          *Public accessor function used to begin running the instantiated WebStreamReader.
          */
         void start_thread() {
+
+            cout << "this is called start" << endl;
             if (pthread_create(&(this->stream_thread), NULL, this->run_stream_thread_proxy, this)) {
                 cerr << "Could not create StreamReader" << endl;
                 exit(1);
@@ -37,6 +40,8 @@ class FileStreamReader : StreamReader<T>{
          *that enables the ability to call the non-static function run_stream_thread.
          */
         static void* run_stream_thread_proxy(void *p) {
+
+            cout << "this is called run proxy" << endl;
             static_cast<FileStreamReader*>(p)->run_stream_thread();
             return NULL;
         }
@@ -52,6 +57,7 @@ class FileStreamReader : StreamReader<T>{
             
             string read_buffer;
 
+            cout << "this is called run" << endl;
             while(1) {
                 if (this->stop_stream)
                     break;
@@ -80,6 +86,7 @@ class FileStreamReader : StreamReader<T>{
                         /*update*/this->aux_func_ptr(read_buffer);
                     } else {
                         //update(read_buffer);
+                        cout << read_buffer << endl;
                     }
                 } else {
                     while(getline(file_stream, read_buffer, *delimiter.c_str())) {
