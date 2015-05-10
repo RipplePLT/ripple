@@ -105,6 +105,9 @@ void Entry::add_args(list<e_type> *a) {
     args = a;
 }
 
+void Entry::add_length(int l) {
+    array_length = l;
+}
 
 bool Entry::operator==(string n) {
     return name.compare(n) == 0;

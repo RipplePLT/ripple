@@ -30,7 +30,7 @@ SymbolTable sym_table;
 /* regular definitions */
 delim       [ \t]
 nl			\n
-comment     (#.*\n)|(#\*[^(\*\#)]*\*\#)
+comment     ("#~"[^(~#)]*"~#")|(#[^~]*\n)
 ws          ({comment}|{delim})+
 letter      [A-Za-z_]
 digit       [0-9]
@@ -84,6 +84,7 @@ or          {   db(yytext); saw_id = false; return OR; }
 "*"         {   db(yytext); saw_id = false; return tTIMES; } 
 "/"			{	db(yytext); saw_id = false; return tDIV; }
 "//"		{	db(yytext); saw_id = false; return tFLDIV; }
+"%"         {   db(yytext); saw_id = false; return tMOD; }
 "^"			{	db(yytext); saw_id = false; return tEXP;  }
 "@"			{	db(yytext); saw_id = false; return tSIZE; }
 ">"			{	db(yytext); saw_id = false; return tGT;  }
@@ -127,7 +128,7 @@ int main(int argc, char **argv) {
     	return 1;
     }
     write_to_file(filename_cpp, cpp_code);
-    string compile_cpp = "clang++ " + filename_cpp + " -o " + filename;
+    string compile_cpp = "clang++ " + filename_cpp + " -o " + filename + " --std=c++11";
     system(compile_cpp.c_str());
    
 #ifndef DEBUG
