@@ -1,8 +1,4 @@
-#include <iostream>
-#include <string>
-#include <algorithm>
 #include "expression_tree.h"
-#include "link_val.h"
 
 enum e_op str_to_op(const std::string op_string) {
     if(op_string.compare("+") == 0)
