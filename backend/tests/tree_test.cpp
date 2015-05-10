@@ -25,7 +25,8 @@ public:
 	static void test_string_concatenation();
 	static void test_string_int_concatenation();
 	static void test_aux_fn_expressions();
-	static void test_streamreader_expressions();
+	static void test_streamreader_int_expressions();
+	static void test_streamreader_string_expressions();
 	static void run_all_unit_tests();
 	static void run_all_integration_tests();
 };
@@ -34,11 +35,19 @@ void test_aux_fn (int n) {
 	cerr << "[AUX_FN] " << n << endl;
 }
 
+void test_aux_str_fn (string n) {
+	cerr << "[AUX_FN] " << n << endl;
+}
+
 int rpl_str_to_int (string msg) {
 	return atoi(msg.c_str());
 }
 
-void TreeTest::test_streamreader_expressions() {
+string default_rpl_str_str (string msg) {
+	return msg;
+}
+
+void TreeTest::test_streamreader_int_expressions() {
 	cerr << "y <- x + 2" << endl;
 	cerr << "Enter x." << endl;
 
@@ -61,15 +70,57 @@ void TreeTest::test_streamreader_expressions() {
 	y_var->assign_aux_fn((void *)&test_aux_fn);
 
 	// link (x <- str_to_int <- KSR());
-	void *dummy;
+	int stream;
 	FuncPtr<int>::f_ptr f = &rpl_str_to_int; 
-	KeyboardStreamReader<int> *sr = new KeyboardStreamReader<int>(f, dummy);
-	linked_var::register_cpp_var(&dummy);
-	linked_var *sr_var = new linked_var(&dummy, new ExpressionNode (
+	KeyboardStreamReader<int> *sr = new KeyboardStreamReader<int>(&stream, f);
+	linked_var::register_cpp_var(&stream);
+	linked_var *sr_var = new linked_var(&x, new ExpressionNode (
 		new BinaryExpressionNode(
 		new UnaryExpressionNode(
 		new ValueNode(
-		new StreamReaderNode(ltINT))))));
+		new VariableNode(&stream))))));
+
+
+	sr->start_thread();
+	while (1) {}
+}
+
+void TreeTest::test_streamreader_string_expressions() {
+	string *prefix = new string("Ripple is ");
+	string *suffix = new string();
+	string *sentence = new string();
+
+	linked_var::register_cpp_var(prefix);
+	linked_var::register_cpp_var(suffix);
+	linked_var::register_cpp_var(sentence);
+
+	// link (sentence <- prefix + suffix)
+	//		test_aux_str_fn(sentence);
+	linked_var *sentence_var = new linked_var(&sentence, new ExpressionNode(
+		new BinaryExpressionNode(
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode(prefix)))), "+",
+			new BinaryExpressionNode(
+				new UnaryExpressionNode(
+				new ValueNode(
+				new VariableNode(suffix)))))));
+	sentence_var->assign_aux_fn((void *)&test_aux_str_fn);
+
+	// link (suffix <- str_to_str <- KSR());
+	string *stream = new string();
+	linked_var::register_cpp_var(&stream);
+	FuncPtr<string>::f_ptr f = &default_rpl_str_str;  // @TODO !!! default
+	KeyboardStreamReader<string> *sr = new KeyboardStreamReader<string>(suffix, f);
+	linked_var *suffix_var = new linked_var(&suffix, new ExpressionNode (
+		new BinaryExpressionNode(
+		new UnaryExpressionNode(
+		new ValueNode(
+		new VariableNode(stream))))));
+
+	sr->start_thread();
+	while (1) {}
 }
 
 void TreeTest::test_aux_fn_expressions() {
@@ -626,7 +677,9 @@ void TreeTest::run_all_integration_tests() {
 	test_aux_fn_expressions();
 	cerr << "[TREE_TEST] Auxiliary link function tests passed." << endl;
 	linked_var::reset_refs();
-	test_streamreader_expressions();
+	//test_streamreader_int_expressions();
+	test_streamreader_string_expressions();
+	linked_var::reset_refs();
 }
 
 int main() {

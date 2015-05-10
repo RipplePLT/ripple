@@ -66,7 +66,7 @@ void linked_var::update() {
 	int i;
 	this->value = this->expression.evaluate();
 	this->update_cpp_var();
-	
+
 	if (this->has_aux)
 		this->call_aux(&this->value.value);
 
@@ -109,9 +109,11 @@ void linked_var::register_cpp_var (void *var) {
  */
 void linked_var::update_nonlinked_var (void *var) {
 	int i;
-	if (references[var] != NULL)
-		for (i = 0; i < references[var]->size(); i++)
+	if (references[var] != NULL) {
+		for (i = 0; i < references[var]->size(); i++) {
 			(*references[var])[i]->update();
+		}
+	}
 }
 
 /*

@@ -25,21 +25,11 @@ class UnaryExpressionNode;
 class ValueNode;
 class LiteralNode;
 class VariableNode;
-class StreamReaderNode;
 
 union operand {
     BinaryExpressionNode *b_exp;
     UnaryExpressionNode *u_exp;
     ValueNode *v_node;
-};
-
-class StreamReaderNode {
-public:
-	link_val val;
-	vector<void*> *dependencies;
-
-	StreamReaderNode (enum link_val_type t);
-	link_val evaluate();
 };
 
 class LiteralNode {
@@ -81,17 +71,14 @@ class ValueNode {
 public:
 	bool is_literal;
 	bool is_expression;
-	bool is_stream;
 	LiteralNode *lit_node;
 	VariableNode *var_node;
 	ExpressionNode *expr_node;
-	StreamReaderNode *sr_node;
 	vector<void*> *dependencies;
 
 	ValueNode (LiteralNode *l);
 	ValueNode (VariableNode *v);
 	ValueNode (ExpressionNode *e);
-	ValueNode (StreamReaderNode *s);
 	link_val evaluate();
 };
 
