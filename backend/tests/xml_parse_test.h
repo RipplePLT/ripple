@@ -1,12 +1,12 @@
-#ifndef XML_PARSE_TEST_HPP
-#define XML_PARSE_TEST_HPP
+#ifndef __XML_PARSE_TEST_H__
+#define __XML_PARSE_TEST_H__
 
 #include <assert.h>
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "xml_lib.hpp"
+#include "xml_lib.h"
 
 using namespace std;
 

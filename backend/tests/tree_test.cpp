@@ -1,9 +1,9 @@
 #include <iostream>
 #include <cmath>
 #include <assert.h>
-#include "../expression_tree.hpp"
-#include "../link_val.hpp"
-#include "../linked_var.hpp"
+#include "../expression_tree.h"
+#include "../link_val.h"
+#include "../linked_var.h"
 
 /* Spaghetti */
 

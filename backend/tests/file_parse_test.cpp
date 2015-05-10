@@ -1,4 +1,4 @@
-#include "file_parse_test.hpp"
+#include "file_parse_test.h"
 
 /**
  * Simple test suite for file parse library.

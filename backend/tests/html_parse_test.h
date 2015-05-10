@@ -1,11 +1,11 @@
-#ifndef HTML_PARSE_TEST_HPP
-#define HTML_PARSE_TEST_HPP
+#ifndef __HTML_PARSE_TEST_H__
+#define __HTML_PARSE_TEST_H__
 
 #include <assert.h>
 #include <iostream>
 #include <string>
 
-#include "html_lib.hpp"
+#include "html_lib.h"
 
 using namespace std;
 

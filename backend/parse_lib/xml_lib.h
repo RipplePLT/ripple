@@ -1,5 +1,5 @@
-#ifndef XML_LIB_HPP
-#define XML_LIB_HPP
+#ifndef __XML_LIB_H__
+#define __XML_LIB_H__
 
 #include <iostream>
 #include <sstream>

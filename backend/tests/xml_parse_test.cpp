@@ -1,4 +1,4 @@
-#include "xml_parse_test.hpp"
+#include "xml_parse_test.h"
 
 using namespace std;
 

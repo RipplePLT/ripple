@@ -31,16 +31,16 @@ ast.o: ast.cpp ast.h
 debug_tools.o: debug_tools.cpp debug_tools.h
 	$(CXX) -c misc/debug_tools.cpp $(CXXFLAGS)
 
-lex.yy.o: lex.yy.c ripple.tab.hpp ast.h debug_tools.h
+lex.yy.o: lex.yy.c ripple.tab.h ast.h debug_tools.h
 	$(CXX) -c lex.yy.c $(CXXFLAGS)
 
-lex.yy.c: ripple.l ripple.tab.hpp ast.h
+lex.yy.c: ripple.l ripple.tab.h ast.h
 	$(LEX) frontend/ripple.l $(LFLAGS)
 
-ripple.tab.o: ripple.tab.cpp ripple.tab.hpp ast.h
+ripple.tab.o: ripple.tab.cpp ripple.tab.h ast.h
 	$(CXX) -c ripple.tab.cpp $(CXXFLAGS)
 
-ripple.tab.cpp ripple.tab.hpp: ripple.ypp ast.h
+ripple.tab.cpp ripple.tab.h: ripple.ypp ast.h
 	$(YACC) -d frontend/ripple.ypp $(YFLAGS)
 
 libsym.a: 
@@ -52,7 +52,7 @@ libbackend.a: backend/linked_var.o backend/expression_tree.o backend/link_val.o
 	
 .PHONY: clean
 clean:
-	rm -f *.o *.hpp *.cpp *.c *.cc *.a rpl
+	rm -f *.o *.h *.hpp *.cpp *.c *.cc *.a rpl
 	$(MAKE) -C frontend/symbol_table clean
 	$(MAKE) -C backend clean-all
 

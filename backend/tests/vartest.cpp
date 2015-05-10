@@ -1,7 +1,7 @@
 #include <iostream>
-#include "../linked_var.hpp"
-#include "../expression_tree.hpp"
-#include "../sync_queue.hpp"
+#include "../linked_var.h"
+#include "../expression_tree.h"
+#include "../sync_queue.h"
 
 /*
  * This test is an example of the intermediate code that link

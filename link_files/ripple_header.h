@@ -6,9 +6,9 @@
 #include <fstream>
 #include <string>
 
-#include "expression_tree.hpp"
-#include "link_val.hpp"
-#include "linked_var.hpp"
+#include "expression_tree.h"
+#include "link_val.h"
+#include "linked_var.h"
 
 using namespace std;
 
