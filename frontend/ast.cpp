@@ -1111,11 +1111,18 @@ void ConditionalStatementNode::seppuku(){
 JumpStatementNode::JumpStatementNode(string _type, ExpressionNode *expression_node){
     type = str_to_jump(_type);
     en = expression_node;
+    if (expression_node->type != func_type) {
+        error = true;
+        cout << RETURN_TYPE_ERROR << endl;
+    }
     code = _type + " " + expression_node->code + ";\n";
 }
 
 JumpStatementNode::JumpStatementNode(string _type){
     type = str_to_jump(_type);
+    if (type == tRETURN && func_type != tVOID) {
+        cout << RETURN_TYPE_ERROR << endl;
+    }
     en = nullptr;
     code = _type + ";\n";
 }
@@ -1266,6 +1273,7 @@ StatementNode::StatementNode(ConditionalStatementNode *c) {
 StatementNode::StatementNode(JumpStatementNode *j) {
     stmts.jump = j;
     code = j->code;
+    returns_value = j->returns_value;
 }
 
 StatementNode::StatementNode(LoopStatementNode *l) {
@@ -1297,6 +1305,9 @@ StatementListNode::StatementListNode(SymbolTableNode *s) {
 
 void StatementListNode::push_statement(StatementNode *s) {
     stmt_list->push_back(s);
+    if (s->returns_value) {
+        returns_value = true;
+    }
     code = code + s->code;
 }
 
@@ -1320,6 +1331,11 @@ FunctionNode::FunctionNode(TypeNode *_type, string id_node,
     decl_args = decl_args_list;
     stmt_list = stmt_list_n;
     type = _type->type;
+
+    if (type != tVOID && !stmt_list->returns_value) {
+        error = true;
+        cout << RETURN_TYPE_ERROR << endl;
+    }
 
     if (id.compare("main") == 0) {
         code = "int " + id + "(" + decl_args_list->code + ")" + stmt_list_n->code; 

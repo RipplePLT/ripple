@@ -48,6 +48,7 @@
 #define LOOP_CONDITION_ERR LINE_ERR "loop condition error"
 #define UNKNOWN_TYPE_ERR LINE_ERR "unknown type error"
 #define FUNCTION_BASIC_TYPE_ERR LINE_ERR "functions can only return primitive types"
+#define RETURN_TYPE_ERROR LINE_ERR "return type does not match function type"
 
 #define INVALID_DECL_ERR LINE_ERR "invalid declaration"
 #define VARIABLE_REDECL_ERR LINE_ERR "variable redeclaration"
@@ -126,6 +127,7 @@ string type_to_str(e_type type);
 void write_to_file(string filename, string code);
 
 extern SymbolTable sym_table;
+extern e_type func_type;
 
 #define IS_STD_RPL_FUNCTION(f_name) (f_name).compare(RPL_STD_INPUT_FUNCTION) == 0    || \
                                     (f_name).compare(RPL_STD_OUTPUT_FUNCTION) == 0   || \
@@ -188,6 +190,7 @@ class Node {
         bool is_number();
         bool is_bool();
         bool is_string();
+        bool returns_value = false;
 };
 
 /* The names of Node classes are better understood

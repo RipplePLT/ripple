@@ -13,8 +13,9 @@ void yyerror(const char *s) { printf("%s\n", s); }
 
 extern SymbolTable sym_table;
 
-extern int line_no;
+e_type func_type;
 
+extern int line_no;
 extern string cpp_code;
 extern e_type last_type;
 %}
@@ -173,7 +174,8 @@ program_section : function { $$ = new ProgramSectionNode($1); d("program section
                 | dataset_declaration { $$ = new ProgramSectionNode($1); d("program section"); }
                 ;
 
-function : dtype ID tL_PAREN decl_args tR_PAREN statement_block { $$ = new FunctionNode($1, *$2, $4, $6);
+function : dtype ID tL_PAREN decl_args tR_PAREN statement_block { func_type = $1->type;
+                                                                  $$ = new FunctionNode($1, *$2, $4, $6);
                                                                   sym_table.add_function(*($2), ($1)->type, line_no, 
                                                                                          $4->to_enum_list());
                                                                   d("function");
@@ -202,7 +204,8 @@ statement : declarative_statement               { $$ = new StatementNode($1); d(
           | link_statement                      { $$ = new StatementNode($1); d("statement - link"); }
           ;
 
-jump_statement : RETURN expression tSEMI        { $$ = new JumpStatementNode("return", $2); d("jump - return"); }
+jump_statement : RETURN expression tSEMI        { $$ = new JumpStatementNode("return", $2); $$->returns_value = true; d("jump - return"); }
+               | RETURN tSEMI                   { $$ = new JumpStatementNode("return"); d("jump -return"); }
                | CONTINUE tSEMI                 { $$ = new JumpStatementNode("continue"); d("jump - continue"); }
                | BREAK tSEMI                    { $$ = new JumpStatementNode("break"); d("jump - break"); }
                ;
