@@ -159,7 +159,6 @@ void SymbolTable::add_length(string word, int l) {
     get(word)->add_length(l);
 }
 
-
 bool SymbolTable::contains(string word) {
     SymbolTableNode *n = current;
     while(n) {
@@ -174,8 +173,7 @@ bool SymbolTable::contains_in_scope(string word){
     return current->hashmap->contains(word);
 }
 
-Entry *SymbolTable::get(string word) {
-    
+Entry *SymbolTable::get(string word) {    
     SymbolTableNode *n = current;
     while(n) {
         if (n->hashmap->contains(word))
@@ -186,5 +184,5 @@ Entry *SymbolTable::get(string word) {
 }
 
 SymbolTable::~SymbolTable() {
-    //delete start;
+    delete start;
 }

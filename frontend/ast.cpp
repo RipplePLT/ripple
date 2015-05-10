@@ -2,6 +2,8 @@
 #include <string>
 #include "../misc/debug_tools.h"
 
+/* Takes in a string corresponding to an operator,
+ * returns the corresponding enum e_op */
 enum e_op str_to_op(const std::string op_string) {
     if(op_string.compare("+") == 0)
         return PLUS;
@@ -39,6 +41,9 @@ enum e_op str_to_op(const std::string op_string) {
         return SIZE;
 };
 
+
+/* Takes in a type in string form, returns an
+ * enum e_type */
 enum e_type str_to_type(const std::string type){
     cout << type << endl;
     if (type.compare("int") == 0)
@@ -55,6 +60,9 @@ enum e_type str_to_type(const std::string type){
         return tBYTE;
 }
 
+
+/* Takes in a jump keyword in string form, returns
+ * an enum e_jump */
 enum e_jump str_to_jump(const std::string type){
     if (type.compare("return") == 0)
         return tRETURN;
@@ -64,6 +72,7 @@ enum e_jump str_to_jump(const std::string type){
         return tCONTINUE;
 }
 
+/* Does the inverse of str_to_type */
 string type_to_str(e_type type){
     switch(type){
         case tBYTE:
@@ -83,8 +92,9 @@ string type_to_str(e_type type){
     }
 }
 
-void write_to_file(string filename, string code){
 
+/* Writes the intermediate code to a file */
+void write_to_file(string filename, string code){
     ofstream file;
     file.open(filename);
     file << "#include \"link_files/ripple_header.h\"\n\n";
@@ -109,6 +119,7 @@ bool Node::is_number() {
 bool Node::is_string() {
     return (type == tSTRING);
 }
+
 
 /* ValueNode */
 ValueNode::ValueNode(IDNode *i) {
@@ -141,6 +152,7 @@ ValueNode::ValueNode(FunctionCallNode *f) {
     code = f->code;
     is_linkable = false;
 } 
+
 ValueNode::ValueNode(ArrayAccessNode *a) {
     val_type = ARR_ACC;
     val.array_access_val = a;
@@ -149,6 +161,7 @@ ValueNode::ValueNode(ArrayAccessNode *a) {
     code = a->code;
     is_linkable = false;
 }
+
 ValueNode::ValueNode(DatasetAccessNode *d) {
     val_type = DS_ACC;
     val.dataset_access_val = d;
@@ -157,6 +170,7 @@ ValueNode::ValueNode(DatasetAccessNode *d) {
     code = d->code;
     is_linkable = false;
 }
+
 ValueNode::ValueNode(ExpressionNode *e) {
     val_type = EXPR;
     val.expression_val = e;
@@ -167,6 +181,7 @@ ValueNode::ValueNode(ExpressionNode *e) {
     link_code = VALUE_NODE(e->link_code);
     is_linkable = true;
 }
+
 ValueNode::ValueNode(ArrayInitNode *a) {
     val.a_init = a;
     type = a->type;
@@ -181,6 +196,8 @@ void ValueNode::seppuku(){
     delete this;
 }
 
+
+/* DatasetNode */
 DatasetNode::DatasetNode(string s, DeclArgsNode *d) {
     name = s;
     decl_args = d;
@@ -192,6 +209,7 @@ void DatasetNode::seppuku(){
     decl_args->seppuku();
     delete this;
 }
+
 
 /* IDNode */
 IDNode::IDNode(Entry *ent) {
@@ -214,6 +232,7 @@ string IDNode::get_name() {
 void IDNode::seppuku(){ 
     delete this;
 }
+
 
 /* FunctionCallNode */
 FunctionCallNode::FunctionCallNode(string f, ArgsNode *a) {
@@ -252,10 +271,12 @@ void FunctionCallNode::seppuku(){
 void FunctionCallNode::typecheck() {
     Entry *entry = sym_table.get(func_id);
     if (entry) {
+        /* This is an attempt to call a variable that isn't a function */
         if (entry->symbol_type != tFUNC) {
             error = true;
             cout << NOT_A_FUNC_ERR << endl;
         } else if (entry->args) {
+            /* The args are incorrect in this example */
             if (*entry->args != *args_list->to_enum_list()) {
                 error = true;
                 cout << INVAL_FUNC_CALL_ERR << endl;
@@ -268,6 +289,8 @@ void FunctionCallNode::typecheck() {
     }
 }
 
+/* Standard functions are specially generated to allow for
+ * things that normal functions can't have, like variable args*/
 string FunctionCallNode::generate_std_rpl_function(){
     string func_name = func_id;
     string code;
@@ -313,8 +336,8 @@ void ArrayInitNode::add_arg(ExpressionNode *arg) {
     has_elements = true;
     if(type == 0 || (type == tINT && arg->type == tFLOAT)){
         type = arg->type;
-    } else if(type == tFLOAT && arg->type == tINT){}
-    else if(arg->type != type){
+    } else if(type == tFLOAT && arg->type == tINT) {
+    } else if(arg->type != type){
         error = true;
         cout << ARR_ELEMENT_TYPE_ERR << endl;
     }
@@ -333,6 +356,7 @@ void ArrayInitNode::seppuku(){
 
     delete this;
 }
+
 
 /* ArgsNode */
 ArgsNode::ArgsNode() {
@@ -378,6 +402,7 @@ void ArgsNode::seppuku(){
     delete this;
 }
 
+
 /* DeclArgsNode */
 DeclArgsNode::DeclArgsNode() {
     code = "";
@@ -422,6 +447,7 @@ void DeclArgsNode::seppuku(){
     delete this;
 }
 
+
 /* LiteralNode */
 LiteralNode::LiteralNode(int i) {
     sym = tVAR;
@@ -448,17 +474,12 @@ LiteralNode::LiteralNode(bool b) {
     type = tBOOL;
 }
 
-LiteralNode::LiteralNode(char b) {
-    sym = tVAR;
-    val.byte_lit = b;
-    type = tBYTE;
-}
-
 void LiteralNode::seppuku(){ 
     if(type == tSTRING)
         delete val.string_lit;
     delete this;
 }
+
 
 /* ArrayAccessNode */
 ArrayAccessNode::ArrayAccessNode(ValueNode *val, ExpressionNode *exp) {
@@ -502,9 +523,9 @@ void DatasetAccessNode::seppuku(){
     delete this;
 }
 
+
 /* UnaryExpressionNode */
 UnaryExpressionNode::UnaryExpressionNode(UnaryExpressionNode *u, string _op) {
-
     right_operand.u_exp = u;
     array_length = u->array_length;
     op = str_to_op(_op);
@@ -545,7 +566,6 @@ UnaryExpressionNode::UnaryExpressionNode(ValueNode *v){
 }
 
 void UnaryExpressionNode::typecheck(e_op op){
-
     e_type child_type = right_operand.u_exp->type;
 
     if(sym == tARR && op != SIZE){
@@ -621,7 +641,6 @@ BinaryExpressionNode::BinaryExpressionNode(BinaryExpressionNode *bl, string _op,
     is_linkable = bl->is_linkable && ur->is_linkable;
 }
 
-
 BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
     left_operand.u_exp = ul;
     left_is_binary = false;
@@ -638,7 +657,6 @@ BinaryExpressionNode::BinaryExpressionNode(UnaryExpressionNode *ul) {
 }
 
 void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
-
     if(left->sym == tARR || right->sym == tARR){
         error = true;
         cout << ARR_BINEXP_ERR << endl;
@@ -650,7 +668,6 @@ void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
     }
 
     if (op == PLUS || op == MINUS || op == TIMES || op == DIV || op == EXP) {
-
         if (left->is_number() && right->is_number())
             if (left->type == tFLOAT || right->type == tFLOAT)
                 type = tFLOAT;
@@ -756,7 +773,6 @@ void BinaryExpressionNode::typecheck(Node *left, Node *right, e_op op){
                     error = true;
             }
     }
-
 }
 
 string BinaryExpressionNode::gen_binary_code(string l_code, enum e_op op, string r_code, e_type l_type, e_type r_type){
@@ -828,8 +844,6 @@ ValueNode *BinaryExpressionNode::get_value_node() {
 }
 
 void BinaryExpressionNode::seppuku(){ 
-
-
     if(left_is_binary){
         left_operand.b_exp->seppuku();
     }
@@ -849,9 +863,9 @@ void BinaryExpressionNode::seppuku(){
     delete this;
 }
 
+
 /* ExpressionNode */
 ExpressionNode::ExpressionNode(BinaryExpressionNode *b) {
-
     ValueNode *v = b->get_value_node();
     if (v) {
         value = v;
@@ -881,7 +895,6 @@ ExpressionNode::ExpressionNode(BinaryExpressionNode *b, ValueNode *v) {
 ExpressionNode::~ExpressionNode() {}
 
 void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *value){
-
     if(value->sym != tVAR){
         error = true;
         cout << ASSIGN_ERR << endl;
@@ -893,10 +906,9 @@ void ExpressionNode::typecheck(BinaryExpressionNode *expression, ValueNode *valu
 void ExpressionNode::seppuku(){ 
     if(bin_exp != nullptr)
         bin_exp->seppuku();
-    //if(value != nullptr)
-    //    value->seppuku();
     delete this;
 }
+
 
 /* DeclarativeStatementNode */
 DeclarativeStatementNode::DeclarativeStatementNode(TypeNode *t, ExpressionNode *expression_node){
@@ -1002,13 +1014,13 @@ void DeclarativeStatementNode::typecheck() {
     }
 }
 
-
 void DeclarativeStatementNode::seppuku(){ 
     if(a_size != nullptr)
         a_size->seppuku();
     en->seppuku();
     delete this;
 }
+
 
 /* TypeNode */
 TypeNode::TypeNode(e_type t, string name){
@@ -1040,6 +1052,7 @@ TypeNode::TypeNode(e_type t, ValueNode *val) {
         sym = tVAR;
     }
 }
+
 
 /* ConditionalStatementNode */
 ConditionalStatementNode::ConditionalStatementNode(ExpressionNode *e, StatementListNode *s, StatementListNode *a) {
@@ -1089,9 +1102,7 @@ void JumpStatementNode::seppuku(){
 
 /* LoopStatementNode */
 LoopStatementNode::LoopStatementNode(ExpressionNode *init, ExpressionNode *cond, ExpressionNode *n, StatementListNode *stmts){
-
     string init_code, cond_code, n_code;
-
 
     initializer = init;
     condition = cond;
@@ -1135,6 +1146,8 @@ void LoopStatementNode::seppuku(){
     delete this;
 }
 
+
+/* LinkStatementNode */
 LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn){
     id_node = idn;
     expression_node = expn;
@@ -1208,19 +1221,23 @@ LinkStatementNode::LinkStatementNode(IDNode *idn, ExpressionNode *expn, string f
     }
 }
 
+
 /* StatementNode */
 StatementNode::StatementNode(DeclarativeStatementNode *d){
     stmts.decl = d;
     code = d->code;
 }
+
 StatementNode::StatementNode(ConditionalStatementNode *c) {
     stmts.cond = c;
     code = c->code;
 }
+
 StatementNode::StatementNode(JumpStatementNode *j) {
     stmts.jump = j;
     code = j->code;
 }
+
 StatementNode::StatementNode(LoopStatementNode *l) {
     stmts.loop = l;
     code = l->code;
@@ -1235,6 +1252,7 @@ StatementNode::StatementNode(LinkStatementNode *l){
     stmts.link = l;
     code = l->code;
 }
+
 
 /* StatementListNode */
 StatementListNode::StatementListNode() {
@@ -1260,6 +1278,7 @@ void StatementListNode::seppuku(){
     delete this;
 }
 
+
 /* FunctionNode */
 FunctionNode::FunctionNode(TypeNode *_type, string id_node, DeclArgsNode *decl_args_list, StatementListNode *stmt_list_n){
     if (_type->sym != tVAR) {
@@ -1284,6 +1303,7 @@ void FunctionNode::seppuku(){
     delete this;
 }
 
+
 /* ProgramSectionNode */
 ProgramSectionNode::ProgramSectionNode(FunctionNode *f) {
     contents.function = f;
@@ -1300,6 +1320,7 @@ void ProgramSectionNode::seppuku(){
     delete this;
 }
 
+
 /* ProgramNode */
 ProgramNode::ProgramNode() {
     code = "";
@@ -1307,5 +1328,4 @@ ProgramNode::ProgramNode() {
 
 void ProgramNode::add_section(ProgramSectionNode *p) {
     code += p->code;
-    //p->seppuku();
 }

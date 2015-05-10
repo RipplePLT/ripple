@@ -28,7 +28,6 @@ int hashCode(const string word) {
     return (int) std::abs((float) h);
 }
 
-
 int isPrime(int num){
 
     if(num < 4)
@@ -42,7 +41,7 @@ int isPrime(int num){
     return 1;
 }
 
-
+/* HashMap */
 HashMap::HashMap() {
     for (int i = 0; i < TABLE_SIZE; i++) {
         t[i] = new list<Entry *>; 

@@ -37,7 +37,8 @@ class SymbolTableNode {
     ~SymbolTableNode();
 };
 
-class SymbolTable{
+
+class SymbolTable {
     SymbolTableNode *start;
     SymbolTableNode *current;
 

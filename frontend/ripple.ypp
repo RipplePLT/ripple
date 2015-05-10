@@ -10,7 +10,6 @@ using namespace std;
 
 extern int yylex();
 void yyerror(const char *s) { printf("%s\n", s); }
-//#define YYSTYPE std::string
 
 extern SymbolTable sym_table;
 
@@ -77,7 +76,6 @@ extern e_type last_type;
 ***************/
 %token <integer> TYPE
 %token <integer> BOOL
-%token <integer> BYTE
 %token <integer> INT
 %token <integer> FLOAT
 %token <integer> STRING 
@@ -106,6 +104,10 @@ extern e_type last_type;
 %token tR_BRACKET
 %token tL_CURLY
 %token tR_CURLY
+
+/*************************
+    TYPE DECLARATIONS
+*************************/
 %type <prog> program
 %type <progsec> program_section
 %type <dataset> dataset_declaration
@@ -131,6 +133,9 @@ extern e_type last_type;
 %type <func> function
 %type <decl_args> decl_args
 
+/*********************
+    ASSOCIATIVITY
+*********************/
 %left tEQ
 %left tNE
 
@@ -204,11 +209,12 @@ conditional_statement : IF tL_PAREN expression tR_PAREN statement_block else_sta
                       ;
 
 else_statement : ELSE statement_block   { $$ = $2; d("else statement"); }
-                |                       { $$ = NULL; }
-                ;
+               |                       { $$ = NULL; }
+               ;
 
 loop_statement : FOR tL_PAREN opt_expression tSEMI opt_expression tSEMI opt_expression tR_PAREN statement_block { $$ = new LoopStatementNode($3, $5, $7, $9); d("loop - for"); }
-                | WHILE tL_PAREN expression tR_PAREN statement_block { $$ = new LoopStatementNode(nullptr ,$3, nullptr, $5); d("loop - while"); }
+               | WHILE tL_PAREN expression tR_PAREN statement_block { $$ = new LoopStatementNode(nullptr ,$3, nullptr, $5); d("loop - while"); }
+               ;
 
 declarative_statement : dtype expression tSEMI   { $$ = new DeclarativeStatementNode($1, $2); 
                                                    d("declarative statement -  type expr"); delete $1; }
@@ -317,6 +323,7 @@ var : ID { Entry *entry = sym_table.get(*yylval.string);
                 $$ = new IDNode(new_entry); d("undeclared id");
             }
           }
+    ;
 
 dtype : TYPE array_opt {  $$ = new TypeNode(last_type, $2); d("type: "); }
       | DATASET ID  { $$ = new TypeNode(last_type, *$2); d("dataset: " + *yylval.string); }
