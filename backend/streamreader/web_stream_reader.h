@@ -17,9 +17,10 @@ private:
     CURLcode curl_result;
 
 public:
-    WebStreamReader(string URL, int interval = 0, unsigned int port = 80,
+    WebStreamReader(string URL, void *to_update, int interval = 0, unsigned int port = 80,
                     typename FuncPtr<T>::f_ptr f = nullptr) {
         this->URL = URL;
+        this->to_update = (T *)to_update; 
         this->port = port;
         this->interval = interval;
         this->filter_func_ptr = f;
@@ -91,13 +92,9 @@ protected:
                 cerr<<"Error from StreamReader " << URL << ": " <<  curl_easy_strerror(curl_result) << endl;
                 exit(1);
             }
-            //Runs update method on linked variable
-            if (this->filter_func_ptr) {
                 
-                linked_var::update_nonlinked_var(this->filter_func_ptr("Page Loaded and Printed"));
-            } else {
-                //update with string
-            }
+            *this->to_update = this->filter_func_ptr(line);
+            linked_var::update_nonlinked_var(this->to_update);
 
             if (this->interval)
                 sleep(this->interval);

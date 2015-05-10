@@ -14,10 +14,11 @@ private:
     string delimiter;
 
 public:
-    FileStreamReader<T>(string file_path, typename FuncPtr<T>::f_ptr f = nullptr, int interval=0, const string delim = "\0") {
+    FileStreamReader<T>(string file_path, void *to_update, typename FuncPtr<T>::f_ptr f = nullptr, int interval=0, const string delim = "\0") {
         this->file_path = file_path;
+        this->to_update = (T *)to_update; 
+        this->filter_func_ptr = f;
         this->interval = interval;
-        this->aux_func_ptr = f;
         this->delimiter = delim;
     }
 
@@ -81,12 +82,9 @@ protected:
                     exit(1);
                 }
 
-                if (this->aux_func_ptr) {
-                    /*update*/this->aux_func_ptr(read_buffer);
-                } else {
-                    //update(read_buffer);
-                    cout << read_buffer << endl;
-                }
+                *this->to_update = this->filter_func_ptr(read_buffer)
+                linked_var::update_nonlinked_var(this->to_update);
+
             } else {
                 while(getline(file_stream, read_buffer, *delimiter.c_str())) {
 
@@ -94,13 +92,8 @@ protected:
                         cerr << "File I/O error" << endl;
                         exit(1);
                     }
-
-                    if (this->aux_func_ptr) {
-                        /*update*/this->aux_func_ptr(read_buffer);
-                    } else {
-                        cout << read_buffer << endl;
-                        //update(read_buffer);
-                    }
+                    *this->to_update = this->filter_func_ptr(read_buffer)
+                    linked_var::update_nonlinked_var(this->to_update);
                 }
             }
             if (this->interval)
