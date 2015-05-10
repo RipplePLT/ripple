@@ -59,10 +59,10 @@ protected:
             getline(cin, line);
 
             if (this->filter_func_ptr){
-                this->to_update = filter_func_ptr(line);
+                *this->to_update = this->filter_func_ptr(line);
                 linked_var::update_nonlinked_var(this->to_update);
             } else {
-                this->to_update = line;
+                *this->to_update = line;
                 linked_var::update_nonlinked_var(this->to_update); 
             }
         }
