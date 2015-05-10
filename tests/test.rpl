@@ -26,9 +26,7 @@ int main(){
     print("[INT DECLARATION TEST]");
     int var_1;
     var_1 = 4;
-    int var_2;
-    var_2 = 7;
-    # int var_2 = 7;
+    int var_2 = 7;
     print("\tValue for var_1:", var_1);
     print("\tValue for var_2:", var_2);
     print("\tInteger declarations passed!\n");
