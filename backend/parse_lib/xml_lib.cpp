@@ -1,4 +1,6 @@
 #include "xml_lib.h"
+#include "file_lib.h"
+#include "html_lib.h"
 
 using namespace std;
 
@@ -11,20 +13,7 @@ static void empty_stack() {
     }
 }
 
-string trim(string line) {
-    int index = line.find_first_not_of(" ");
-    return line.substr(index);
-}
-
-bool xml_lib::contains_tag(string line, string tag) {
-    return line.find(tag) != string::npos ? true : false;
-}
-
-bool xml_lib::contains_word(string line, string word) {
-    return line.find(word) != string::npos ? true : false;
-}
-
-int xml_lib::get_num_nodes(string line, string tag) {
+int ripple::get_num_nodes(string line, string tag) {
     empty_stack();
 
     int count = 0;
@@ -51,10 +40,7 @@ int locate_word(string line, string word) {
     return line.find(word);
 }
 
-int xml_lib::size(string line) {
-    return line.size();
-}
-string xml_lib::get_node(string line, string tag) {
+string ripple::get_node(string line, string tag) {
     empty_stack();
 
     string start_tag = "<" + tag + ">";
@@ -79,10 +65,10 @@ string xml_lib::get_node(string line, string tag) {
 
     }
 
-    return trim(result + " " + end_tag);
+    return ripple::trim(result + " " + end_tag);
 }
 
-string xml_lib::get_node_text(string line, string tag) {
+string ripple::get_node_text(string line, string tag) {
     empty_stack();
 
     string start_tag = "<" + tag + ">";
@@ -108,38 +94,4 @@ string xml_lib::get_node_text(string line, string tag) {
     }
 
     return trim(result);
-}
-
-vector<string> xml_lib::get_collection(string line, string tag) {
-    empty_stack();
-
-    string start_tag = "<" + tag + ">";
-    string end_tag = "</" + tag + ">";
-
-    string word;
-    string result;
-    vector<string> nodes;
-    stringstream node_stream(line);
-
-    for (; node_stream >> word;) {
-        if (word == end_tag && !parse_stack.empty()) {
-
-            while (parse_stack.top() != start_tag) {
-                result = result.insert(0, " " + parse_stack.top());
-                parse_stack.pop();
-            }
-            nodes.push_back(trim(result));
-            result = "";
-
-            parse_stack.pop();
-        } else {
-            parse_stack.push(word);
-        }
-    }
-
-    return nodes;
-}
-
-void xml_lib::print_line(string line) {
-    cout << line << endl;
 }

@@ -13,7 +13,7 @@
 #include "linked_var.h"
 #include "xml_lib.h"
 
-using namespace std;
+using namespace ripple;
 
 namespace ripple {
 	string input(string p){

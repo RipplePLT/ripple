@@ -1,0 +1,25 @@
+#!/bin/bash
+
+./rpl tests/decl_test.rpl
+./output
+
+./rpl test/arrat_test.rpl
+./output
+
+./rpl tests/cast_test.rpl
+./output
+
+./rpl tests/control_test.rpl
+./output
+
+./rpl tests/dataset_tests.rpl
+./output
+
+./rpl tests/function_test.rpl
+./output
+
+./rpl tests/link_test.rpl 
+./output
+
+./rpl tests/final_test.rpl
+./output

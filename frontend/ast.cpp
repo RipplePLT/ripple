@@ -309,6 +309,8 @@ string FunctionCallNode::generate_std_rpl_function(){
 
     } else if (func_name.compare(RPL_STD_READ_FUNCTION) == 0){
 
+    } else {
+        code = func_id + "(" + args_list->code + ")";
     }
     return code;
 }

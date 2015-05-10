@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "file_lib.h"
+#include "html_lib.h"
 #include "xml_lib.h"
 
 using namespace std;

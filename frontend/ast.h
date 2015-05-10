@@ -131,11 +131,25 @@ void write_to_file(string filename, string code);
 extern SymbolTable sym_table;
 extern e_type func_type;
 
-#define IS_STD_RPL_FUNCTION(f_name) (f_name).compare(RPL_STD_INPUT_FUNCTION) == 0    || \
-                                    (f_name).compare(RPL_STD_OUTPUT_FUNCTION) == 0   || \
-                                    (f_name).compare(RPL_STD_OPEN_FUNCTION) == 0     || \
-                                    (f_name).compare(RPL_STD_READ_FUNCTION) == 0     || \
-                                    (f_name).compare(RPL_STD_CLOSE_FUNCTION) == 0
+#define IS_STD_RPL_FUNCTION(f_name) (f_name).compare(RPL_STD_INPUT_FUNCTION) == 0   || \
+                                    (f_name).compare(RPL_STD_OUTPUT_FUNCTION) == 0  || \
+                                    (f_name).compare(RPL_STD_OPEN_FUNCTION) == 0    || \
+                                    (f_name).compare(RPL_STD_READ_FUNCTION) == 0    || \
+                                    (f_name).compare(RPL_STD_CLOSE_FUNCTION) == 0   || \
+                                    (f_name).compare("contains_word") == 0          || \
+                                    (f_name).compare("length") == 0                 || \
+                                    (f_name).compare("print_line") == 0             || \
+                                    (f_name).compare("locate_word") == 0            || \
+                                    (f_name).compare("contains_tag") == 0           || \
+                                    (f_name).compare("contains_word") == 0          || \
+                                    (f_name).compare("get_num_tags") == 0           || \
+                                    (f_name).compare("size") == 0                   || \
+                                    (f_name).compare("get_body") == 0               || \
+                                    (f_name).compare("get_head") == 0               || \
+                                    (f_name).compare("get_tag") == 0                || \
+                                    (f_name).compare("get_num_nodes") == 0          || \
+                                    (f_name).compare("get_node") == 0               || \
+                                    (f_name).compare("get_node_text") == 0
 
 #define INVAL_ASSIGN_ERR(val_type, expression_type) { cout << LINE_ERR \
     "invalid assignment between operands of type " <<  \

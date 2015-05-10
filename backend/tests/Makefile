@@ -11,13 +11,13 @@ EXES        = file_parse_test html_parse_test sync_test tree_test vartest \
 tests: $(EXES)
 
 file_parse_test: file_parse_test.o
-	$(CXX) file_parse_test.o -L ../lib -lfile -o file_parse_test
+	$(CXX) file_parse_test.o -L ../lib -lfile -lhtml -lxml -o file_parse_test
 
 file_parse_test.o: file_parse_test.cpp file_parse_test.h
 	$(CXX) -c -static file_parse_test.cpp $(CCFLAGS)
 
 html_parse_test: html_parse_test.o
-	$(CXX) html_parse_test.o -L ../lib -lhtml -o html_parse_test
+	$(CXX) html_parse_test.o -L ../lib -lhtml -lfile -lxml -o html_parse_test
 
 html_parse_test.o: html_parse_test.cpp html_parse_test.h
 	$(CXX) -c -static html_parse_test.cpp $(CCFLAGS)
@@ -41,7 +41,7 @@ vartest.o: vartest.cpp ../linked_var.o
 	$(CXX) -c vartest.cpp $(CCFLAGS)
 
 xml_parse_test: xml_parse_test.o
-	$(CXX) xml_parse_test.o -L ../lib -lxml -o xml_parse_test
+	$(CXX) xml_parse_test.o -L ../lib -lfile -lhtml -lxml -o xml_parse_test
 
 xml_parse_test.o: xml_parse_test.cpp xml_parse_test.h
 	$(CXX) -c -static xml_parse_test.cpp $(CCFLAGS)

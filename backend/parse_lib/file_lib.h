@@ -6,16 +6,14 @@
 #include <string>
 #include <vector>
 
-using namespace std;
+namespace ripple {
 
-namespace file_lib {
+    bool contains_word(std::string line, std::string word);
 
-    bool contains_word(string line, string word);
+    int length(std::string line);
+    int locate_word(std::string line, std::string word);
 
-    int length(string line);
-    int locate_word(string line, string word);
-
-    void print_line(string line);
+    void print_line(std::string line);
 
 }
 
