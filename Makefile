@@ -3,8 +3,11 @@ default: rpl
 
 VPATH=.:frontend:misc
 
-debug: MODE=-DDEBUG
-debug: rpl
+ydebug: MODE=-DDEBUG
+ydebug: rpl
+
+ldebug: MODE=-DLDEBUG
+ldebug: rpl
 
 MODE=
 CC=gcc-4.9

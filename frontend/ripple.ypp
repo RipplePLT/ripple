@@ -176,7 +176,7 @@ program : program program_section     { $$->add_section($2);
 
 program_section : function { $$ = new ProgramSectionNode($1); d("program section"); }
                 | dataset_declaration { $$ = new ProgramSectionNode($1); d("program section"); }
-                | FINAL declarative_statement { $$ = new ProgramSectionNode($2); }
+                | FINAL declarative_statement { $$ = new ProgramSectionNode($2); d("final declaration"); }
                 ;
 
 function : dtype ID tL_PAREN decl_args tR_PAREN statement_block { func_type = $1->type;
@@ -233,22 +233,22 @@ loop_statement : FOR tL_PAREN opt_expression tSEMI opt_expression tSEMI opt_expr
                ;
 
 declarative_statement : dtype expression tSEMI   { $$ = new DeclarativeStatementNode($1, $2); 
-                                                   d("declarative statement -  type expr"); delete $1; }
+                                                   d("declarative statement - type expr"); delete $1; }
                       | expression tSEMI         { $$ = new DeclarativeStatementNode($1); 
                                                     d("declarative statement - expr"); }
                       ;
 
 link_statement : LINK tL_PAREN var tARROW expression tR_PAREN tSEMI         { $$ = new LinkStatementNode($3, $5);
-                                                                                    d("link statement!"); }
+                                                                                    d("link with expression"); }
                | LINK tL_PAREN var tARROW expression tR_PAREN THEN ID tSEMI { $$ = new LinkStatementNode($3, $5, *$8); 
-                                                                              d("link statement with then!"); }
-               | LINK tL_PAREN var tARROW stream_reader tR_PAREN tSEMI      { $$ = new LinkStatementNode($3, $5); d("link stream"); }
-               | LINK tL_PAREN var tARROW stream_reader tR_PAREN THEN ID tSEMI { $$ = new LinkStatementNode($3, $5, *$8); }
-               | LINK tL_PAREN var tARROW var tARROW stream_reader tR_PAREN tSEMI      { $$ = new LinkStatementNode($3, $5, $7); }
-               | LINK tL_PAREN var tARROW var tARROW stream_reader tR_PAREN THEN ID tSEMI      { $$ = new LinkStatementNode($3, $5, $7, *$10); }
+                                                                              d("link with expression and aux"); }
+               | LINK tL_PAREN var tARROW stream_reader tR_PAREN tSEMI      { $$ = new LinkStatementNode($3, $5); d("link with stream"); }
+               | LINK tL_PAREN var tARROW stream_reader tR_PAREN THEN ID tSEMI { $$ = new LinkStatementNode($3, $5, *$8); d("link with stream and aux"); }
+               | LINK tL_PAREN var tARROW var tARROW stream_reader tR_PAREN tSEMI      { $$ = new LinkStatementNode($3, $5, $7); d("link with filter and stream"); }
+               | LINK tL_PAREN var tARROW var tARROW stream_reader tR_PAREN THEN ID tSEMI      { $$ = new LinkStatementNode($3, $5, $7, *$10); d("link with filter, stream, and aux"); }
                ;
 
-stream_reader : stream_reader_name tL_PAREN args tR_PAREN { $$ = new StreamReaderNode(*$1, $3); d("stream_reader"); }
+stream_reader : stream_reader_name tL_PAREN args tR_PAREN { $$ = new StreamReaderNode(*$1, $3); d("stream"); }
 
 stream_reader_name : tSTREAM_READER { $$ = yylval.string; }
 
@@ -307,7 +307,7 @@ mult_expression : exp_expression                         { $$ = $1; d("mult_expr
 
 exp_expression : unary_expression                        { $$ = new BinaryExpressionNode($1); d("exp_expression");}
                | exp_expression tEXP unary_expression    { $$ = new BinaryExpressionNode($1, "^", $3);  
-                                                           d("exp expression ^"); }
+                                                           d("exp_expression ^"); }
                ;
 
 unary_expression : value                       { $$ = new UnaryExpressionNode($1); d("unary_expression");};	
@@ -326,19 +326,19 @@ value : literal            { $$ = new ValueNode($1); d("value - literal"); }
       | tL_CURLY array_initialization tR_CURLY  { $$ = new ValueNode($2); d("value - array_initialization"); }
       ;
 
-array_initialization : array_initialization tCOMMA expression  { $1->add_arg($3); d("array_initialization added - 1");}
+array_initialization : array_initialization tCOMMA expression  { $1->add_arg($3); d("array element");}
                      | expression                              { $$ = new ArrayInitNode(); $$->add_arg($1); 
-                                                                  d("arg added"); }
-                     |                                         { $$ = new ArrayInitNode(); d("empty arg");}
+                                                                  d("array element added"); }
+                     |                                         { $$ = new ArrayInitNode(); d("empty array element");}
                      ;
 
-args : args tCOMMA expression   { $1->add_arg($3); d("arg added - 1"); }
+args : args tCOMMA expression   { $1->add_arg($3); d("arg"); }
      | expression               { $$ = new ArgsNode(); $$->add_arg($1); d("arg added"); }
      |                          { $$ = new ArgsNode(); d("empty arg");}
      ;
 
-decl_args : decl_args tCOMMA dtype var   { $1->add_arg($3, $4); d("decl arg added - 1"); }
-          | dtype var                    { $$ = new DeclArgsNode($1, $2); d("decl arg added"); }
+decl_args : decl_args tCOMMA dtype var   { $1->add_arg($3, $4); d("decl arg added"); }
+          | dtype var                    { $$ = new DeclArgsNode($1, $2); d("decl arg"); }
           |                              { $$ = new DeclArgsNode(); d("empty decl arg"); }
           ;
 
@@ -351,10 +351,10 @@ array_opt : tL_BRACKET value tR_BRACKET { $$ = $2; d("array_opt"); }
 function_call : ID tL_PAREN args tR_PAREN { $$ = new FunctionCallNode(*($1), $3); d("function call"); }
 	          ;
 
-array_access : value tL_BRACKET expression tR_BRACKET { $$ = new ArrayAccessNode($1, $3); d("Array access");}
+array_access : value tL_BRACKET expression tR_BRACKET { $$ = new ArrayAccessNode($1, $3); d("array access");}
              ;
 
-dataset_access : ID tACCESS var { $$ = new DatasetAccessNode(*$1, $3->entry->name); d("Dataset access");}
+dataset_access : ID tACCESS var { $$ = new DatasetAccessNode(*$1, $3->entry->name); d("dataset access");}
                ;
 
 var : ID { Entry *entry = sym_table.get(*yylval.string);

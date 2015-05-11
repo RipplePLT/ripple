@@ -1,0 +1,6 @@
+void main() {
+    string line;
+    link (line <- keyboard_stream()) then print_line;
+    # echoes every line to the user
+    stop;
+}
