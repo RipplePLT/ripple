@@ -1,0 +1,11 @@
+void say_hello(string to){
+    print("Hello, ", to);
+}
+
+void main(){
+    
+    string s;
+    link(s <- file_stream("hello.txt", 1, "\n")) then say_hello;
+    stop;
+
+}

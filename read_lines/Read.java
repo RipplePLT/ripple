@@ -11,7 +11,7 @@ public class Read {
                     while(true){
 			BufferedReader fileReader = new BufferedReader(new FileReader("hello.txt"));
 			for(String s = fileReader.readLine(); s != null; s = fileReader.readLine()){
-				System.out.println(s);
+				System.out.println("Hello, " + s);
                                 Thread.sleep(1000);
                         }
 			fileReader.close();

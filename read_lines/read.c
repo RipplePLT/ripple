@@ -11,7 +11,7 @@ int main(void){
     FILE *fp = fopen("hello.txt", "r");
     while(1){
 	    while ((read = getline(&line, &len, fp)) != -1) {
-	        printf("%s", line);
+	        printf("Hello, %s", line);
 	        sleep(1);
 	    }
 	    fseek(fp, SEEK_SET, 0);
