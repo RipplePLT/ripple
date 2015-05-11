@@ -1488,7 +1488,7 @@ StreamReaderNode::StreamReaderNode(string n, ArgsNode *args){
     } else if (name.compare("KeyboardStreamReader") == 0){
         if(arg_list->args_list->size() != 0) {
             error = true;
-            cout << INVALID_KEYBOARD_SR_ERR << cout;
+            cout << INVALID_KEYBOARD_SR_ERR << endl;
         }
     } else if (name.compare("WebStreamReader") == 0){
         if(arg_list->args_list->size() != 3){

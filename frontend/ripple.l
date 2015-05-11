@@ -7,7 +7,7 @@
 
 #define CXX "clang++"
 #define CPP_STANDARD "c++11"
-#define LIBS "-L./backend/lib/ -lbackend -lfile -lhtml -lxml -pthread"
+#define LIBS "-L./backend/lib/ -lbackend -lfile -lcurl -lhtml -lxml -pthread"
 
 void install_id();
 

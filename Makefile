@@ -12,7 +12,7 @@ CXX=clang++
 LEX=flex
 YACC=bison
 CXXFLAGS= -std=c++11 -w $(INCLUDES) $(MODE)
-LDLIBS= -L./frontend/symbol_table/ -L./backend/lib/
+LDLIBS= -L./frontend/symbol_table/ -L./backend/lib/ 
 INCLUDES= -I./link_files/ -I./backend/streamreader/
 YFLAGS= -Wnone 
 LFLAGS= 
@@ -22,7 +22,7 @@ OBJS=ast.o ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o \
 BACKEND_OBJS=backend/linked_var.o backend/expression_tree.o backend/link_val.o
 
 rpl: ast.o ripple.tab.o lex.yy.o debug_tools.o libsym.a libbackend.a libfile.a 
-	$(CXX) -o rpl $(OBJS) $(LDLIBS) -lfl -lfile -lxml -lhtml
+	$(CXX) -o rpl $(OBJS) $(LDLIBS) -lfl -lfile -lxml -lhtml 
 	rm -f *.o *.hpp *.cpp *.c *.cc
 
 ast.o: ast.cpp ast.h
