@@ -1,0 +1,8 @@
+void main(){
+	string filename = "hello.txt";
+	print("Hello, world!");
+	string w;
+	link(w <- file_stream(filename, 1, "\n")) then printline;
+
+	stop;
+}
