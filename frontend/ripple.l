@@ -26,7 +26,9 @@ bool saw_id;
 string last_id;
 e_type last_type;
 void db(std::string m){
-//	cout << m << endl;
+#ifdef LDEBUG
+    cout << m << endl;
+#endif
 }
 
 SymbolTable sym_table;
