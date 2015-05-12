@@ -3,6 +3,5 @@
 void main() {
     int x = 4;
     print("hello, world", 5);
-    # prints 'hello, world'
     stop;
 }

@@ -1,0 +1,5 @@
+void main(){
+    string s;
+    link(s <- web_stream("www.cs.columbia.edu/~aho/cs4115/Lectures/15-01-21.html", 80, 5)) then print_line;
+    stop;
+}

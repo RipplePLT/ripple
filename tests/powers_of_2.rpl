@@ -1,15 +1,12 @@
-void print_int(int a) {
-    print(a);
-}
-
 void main(){
 	int x;
 	int y = 2;
 	int z = 0;
-    link(x <- y ^ z) then print_int;
+    link(x <- y ^ z);
 
 	int i;
 	for (i = 0; i < 15; i = i + 1) {
 		z = i;
+		print(x);
 	}
 }
