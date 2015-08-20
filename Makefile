@@ -23,13 +23,14 @@ MISCFLAGS=
 
 RIPPLE2OBJS = \
 literal_node.o \
+value_node.o \
 
 
-OBJS=ast.o ${RIPPLE2OBJS} ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o \
+OBJS=ast.o ${RIPPLE2OBJS} ripple2.tab.o lex.yy.o frontend/symbol_table/symbol_table.o \
      frontend/symbol_table/hashmap.o debug_tools.o
 BACKEND_OBJS=backend/linked_var.o backend/expression_tree.o backend/link_val.o
 
-rpl: ast.o rpl2 ripple.tab.o lex.yy.o debug_tools.o libsym.a libbackend.a libfile.a
+rpl: ast.o rpl2 ripple2.tab.o lex.yy.o debug_tools.o libsym.a libbackend.a libfile.a
 	$(CXX) -o rpl $(OBJS) $(LDLIBS) -lfl -lfile -lxml -lhtml 
 	rm -f *.o *.hpp *.cpp *.c *.cc
 
@@ -39,17 +40,17 @@ ast.o: ast.cpp ast.h
 debug_tools.o: debug_tools.cpp debug_tools.h
 	$(CXX) -c misc/debug_tools.cpp $(CXXFLAGS)
 
-lex.yy.o: lex.yy.c ripple.tab.h ast.h debug_tools.h
+lex.yy.o: lex.yy.c ripple2.tab.h ast.h debug_tools.h
 	$(CXX) -c lex.yy.c $(CXXFLAGS)
 
-lex.yy.c: ripple.l ripple.tab.h ast.h
+lex.yy.c: ripple.l ripple2.tab.h ast.h
 	$(LEX) frontend/ripple.l $(LFLAGS)
 
-ripple.tab.o: ripple.tab.cpp ripple.tab.h ast.h
-	$(CXX) -c ripple.tab.cpp $(CXXFLAGS)
+ripple2.tab.o: ripple2.tab.cpp ripple2.tab.h ast.h
+	$(CXX) -c ripple2.tab.cpp $(CXXFLAGS)
 
-ripple.tab.cpp ripple.tab.h: ripple.ypp ast.h
-	$(YACC) -d frontend/ripple.ypp $(YFLAGS)
+ripple2.tab.cpp ripple2.tab.h: ripple2.ypp ast.h
+	$(YACC) -d frontend/ripple2.ypp $(YFLAGS)
 
 libsym.a: 
 	$(MAKE) -C frontend/symbol_table
@@ -62,10 +63,13 @@ libfile.a:
 	$(MAKE) -C backend all
 
 #RIPPLE 2.0 Objects
-rpl2: literal_node.o
+rpl2: literal_node.o value_node.o
 
 literal_node.o: ast_nodes/literal_node.cpp ast_nodes/literal_node.h
 	$(CXX) -c frontend/ast_nodes/literal_node.cpp $(CXXFLAGS)
+
+value_node.o: ast_nodes/value_node.cpp ast_nodes/value_node.h
+	$(CXX) -c frontend/ast_nodes/value_node.cpp $(CXXFLAGS)
 
 .PHONY: clean
 clean:

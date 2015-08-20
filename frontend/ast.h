@@ -20,6 +20,10 @@
 #include "ast_nodes/literal_node.h"
 #endif
 
+#ifndef INCLUDED_VALUE_NODE
+#include "ast_nodes/value_node.h"
+#endif
+
 #include "symbol_table/hashmap.h"
 #include "symbol_table/symbol_table.h"
 #include "../structures/enum.h"

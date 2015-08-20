@@ -9,7 +9,7 @@ namespace Ripple {
 namespace AST {
 
 namespace {
-	union value {
+	union literal {
 		bool d_bool;
 		int d_int;
 		double d_double;
@@ -19,7 +19,7 @@ namespace {
 
 class LiteralNode : public ASTNode {
 private:
-	value d_value;
+	literal d_literal;
 
 public:
 	LiteralNode(bool _bool);

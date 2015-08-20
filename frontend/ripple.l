@@ -2,7 +2,7 @@
 #include <string>
 #include "frontend/ast.h"
 #include "structures/enum.h"
-#include "ripple.tab.hpp"
+#include "ripple2.tab.hpp"
 #include "frontend/symbol_table/symbol_table.h"
 
 #define CXX "clang++"
@@ -151,11 +151,11 @@ int main(int argc, char **argv) {
 
     /* Detect if a main function has been specified.
      * Program will not compile if it hasn't. */
-    Entry *main_func = sym_table.get("main");
+    /*Entry *main_func = sym_table.get("main");
     if (!main_func || main_func->symbol_type != tFUNC) {
         cout << MAIN_FUNC_ERROR << endl;
         error = true;
-    }
+    }*/
 
 
     if(error){
@@ -166,7 +166,7 @@ int main(int argc, char **argv) {
     write_to_file(filename_cpp, cpp_code);
     string compile_cpp = string(CXX) + " " + filename_cpp + " -L. -I./backend/streamreader/ -o " + filename 
                         + " --std=" + CPP_STANDARD + " " + LIBS;
-    system(compile_cpp.c_str());
+    //system(compile_cpp.c_str());
 #ifndef DEBUG
     remove(filename_cpp.c_str());
 #endif

@@ -1,0 +1,130 @@
+%{	
+#include <cctype>
+#include <cstdio>
+#include <string>
+#include <iostream>
+#include "frontend/symbol_table/symbol_table.h"
+#include "frontend/ast.h"
+#include "misc/debug_tools.h"
+using namespace std;
+
+extern int yylex();
+void yyerror(const char *s) { printf("%s\n", s); }
+
+extern SymbolTable sym_table;
+
+e_type func_type;
+
+extern int line_no;
+extern string cpp_code;
+extern e_type last_type;
+%}
+
+
+%union {
+    Ripple::AST::LiteralNode *literal_node;
+    Ripple::AST::ValueNode *value_node;
+
+    int integer;
+    string *string;
+    double decimal;
+    bool boolean;
+}
+
+/***************
+    KEYWORDS 
+***************/
+%token <integer> IF
+%token <integer> ELSE
+%token <integer> FOR
+%token <integer> WHILE
+%token <integer> LINK
+%token <integer> IMPORT
+%token <integer> FINAL
+%token <integer> RETURN
+%token <integer> CONTINUE
+%token <integer> BREAK
+%token <integer> THEN
+%token <integer> STOP
+
+/***************
+      TYPES 
+***************/
+%token <integer> TYPE
+%token <integer> BOOL
+%token <integer> INT
+%token <integer> FLOAT
+%token <integer> STRING 
+%token <integer> DATASET
+%token <integer> VOID
+%token <integer> tSTREAM_READER
+
+/***************
+    IDIABLES 
+***************/
+%token <string> ID
+%token <integer> INTEGER
+%token <decimal> FLOAT_LIT 
+%token <string>  STRING_LITERAL 
+%token <boolean> TRUE
+%token <boolean> FALSE
+
+/*****************
+    SEPARATORS
+*****************/
+%token tSEMI
+%token tARROW
+%token tCOMMA
+%token tL_PAREN
+%token tR_PAREN
+%token tL_BRACKET
+%token tR_BRACKET
+%token tL_CURLY
+%token tR_CURLY
+
+/*************************
+    TYPE DECLARATIONS
+*************************/
+%type <value_node> value
+%type <literal_node> literal
+
+/*********************
+    ASSOCIATIVITY
+*********************/
+%left tEQ
+%left tNE
+
+%left tLT
+%left tLE
+%left tGT
+%left tGE
+
+%left AND
+%left OR
+
+%left tPLUS
+%left tMINUS
+%left tTIMES
+%left tDIV
+%left tMOD
+%left tFLDIV
+
+%right tEXP
+%right tSIZE
+%right NOT 
+
+%right tASSIGN
+%right tACCESS
+
+%%
+
+value : literal { $$ = new Ripple::AST::ValueNode($1); d("value - literal"); }
+
+literal : INTEGER             { $$ = new Ripple::AST::LiteralNode($1); d("literal - INT"); }	
+        | FLOAT_LIT           { $$ = new Ripple::AST::LiteralNode($1); d("literal - FLOAT");}
+        | STRING_LITERAL      { $$ = new Ripple::AST::LiteralNode($1); d("literal - STRING"); }
+        | TRUE				  { $$ = new Ripple::AST::LiteralNode($1); d("literal - true"); }
+        | FALSE				  { $$ = new Ripple::AST::LiteralNode($1); d("literal - false"); }  
+        ;
+
+%%
