@@ -372,7 +372,7 @@ dtype : TYPE array_opt {  $$ = new TypeNode(last_type, $2); d("type: "); }
       | DATASET ID  { $$ = new TypeNode(last_type, *$2); d("dataset: " + *yylval.string); }
       ;
 
-literal : INTEGER             { $$ = new LiteralNode($1); $$->code = to_string(yylval.integer); d("literal - INT");}	
+literal : INTEGER             { $$ = new LiteralNode($1); $$->code = to_string(yylval.integer); d("literal - INT"); }	
         | FLOAT_LIT           { $$ = new LiteralNode($1); $$->code = to_string(yylval.decimal); d("literal - FLOAT");}
         | STRING_LITERAL      { $$ = new LiteralNode($1); $$->code = *yylval.string; d("literal - STRING"); }
         | TRUE				  { $$ = new LiteralNode($1); $$->code = "true";  d("literal - true"); }

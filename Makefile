@@ -20,11 +20,16 @@ INCLUDES= -I./link_files/ -I./backend/streamreader/
 YFLAGS= -Wnone 
 LFLAGS= 
 MISCFLAGS= 
-OBJS=ast.o ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o \
+
+RIPPLE2OBJS = \
+literal_node.o \
+
+
+OBJS=ast.o ${RIPPLE2OBJS} ripple.tab.o lex.yy.o frontend/symbol_table/symbol_table.o \
      frontend/symbol_table/hashmap.o debug_tools.o
 BACKEND_OBJS=backend/linked_var.o backend/expression_tree.o backend/link_val.o
 
-rpl: ast.o ripple.tab.o lex.yy.o debug_tools.o libsym.a libbackend.a libfile.a 
+rpl: ast.o rpl2 ripple.tab.o lex.yy.o debug_tools.o libsym.a libbackend.a libfile.a
 	$(CXX) -o rpl $(OBJS) $(LDLIBS) -lfl -lfile -lxml -lhtml 
 	rm -f *.o *.hpp *.cpp *.c *.cc
 
@@ -55,6 +60,12 @@ libbackend.a: backend/linked_var.o backend/expression_tree.o backend/link_val.o
 
 libfile.a:
 	$(MAKE) -C backend all
+
+#RIPPLE 2.0 Objects
+rpl2: literal_node.o
+
+literal_node.o: ast_nodes/literal_node.cpp ast_nodes/literal_node.h
+	$(CXX) -c frontend/ast_nodes/literal_node.cpp $(CXXFLAGS)
 
 .PHONY: clean
 clean:
