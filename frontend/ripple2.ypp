@@ -24,6 +24,8 @@ extern e_type last_type;
 %union {
     Ripple::AST::LiteralNode *literal_node;
     Ripple::AST::ValueNode *value_node;
+    Ripple::AST::UnaryExpressionNode *unary_expression_node;
+    Ripple::AST::BinaryExpressionNode *binary_expression_node;
 
     int integer;
     string *string;
@@ -87,6 +89,8 @@ extern e_type last_type;
 *************************/
 %type <value_node> value
 %type <literal_node> literal
+%type <unary_expression_node> unary_expression
+%type <binary_expression_node> exp_expression
 
 /*********************
     ASSOCIATIVITY
@@ -117,6 +121,15 @@ extern e_type last_type;
 %right tACCESS
 
 %%
+
+exp_expression : unary_expression                     { $$ = new Ripple::AST::BinaryExpressionNode($1); d("exp_expression"); }
+               | exp_expression tEXP unary_expression { $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_exponentiation, new Ripple::AST::BinaryExpressionNode($3)); d("exp_expression ^"); }
+
+unary_expression : value                       { $$ = new Ripple::AST::UnaryExpressionNode($1); d("unary_expression");}
+                 | tMINUS unary_expression     { $$ = new Ripple::AST::UnaryExpressionNode(Ripple::AST::unary_op_minus, $2);  d("unary_expression -"); }
+                 | tSIZE unary_expression      { $$ = new Ripple::AST::UnaryExpressionNode(Ripple::AST::unary_op_size_of, $2);  d("unary_expression @"); }
+                 | NOT unary_expression        { $$ = new Ripple::AST::UnaryExpressionNode(Ripple::AST::unary_op_not, $2);  d("unary_expression not"); }
+                 ;
 
 value : literal { $$ = new Ripple::AST::ValueNode($1); d("value - literal"); }
 

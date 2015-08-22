@@ -24,6 +24,8 @@ MISCFLAGS=
 RIPPLE2OBJS = \
 literal_node.o \
 value_node.o \
+unary_expression_node.o \
+binary_expression_node.o \
 
 
 OBJS=ast.o ${RIPPLE2OBJS} ripple2.tab.o lex.yy.o frontend/symbol_table/symbol_table.o \
@@ -63,13 +65,19 @@ libfile.a:
 	$(MAKE) -C backend all
 
 #RIPPLE 2.0 Objects
-rpl2: literal_node.o value_node.o
+rpl2: literal_node.o value_node.o unary_expression_node.o binary_expression_node.o
 
 literal_node.o: ast_nodes/literal_node.cpp ast_nodes/literal_node.h
 	$(CXX) -c frontend/ast_nodes/literal_node.cpp $(CXXFLAGS)
 
 value_node.o: ast_nodes/value_node.cpp ast_nodes/value_node.h
 	$(CXX) -c frontend/ast_nodes/value_node.cpp $(CXXFLAGS)
+
+unary_expression_node.o: ast_nodes/unary_expression_node.cpp ast_nodes/unary_expression_node.h
+	$(CXX) -c frontend/ast_nodes/unary_expression_node.cpp $(CXXFLAGS)
+
+binary_expression_node.o: ast_nodes/binary_expression_node.cpp ast_nodes/binary_expression_node.h
+	$(CXX) -c frontend/ast_nodes/binary_expression_node.cpp $(CXXFLAGS)
 
 .PHONY: clean
 clean:

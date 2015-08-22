@@ -8,22 +8,6 @@
 #include <algorithm>
 #include <fstream>
 
-#ifndef INCLUDED_PARSE_ERRORS
-#include "parse_errors.h"
-#endif
-
-#ifndef INCLUDED_AST_NODE
-#include "ast_nodes/ast_node.h"
-#endif
-
-#ifndef INCLUDED_LITERAL_NODE
-#include "ast_nodes/literal_node.h"
-#endif
-
-#ifndef INCLUDED_VALUE_NODE
-#include "ast_nodes/value_node.h"
-#endif
-
 #include "symbol_table/hashmap.h"
 #include "symbol_table/symbol_table.h"
 #include "../structures/enum.h"
@@ -117,6 +101,38 @@ extern e_type func_type;
 extern int line_no;
 extern bool error;
 extern string filename_cpp;
+
+/**
+ * Start Ripple 2 imports
+ */
+
+#ifndef INCLUDED_PARSE_ERRORS
+#include "parse_errors.h"
+#endif
+
+#ifndef INCLUDED_AST_NODE
+#include "ast_nodes/ast_node.h"
+#endif
+
+#ifndef INCLUDED_LITERAL_NODE
+#include "ast_nodes/literal_node.h"
+#endif
+
+#ifndef INCLUDED_VALUE_NODE
+#include "ast_nodes/value_node.h"
+#endif
+
+#ifndef INCLUDED_UNARY_EXPRESSION_NODE
+#include "ast_nodes/unary_expression_node.h"
+#endif
+
+#ifndef INCLUDED_BINARY_EXPRESSION_NODE
+#include "ast_nodes/binary_expression_node.h"
+#endif
+
+/**
+ * End Ripple 2 imports
+ */
 
 union operand {
     BinaryExpressionNode *b_exp;

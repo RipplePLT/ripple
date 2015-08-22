@@ -5,6 +5,13 @@
 #include <string.h>
 #include <iostream>
 
+extern bool error;
+extern int line_no;
+
+#ifndef INCLUDED_PARSE_ERRORS
+#include "../parse_errors.h"
+#endif
+
 namespace Ripple {
 namespace AST {
 

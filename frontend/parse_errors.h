@@ -6,6 +6,9 @@
 #define UNARY_STRING_CAST_ERR LINE_ERR "cannot cast string to bool, int or float"
 #define INVAL_UNARY_NOT_ERR LINE_ERR "unary - not supported between provided operands"
 #define INVAL_UNARY_MINUS_ERR LINE_ERR "unary - not supported between provided operands"
+
+#define INVAL_BINARY_DERIVED_ERR LINE_ERR "binary operators are not valid between derived types"
+
 #define INVAL_BINARY_PLUS_ERR LINE_ERR "binary + not supported between provided operands"
 #define INVAL_BINARY_MINUS_ERR LINE_ERR "binary - not supported between provided operands"
 #define INVAL_BINARY_TIMES_ERR LINE_ERR "binary * not supported between provided operands"
