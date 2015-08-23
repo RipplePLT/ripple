@@ -90,7 +90,7 @@ extern e_type last_type;
 %type <value_node> value
 %type <literal_node> literal
 %type <unary_expression_node> unary_expression
-%type <binary_expression_node> exp_expression
+%type <binary_expression_node> exp_expression mult_expression add_expression rel_expression eq_expression and_expression or_expression expression
 
 /*********************
     ASSOCIATIVITY
@@ -121,6 +121,36 @@ extern e_type last_type;
 %right tACCESS
 
 %%
+
+expression : or_expression 							{ $$ = $1; d("expression"); }
+
+or_expression : and_expression						{ $$ = $1; d("or_expression"); }
+			  | or_expression OR and_expression		{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_or, $3); d("or_expression or"); }
+
+and_expression : eq_expression						{ $$ = $1; d("and_expression"); }
+			   | and_expression AND eq_expression	{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_and, $3); d("and_expression and"); }
+
+eq_expression : rel_expression 						{ $$ = $1; d("eq_expression"); }
+			  | eq_expression tEQ rel_expression 	{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_equals, $3); d("eq_expression =="); }
+			  | eq_expression tNE rel_expression	{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_not_equals, $3); d("eq_expression !="); }
+			  ;
+
+rel_expression : add_expression						{ $$ = $1; d("rel_expression"); }
+			   | rel_expression tGT add_expression	{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_gt, $3); d("rel_expression >"); }
+			   | rel_expression tLT add_expression  { $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_lt, $3); d("rel_expression <"); }
+			   | rel_expression tGE add_expression	{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_ge, $3); d("rel_expression >="); }
+			   | rel_expression tLE add_expression	{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_le, $3); d("rel_expression <="); }
+			   ;
+
+add_expression : mult_expression 						{ $$ = $1; d("add_expression"); }
+			   | add_expression tPLUS mult_expression	{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_plus, $3); d("add_expression +"); }
+			   | add_expression tMINUS mult_expression	{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_minus, $3); d("add_expression -"); }
+
+mult_expression : exp_expression 						    { $$ = $1; d("mult_expression"); }
+				| mult_expression tTIMES exp_expression 	{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_times, $3); d("mult_expression *"); }
+				| mult_expression tDIV exp_expression		{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_divide, $3); d("mult_expression /"); }
+				| mult_expression tFLDIV exp_expression		{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_fl_divide, $3); d("mult_expression //"); }
+				| mult_expression tMOD exp_expression		{ $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_modulus, $3); d("mult_expression %"); }
 
 exp_expression : unary_expression                     { $$ = new Ripple::AST::BinaryExpressionNode($1); d("exp_expression"); }
                | exp_expression tEXP unary_expression { $$ = new Ripple::AST::BinaryExpressionNode($1, Ripple::AST::binary_op_exponentiation, new Ripple::AST::BinaryExpressionNode($3)); d("exp_expression ^"); }

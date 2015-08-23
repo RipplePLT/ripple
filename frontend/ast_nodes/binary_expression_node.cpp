@@ -48,93 +48,257 @@ BinaryExpressionNode::type_check(){
 		return;
 	}
 
+	if(d_operator == binary_op_exponentiation){
+		code = "pow(" + b_left->code + "," +  b_right->code + ")";
+		base_type = ((b_left->base_type == t_double || b_right->base_type == t_double) 
+								? t_double : t_int);
+		
+		if(b_left->base_type != t_int || 
+		   b_left->base_type != t_double || 
+		   b_right->base_type != t_int || 
+		   b_right->base_type != t_double){
+
+		   	// if both aren't numbers this is an invalid operation
+			error = true;
+			std::cout << INVAL_BINARY_EXP_ERR << std::endl;
+		}
+		
+		return;
+	}
+
 	if(d_operator == binary_op_plus){
 		code = "(" + b_left->code + " + " + b_right->code + ")";
 		base_type = ((b_left->base_type == t_double || b_right->base_type == t_double) ? t_double : t_int);
+
+		if(b_left->base_type == t_string && b_right->base_type != t_string){
+			code = "(" + b_left->code + " + std::to_string(" + b_right->code + "))";
+			base_type = t_string;
+		}
+
+		if(b_left->base_type != t_string && b_right->base_type == t_string){
+			code = "(std::to_string(" + b_left->code + ") + " + b_right->code + ")";
+			base_type = t_string;
+		}
+
+		if(b_left->base_type == t_bool || b_right->base_type == t_bool){
+			error = true;
+			std::cout << INVAL_BINARY_PLUS_ERR << std::endl;
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_minus){
 		code = "(" + b_left->code + " - " + b_right->code + ")";
 		base_type = ((b_left->base_type == t_double || b_right->base_type == t_double) ? t_double : t_int);
+		
+		if(b_left->base_type != t_int || 
+		   b_left->base_type != t_double || 
+		   b_right->base_type != t_int || 
+		   b_right->base_type != t_double){
+
+		   	// if both aren't numbers this is an invalid operation
+			error = true;
+			std::cout << INVAL_BINARY_MINUS_ERR << std::endl;
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_times){
 		code = "(" + b_left->code + " * " + b_right->code + ")";
 		base_type = ((b_left->base_type == t_double || b_right->base_type == t_double) ? t_double : t_int);
+		
+		if(b_left->base_type != t_int || 
+		   b_left->base_type != t_double || 
+		   b_right->base_type != t_int || 
+		   b_right->base_type != t_double){
+
+		   	// if both aren't numbers this is an invalid operation
+			error = true;
+			std::cout << INVAL_BINARY_TIMES_ERR << std::endl;
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_divide){
 		code = "(" + b_left->code + " / " + b_right->code + ")";
 		base_type = ((b_left->base_type == t_double || b_right->base_type == t_double) ? t_double : t_int);
+		
+		if(b_left->base_type != t_int || 
+		   b_left->base_type != t_double || 
+		   b_right->base_type != t_int || 
+		   b_right->base_type != t_double){
+
+		   	// if both aren't numbers this is an invalid operation
+			error = true;
+			std::cout << INVAL_BINARY_DIV_ERR << std::endl;
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_fl_divide){
 		code = "(" + b_left->code + " / (double)" + b_right->code + ")";
 		base_type = t_double;
+
+		if(b_left->base_type != t_int || 
+		   b_left->base_type != t_double || 
+		   b_right->base_type != t_int || 
+		   b_right->base_type != t_double){
+
+		   	// if both aren't numbers this is an invalid operation
+			error = true;
+			std::cout << INVAL_BINARY_FLDIV_ERR << std::endl;
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_modulus){
 		code = "(" + b_left->code + " % " + b_right->code + ")";
 		base_type = t_int;
-		return;
-	}
 
-	if(d_operator == binary_op_exponentiation){
-		code = "pow(" + b_left->code + "," +  b_right->code + ")";
-		base_type = ((b_left->base_type == t_double || b_right->base_type == t_double) ? t_double : t_int);
+		if(b_left->base_type != t_int || 
+		   b_left->base_type != t_double || 
+		   b_right->base_type != t_int || 
+		   b_right->base_type != t_double){
+
+		   	// if both aren't numbers this is an invalid operation
+			error = true;
+			std::cout << INVAL_BINARY_MOD_ERR << std::endl;
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_and){
 		code = "(" + b_left->code + " && " + b_right->code + ")";
 		base_type = t_bool;
+
+		if(!(b_left->base_type == t_bool && b_right->base_type == t_bool)){
+			// both operands must be booleans
+			error = true;
+			std::cout << INVAL_BINARY_AND_ERR << std::endl;
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_or){
 		code = "(" + b_left->code + " || " + b_right->code + ")";
 		base_type = t_bool;
+
+		if(!(b_left->base_type == t_bool && b_right->base_type == t_bool)){
+			// both operands must be booleans
+			error = true;
+			std::cout << INVAL_BINARY_OR_ERR << std::endl;
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_equals){
 		code = "(" + b_left->code + " == " + b_right->code + ")";
 		base_type = t_bool;
+
+		if(b_left->base_type != b_right->base_type){
+		   	// if both aren't the same type this is an invalid operation
+			error = true;
+			std::cout << INVAL_BINARY_EQ_ERR << std::endl;
+			return;
+		}
+
+		if(b_left->base_type == t_string){
+			code = "(" + b_left->code + ".compare(" + b_right->code + ") == 0)";
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_not_equals){
 		code = "(" + b_left->code + " != " + b_right->code + ")";
 		base_type = t_bool;
+
+		if(b_left->base_type != b_right->base_type){
+		   	// if both aren't the same type this is an invalid operation
+			error = true;
+			std::cout << INVAL_BINARY_NE_ERR << std::endl;
+		}
+
+		if(b_left->base_type == t_string){
+			code = "(" + b_left->code + ".compare(" + b_right->code + ") != 0)";
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_gt){
 		code = "(" + b_left->code + " > " + b_right->code + ")";
 		base_type = t_bool;
+
+		if(b_left->base_type != t_int || 
+		   b_left->base_type != t_double || 
+		   b_right->base_type != t_int || 
+		   b_right->base_type != t_double){
+
+		   	// if both aren't numbers this is an invalid operation
+			error = true;
+			std::cout << INVAL_BINARY_GT_ERR << std::endl;
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_lt){
 		code = "(" + b_left->code + " < " + b_right->code + ")";
 		base_type = t_bool;
+
+		if(b_left->base_type != t_int || 
+		   b_left->base_type != t_double || 
+		   b_right->base_type != t_int || 
+		   b_right->base_type != t_double){
+
+		   	// if both aren't numbers this is an invalid operation
+			error = true;
+			std::cout << INVAL_BINARY_LT_ERR << std::endl;
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_ge){
 		code = "(" + b_left->code + " >= " + b_right->code + ")";
 		base_type = t_bool;
+
+		if(b_left->base_type != t_int || 
+		   b_left->base_type != t_double || 
+		   b_right->base_type != t_int || 
+		   b_right->base_type != t_double){
+
+		   	// if both aren't numbers this is an invalid operation
+			error = true;
+			std::cout << INVAL_BINARY_GE_ERR << std::endl;
+		}
+
 		return;
 	}
 
 	if(d_operator == binary_op_le){
 		code = "(" + b_left->code + " <= " + b_right->code + ")";
 		base_type = t_bool;
+
+		if(b_left->base_type != t_int || 
+		   b_left->base_type != t_double || 
+		   b_right->base_type != t_int || 
+		   b_right->base_type != t_double){
+
+		   	// if both aren't numbers this is an invalid operation
+			error = true;
+			std::cout << INVAL_BINARY_LE_ERR << std::endl;
+		}
+
 		return;
 	}
 
