@@ -29,7 +29,7 @@ binary_expression_node.o \
 
 
 OBJS=ast.o ${RIPPLE2OBJS} ripple2.tab.o lex.yy.o frontend/symbol_table/symbol_table.o \
-     frontend/symbol_table/hashmap.o debug_tools.o
+     frontend/symbol_table/hashmap.o frontend/symbol_table2/symbol_table.o debug_tools.o
 BACKEND_OBJS=backend/linked_var.o backend/expression_tree.o backend/link_val.o
 
 rpl: ast.o rpl2 ripple2.tab.o lex.yy.o debug_tools.o libsym.a libbackend.a libfile.a
@@ -56,6 +56,7 @@ ripple2.tab.cpp ripple2.tab.h: ripple2.ypp ast.h
 
 libsym.a: 
 	$(MAKE) -C frontend/symbol_table
+	$(MAKE) -C frontend/symbol_table2	
 
 libbackend.a: backend/linked_var.o backend/expression_tree.o backend/link_val.o
 	ar rcs libbackend.a $(BACKEND_OBJS)
@@ -83,6 +84,7 @@ binary_expression_node.o: ast_nodes/binary_expression_node.cpp ast_nodes/binary_
 clean:
 	rm -f *.o *.hpp *.cpp *.c *.cc *.a rpl output
 	$(MAKE) -C frontend/symbol_table clean
+	$(MAKE) -C frontend/symbol_table2 clean
 	$(MAKE) -C backend mrproper
 
 .PHONY: all

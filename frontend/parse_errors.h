@@ -60,7 +60,7 @@
                             "an auxiliary function may only have one argument of the same type as the linked variable"
 #define NOT_A_FUNC_ERR LINE_ERR "provided identifier is not callable"
 #define COND_STMT_ERR LINE_ERR "expression in if statement must be of type boolean"
-#define LOOP_CONDITION_ERR LINE_ERR "condition expression in loop must be of type boolean"
+//#define LOOP_CONDITION_ERR LINE_ERR "condition expression in loop must be of type boolean"
 
 #define ASSIGN_ERR LINE_ERR "left operand of assignment expression must be a variable"
 
